@@ -209,8 +209,49 @@
                     <span class="w-[1px] h-3 bg-slate-700"></span>
                     <span>MEM: <span class="text-cyan-400">42%</span></span>
                 </div>
-                <div class="flex items-center gap-4">
-                    <button class="text-slate-400 hover:text-white transition"><i class="fas fa-bell"></i></button>
+                
+                <!-- Updated Notification Area -->
+                <div class="flex items-center gap-4 relative">
+                    <button onclick="toggleNotifications()" class="text-slate-400 hover:text-white transition relative focus:outline-none">
+                        <i class="fas fa-bell"></i>
+                        <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse border border-slate-900"></span>
+                    </button>
+                    
+                    <!-- Notification Panel (Hidden by default) -->
+                    <div id="notificationPanel" class="hidden absolute top-10 right-0 mt-2 w-80 glass-panel rounded-xl shadow-2xl z-50 border border-slate-700/50 overflow-hidden transform origin-top-right transition-all">
+                        <div class="px-4 py-3 border-b border-white/5 bg-slate-900/80 backdrop-blur flex justify-between items-center">
+                            <span class="text-xs font-bold text-white font-orbitron tracking-wide"><i class="fas fa-satellite-dish text-cyan-400 mr-2"></i>NOTIFICATIONS</span>
+                            <button onclick="clearNotifications()" class="text-[10px] text-cyan-400 hover:text-white transition uppercase font-bold">Clear</button>
+                        </div>
+                        <div id="notificationList" class="max-h-64 overflow-y-auto custom-scrollbar p-2 space-y-1">
+                            <!-- Sample Notifications -->
+                            <div class="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition border-l-2 border-cyan-500 cursor-pointer group">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-[10px] font-bold text-cyan-400 uppercase">System</span>
+                                    <span class="text-[10px] text-slate-500">Just now</span>
+                                </div>
+                                <p class="text-xs text-slate-300 group-hover:text-white transition">HDP-FusionNet connection established. Latency optimized.</p>
+                            </div>
+                            <div class="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition border-l-2 border-purple-500 cursor-pointer group">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-[10px] font-bold text-purple-400 uppercase">Model</span>
+                                    <span class="text-[10px] text-slate-500">5 min ago</span>
+                                </div>
+                                <p class="text-xs text-slate-300 group-hover:text-white transition">AutoML training session completed successfully. Accuracy: 94.5%.</p>
+                            </div>
+                            <div class="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition border-l-2 border-orange-500 cursor-pointer group">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-[10px] font-bold text-orange-400 uppercase">Security</span>
+                                    <span class="text-[10px] text-slate-500">1 hour ago</span>
+                                </div>
+                                <p class="text-xs text-slate-300 group-hover:text-white transition">New login detected from US-West-1 server node.</p>
+                            </div>
+                        </div>
+                        <div class="px-4 py-2 border-t border-white/5 bg-slate-900/50 text-center">
+                            <a href="#" class="text-[10px] text-slate-400 hover:text-white transition">View all activity</a>
+                        </div>
+                    </div>
+
                     <!-- Link Avatar to Profile -->
                     <a href="profile.html" class="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-purple-500 p-[2px] block cursor-pointer hover:scale-105 transition-transform overflow-hidden relative">
                         <img id="headerAvatar" src="" class="w-full h-full rounded-full object-cover hidden" alt="User">
@@ -576,6 +617,30 @@
         const statusText = document.getElementById('statusText');
         const statusSub = document.getElementById('statusSub');
         const pingValue = document.getElementById('pingValue');
+
+        // --- Notification Logic ---
+        function toggleNotifications() {
+            const panel = document.getElementById('notificationPanel');
+            panel.classList.toggle('hidden');
+        }
+
+        function clearNotifications() {
+            const list = document.getElementById('notificationList');
+            if(list) {
+                list.innerHTML = '<div class="text-center p-6 flex flex-col items-center justify-center opacity-50"><i class="fas fa-check-circle text-2xl mb-2 text-green-500"></i><span class="text-xs italic text-slate-400">All caught up!</span></div>';
+            }
+        }
+
+        // Close notifications when clicking outside
+        document.addEventListener('click', function(event) {
+            const panel = document.getElementById('notificationPanel');
+            const btn = document.querySelector('button[onclick="toggleNotifications()"]');
+            
+            // Check if click was outside panel AND outside the toggle button
+            if (panel && !panel.contains(event.target) && !btn.contains(event.target) && !panel.classList.contains('hidden')) {
+                panel.classList.add('hidden');
+            }
+        });
 
         // --- 1. System Initialization & Networking ---
         async function checkBackend() {
