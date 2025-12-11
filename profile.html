@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIFRA AI | Commander Profile</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        orbitron: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        sifra: {
+                            bg: '#020617', // Slate 950
+                            panel: '#0f172a', // Slate 900
+                            border: '#1e293b', // Slate 800
+                            cyan: '#06b6d4',
+                            purple: '#8b5cf6',
+                            success: '#10b981',
+                            error: '#ef4444',
+                            warn: '#f59e0b'
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .glass-nav {
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Neon Borders */
+        .neon-border-cyan:hover {
+            border-color: rgba(6, 182, 212, 0.5);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+        }
+        
+        /* Particle Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-sifra-bg text-slate-200 font-sans min-h-screen flex flex-col relative overflow-x-hidden bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
+
+    <!-- Background Animation -->
+    <canvas id="bg-canvas"></canvas>
+    <div class="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-600/5 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-cyan-600/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 glass-nav w-full px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold font-orbitron text-sm shadow-lg shadow-cyan-500/20">S</div>
+            <a href="home.html" class="text-lg font-orbitron font-bold text-white tracking-widest hover:text-cyan-400 transition-colors">SIFRA<span class="text-cyan-500">.AI</span></a>
+        </div>
+        <div class="flex items-center gap-6">
+            <a href="home.html" class="hidden md:block text-xs font-mono text-slate-400 hover:text-cyan-400 transition-colors uppercase tracking-widest">Dashboard</a>
+            <a href="#" class="hidden md:block text-xs font-mono text-slate-400 hover:text-cyan-400 transition-colors uppercase tracking-widest">Docs</a>
+            <button class="flex items-center gap-2 group">
+                <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center overflow-hidden">
+                    <img id="navAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Commander" alt="Profile" class="w-full h-full">
+                </div>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 opacity-0 transition-opacity duration-700" id="mainContent">
+        
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+            <div>
+                <h2 class="text-xs font-mono text-cyan-500 tracking-widest mb-2">USER IDENTIFICATION: CONFIRMED</h2>
+                <h1 class="text-3xl md:text-4xl font-orbitron font-bold text-white">COMMAND CENTER</h1>
+            </div>
+            <div class="flex gap-3">
+                <button class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono rounded border border-slate-700 transition-colors">
+                    <i class="fas fa-cog mr-2"></i>SETTINGS
+                </button>
+                <button id="logoutBtn" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-mono rounded border border-red-500/20 transition-colors group">
+                    <i class="fas fa-power-off mr-2 group-hover:animate-pulse"></i>DISCONNECT
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Column: Profile Card (4 cols) -->
+            <div class="lg:col-span-4 space-y-6">
+                <!-- User Card -->
+                <div class="glass-panel p-6 rounded-xl relative overflow-hidden group transition-all duration-300 neon-border-cyan">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-purple-500"></div>
+                    
+                    <div class="flex flex-col items-center text-center">
+                        <div class="relative w-24 h-24 mb-4">
+                            <div class="absolute inset-0 bg-cyan-500 blur-xl opacity-20 animate-pulse-slow"></div>
+                            <div class="relative w-full h-full rounded-full p-1 bg-gradient-to-br from-cyan-500 to-purple-600">
+                                <img id="profileAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Commander" alt="User Avatar" class="w-full h-full rounded-full bg-slate-900 p-1">
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-6 h-6 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700">
+                                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                            </div>
+                        </div>
+                        
+                        <h2 id="profileName" class="text-xl font-bold text-white font-orbitron animate-pulse">Initializing...</h2>
+                        <p id="profileEmail" class="text-sm text-slate-400 font-mono mb-4">...</p>
+                        
+                        <div class="w-full flex justify-between items-center py-3 border-t border-slate-800">
+                            <span class="text-xs text-slate-500 uppercase tracking-wider">Clearance</span>
+                            <span class="text-xs font-bold text-cyan-400 bg-cyan-950/30 px-2 py-1 rounded border border-cyan-500/20">LEVEL 4</span>
+                        </div>
+                        <div class="w-full flex justify-between items-center py-3 border-t border-slate-800">
+                            <span class="text-xs text-slate-500 uppercase tracking-wider">Node ID</span>
+                            <span id="nodeId" class="text-xs font-mono text-slate-300">SFR-8842-X</span>
+                        </div>
+                        <div class="w-full flex justify-between items-center py-3 border-t border-slate-800">
+                            <span class="text-xs text-slate-500 uppercase tracking-wider">Status</span>
+                            <span class="text-xs font-mono text-green-400">ACTIVE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Usage Stats -->
+                <div class="glass-panel p-6 rounded-xl">
+                    <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fas fa-chart-pie text-purple-400"></i> RESOURCE USAGE
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">Processing Units</span>
+                                <span class="text-slate-200">74%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                <div class="bg-gradient-to-r from-cyan-500 to-blue-500 h-1.5 rounded-full" style="width: 74%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">Storage (FusionNet)</span>
+                                <span class="text-slate-200">42%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-1.5 rounded-full" style="width: 42%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">API Quota</span>
+                                <span class="text-slate-200">8,420 / 10k</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                <div class="bg-gradient-to-r from-orange-500 to-red-500 h-1.5 rounded-full" style="width: 84%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Dashboard (8 cols) -->
+            <div class="lg:col-span-8 space-y-6">
+                
+                <!-- Quick Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="glass-panel p-4 rounded-xl border-l-2 border-l-cyan-500 flex items-center justify-between group hover:bg-slate-800/50 transition-colors">
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Active Projects</p>
+                            <h4 class="text-2xl font-bold text-white font-mono group-hover:text-cyan-400 transition-colors">12</h4>
+                        </div>
+                        <div class="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border-l-2 border-l-purple-500 flex items-center justify-between group hover:bg-slate-800/50 transition-colors">
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Models Deployed</p>
+                            <h4 class="text-2xl font-bold text-white font-mono group-hover:text-purple-400 transition-colors">05</h4>
+                        </div>
+                        <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
+                            <i class="fas fa-cube"></i>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border-l-2 border-l-green-500 flex items-center justify-between group hover:bg-slate-800/50 transition-colors">
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">System Status</p>
+                            <h4 class="text-lg font-bold text-green-400 font-mono">ONLINE</h4>
+                        </div>
+                        <div class="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center text-green-400">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Keys Section -->
+                <div class="glass-panel p-6 rounded-xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fas fa-key text-yellow-400"></i> API CREDENTIALS
+                        </h3>
+                        <button class="text-[10px] text-cyan-400 hover:text-cyan-300 font-mono underline">REGENERATE KEY</button>
+                    </div>
+                    
+                    <div class="bg-slate-950/50 border border-slate-800 rounded-lg p-3 flex items-center justify-between">
+                        <div class="flex-grow mr-4">
+                            <p class="text-[10px] text-slate-500 mb-1">Secret Key (Production)</p>
+                            <div class="flex items-center gap-2">
+                                <code class="text-xs font-mono text-slate-300 tracking-wider">sk_live_9482...8472</code>
+                                <span class="text-[10px] bg-slate-800 text-slate-500 px-1 rounded">HIDDEN</span>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboard()" class="p-2 text-slate-400 hover:text-white transition-colors" title="Copy to clipboard">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Table -->
+                <div class="glass-panel p-6 rounded-xl overflow-hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fas fa-list text-cyan-400"></i> RECENT ANALYSIS
+                        </h3>
+                        <a href="#" class="text-xs text-slate-400 hover:text-white transition-colors">View All</a>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="text-[10px] text-slate-500 uppercase tracking-wider border-b border-slate-800">
+                                    <th class="pb-3 pl-2">Project Name</th>
+                                    <th class="pb-3">Engine</th>
+                                    <th class="pb-3">Status</th>
+                                    <th class="pb-3">Date</th>
+                                    <th class="pb-3 text-right pr-2">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm">
+                                <tr class="border-b border-slate-800/50 group hover:bg-slate-800/30 transition-colors">
+                                    <td class="py-4 pl-2 font-medium text-slate-200">Global Logistics Opt.</td>
+                                    <td class="py-4 text-slate-400 text-xs font-mono">HDS-Unity</td>
+                                    <td class="py-4"><span class="bg-green-500/10 text-green-400 border border-green-500/20 text-[10px] px-2 py-0.5 rounded font-mono">COMPLETED</span></td>
+                                    <td class="py-4 text-slate-500 text-xs">2 hours ago</td>
+                                    <td class="py-4 text-right pr-2">
+                                        <button class="text-slate-500 hover:text-cyan-400"><i class="fas fa-external-link-alt"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-800/50 group hover:bg-slate-800/30 transition-colors">
+                                    <td class="py-4 pl-2 font-medium text-slate-200">Q4 Sales Forecast</td>
+                                    <td class="py-4 text-slate-400 text-xs font-mono">AutoML v4</td>
+                                    <td class="py-4"><span class="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-[10px] px-2 py-0.5 rounded font-mono flex w-fit items-center gap-1"><i class="fas fa-circle-notch fa-spin text-[8px]"></i> PROCESSING</span></td>
+                                    <td class="py-4 text-slate-500 text-xs">Just now</td>
+                                    <td class="py-4 text-right pr-2">
+                                        <button class="text-slate-500 hover:text-cyan-400"><i class="fas fa-pause"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-800/50 group hover:bg-slate-800/30 transition-colors">
+                                    <td class="py-4 pl-2 font-medium text-slate-200">Customer Churn - EU</td>
+                                    <td class="py-4 text-slate-400 text-xs font-mono">HDP-FusionNet</td>
+                                    <td class="py-4"><span class="bg-green-500/10 text-green-400 border border-green-500/20 text-[10px] px-2 py-0.5 rounded font-mono">COMPLETED</span></td>
+                                    <td class="py-4 text-slate-500 text-xs">Yesterday</td>
+                                    <td class="py-4 text-right pr-2">
+                                        <button class="text-slate-500 hover:text-cyan-400"><i class="fas fa-external-link-alt"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="group hover:bg-slate-800/30 transition-colors">
+                                    <td class="py-4 pl-2 font-medium text-slate-200">Inventory Anomalies</td>
+                                    <td class="py-4 text-slate-400 text-xs font-mono">Auto-Anomaly</td>
+                                    <td class="py-4"><span class="bg-red-500/10 text-red-400 border border-red-500/20 text-[10px] px-2 py-0.5 rounded font-mono">FAILED</span></td>
+                                    <td class="py-4 text-slate-500 text-xs">Oct 24, 2024</td>
+                                    <td class="py-4 text-right pr-2">
+                                        <button class="text-slate-500 hover:text-red-400"><i class="fas fa-redo"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/50 mt-12 bg-slate-950/50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
+            <div class="mb-4 md:mb-0">
+                <span class="font-orbitron font-bold text-slate-400">SIFRA<span class="text-cyan-600">.AI</span></span>
+                <span class="mx-2">|</span>
+                <span>SECURE CONNECTION ESTABLISHED</span>
+            </div>
+            <div class="flex gap-6">
+                <a href="#" class="hover:text-cyan-400 transition-colors">Support Node</a>
+                <a href="#" class="hover:text-cyan-400 transition-colors">System Status</a>
+                <a href="#" class="hover:text-cyan-400 transition-colors">Privacy Protocol</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBu6CIgw5njjcl9dVhNYjitSUBKE87_S6M",
+            authDomain: "sifraaiweb.firebaseapp.com",
+            projectId: "sifraaiweb",
+            storageBucket: "sifraaiweb.firebasestorage.app",
+            messagingSenderId: "927713452336",
+            appId: "1:927713452336:web:f3affb6ef66091619e68f5",
+            measurementId: "G-V3TXBH3GCD"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Auth State Listener (Protects Route & Updates UI)
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in, update UI
+                console.log("User detected:", user.email);
+                
+                const displayName = user.displayName || user.email.split('@')[0].toUpperCase();
+                const avatarUrl = user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayName}`;
+                
+                // Update elements
+                document.getElementById('profileName').textContent = displayName;
+                document.getElementById('profileName').classList.remove('animate-pulse');
+                document.getElementById('profileEmail').textContent = user.email;
+                document.getElementById('profileAvatar').src = avatarUrl;
+                document.getElementById('navAvatar').src = avatarUrl;
+                
+                // Fake Node ID generation for effect
+                document.getElementById('nodeId').textContent = `SFR-${user.uid.substr(0, 4).toUpperCase()}-X`;
+
+                // Fade in main content
+                document.getElementById('mainContent').style.opacity = '1';
+
+            } else {
+                // No user is signed in, redirect to login
+                console.warn("No user found. Redirecting...");
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Logout Logic
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            const btn = document.getElementById('logoutBtn');
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin mr-2"></i>DISCONNECTING...`;
+            
+            signOut(auth).then(() => {
+                // Sign-out successful.
+                window.location.href = 'login.html';
+            }).catch((error) => {
+                // An error happened.
+                console.error("Sign out error", error);
+                alert("Error disconnecting. See console.");
+            });
+        });
+    </script>
+
+    <script>
+        // --- Particle Background Logic ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.2; // Slower movement for profile
+                this.vy = (Math.random() - 0.5) * 0.2;
+                this.size = Math.random() * 1.5;
+                this.alpha = Math.random() * 0.5;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if(this.x < 0) this.x = width;
+                if(this.x > width) this.x = 0;
+                if(this.y < 0) this.y = height;
+                if(this.y > height) this.y = 0;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(148, 163, 184, ${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for(let i=0; i<40; i++) particles.push(new Particle());
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- Copy Clipboard Logic ---
+        function copyToClipboard() {
+            const key = "sk_live_948273645102938472"; // Mock key
+            navigator.clipboard.writeText(key).then(() => {
+                const btn = document.querySelector('button[title="Copy to clipboard"]');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check text-green-400"></i>';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
