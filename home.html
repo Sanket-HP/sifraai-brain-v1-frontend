@@ -145,7 +145,7 @@
         .chart-btn-inactive:hover { background-color: #334155; color: #ffffff; }
     </style>
 </head>
-<body class="bg-sifra-bg text-slate-200 font-sans h-screen overflow-hidden flex selection:bg-cyan-500/30">
+<body class="bg-sifra-bg text-slate-200 font-sans h-screen overflow-hidden flex selection:bg-cyan-500/30 opacity-0 transition-opacity duration-700" id="appBody">
 
     <!-- 1. Navigation Sidebar -->
     <aside class="w-16 lg:w-64 bg-sifra-bg border-r border-sifra-border flex flex-col z-20 transition-all duration-300">
@@ -212,8 +212,9 @@
                 <div class="flex items-center gap-4">
                     <button class="text-slate-400 hover:text-white transition"><i class="fas fa-bell"></i></button>
                     <!-- Link Avatar to Profile -->
-                    <a href="profile.html" class="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-purple-500 p-[2px] block cursor-pointer hover:scale-105 transition-transform">
-                        <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-xs font-bold text-white">AD</div>
+                    <a href="profile.html" class="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-purple-500 p-[2px] block cursor-pointer hover:scale-105 transition-transform overflow-hidden relative">
+                        <img id="headerAvatar" src="" class="w-full h-full rounded-full object-cover hidden" alt="User">
+                        <div id="headerInitials" class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-xs font-bold text-white">--</div>
                     </a>
                 </div>
             </div>
@@ -1516,6 +1517,57 @@
             }
             return mock;
         }
+    </script>
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBu6CIgw5njjcl9dVhNYjitSUBKE87_S6M",
+            authDomain: "sifraaiweb.firebaseapp.com",
+            projectId: "sifraaiweb",
+            storageBucket: "sifraaiweb.firebasestorage.app",
+            messagingSenderId: "927713452336",
+            appId: "1:927713452336:web:f3affb6ef66091619e68f5",
+            measurementId: "G-V3TXBH3GCD"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Auth Listener & UI Updates
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log("User authorized:", user.email);
+                
+                const displayName = user.displayName || user.email.split('@')[0].toUpperCase();
+                const avatarUrl = user.photoURL;
+                
+                // Header Avatar
+                const headerImg = document.getElementById('headerAvatar');
+                const headerText = document.getElementById('headerInitials');
+                
+                if (avatarUrl) {
+                    headerImg.src = avatarUrl;
+                    headerImg.classList.remove('hidden');
+                    headerText.classList.add('hidden');
+                } else {
+                    headerText.textContent = displayName.substring(0, 2).toUpperCase();
+                    headerImg.classList.add('hidden');
+                    headerText.classList.remove('hidden');
+                }
+
+                // Reveal main UI
+                document.getElementById('appBody').style.opacity = '1';
+
+            } else {
+                console.warn("No active session. Redirecting...");
+                window.location.href = 'login.html';
+            }
+        });
     </script>
 </body>
 </html>
