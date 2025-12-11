@@ -87,7 +87,7 @@
             position: relative;
             animation: fadeIn 0.3s ease-out;
             line-height: 1.5;
-            overflow-x: auto; /* Added horizontal scroll for wide content inside bubbles */
+            overflow-x: auto;
         }
         .chat-user {
             background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.2));
@@ -205,9 +205,9 @@
             </div>
             <div class="flex items-center gap-6">
                 <div class="hidden md:flex items-center gap-2 text-xs font-mono text-slate-400">
-                    <span>MEM: <span class="text-cyan-400">42%</span></span>
+                    <span id="planBadge" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-600 uppercase font-bold">LOADING...</span>
                     <span class="w-[1px] h-3 bg-slate-700"></span>
-                    <span>CPU: <span class="text-purple-400">12%</span></span>
+                    <span>MEM: <span class="text-cyan-400">42%</span></span>
                 </div>
                 <div class="flex items-center gap-4">
                     <button class="text-slate-400 hover:text-white transition"><i class="fas fa-bell"></i></button>
@@ -749,7 +749,15 @@
 
         // --- 3. Core Execution Router ---
         async function runSifra() {
+            // Check Usage Limit First
+            if (window.checkLimit) {
+                const allowed = await window.checkLimit();
+                if (!allowed) return;
+            }
+
             const goal = document.getElementById('goal').value;
+            let success = false;
+
             if (goal === 'llm') {
                 await generateLLM();
             } else if (goal === 'model') {
@@ -824,6 +832,7 @@
                         console.warn("⚠️ LLM package missing in backend response", r);
                     }
                     logToConsole(`[success] SIFRA Synthetic LLM Created on Backend.`, "success");
+                    if (window.incrementUsage) window.incrementUsage(); // Count Usage
                 } catch(e) {
                     logToConsole(`[warn] Backend sync failed: ${e.message}`, "warn");
                 }
@@ -831,6 +840,7 @@
                  // Offline fallback
                  window.SIFRA_LLM_PACKAGE = { llm_id: "offline-sim", config: { persona } };
                  document.getElementById('llmMetaID').innerText = "offline-sim";
+                 if (window.incrementUsage) window.incrementUsage(); // Count Usage (even for offline sim)
             }
             
             logToConsole(`[success] SIFRA Synthetic LLM Ready.`, "success");
@@ -1131,6 +1141,8 @@
                     logToConsole("Model trained, but no serialized model returned for download/inference.", "warn");
                 }
 
+                if (window.incrementUsage) window.incrementUsage(); // Count Usage
+
             } catch (e) {
                 logToConsole("Training failed: " + e.message, "error");
             } finally {
@@ -1283,6 +1295,7 @@
                 renderInsights(responseData, goal);
                 renderVisuals(); 
                 renderExplanation(responseData);
+                if (window.incrementUsage) window.incrementUsage(); // Count Usage
             } catch (e) {
                 logToConsole(`Execution Failure: ${e.message}`, "error");
             } finally {
@@ -1523,6 +1536,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // Firebase Configuration
         const firebaseConfig = {
@@ -1537,10 +1551,15 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let userUid = null;
+        let userTier = 'recruit'; // Default to free
 
         // Auth Listener & UI Updates
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
+                userUid = user.uid;
                 console.log("User authorized:", user.email);
                 
                 const displayName = user.displayName || user.email.split('@')[0].toUpperCase();
@@ -1560,6 +1579,39 @@
                     headerText.classList.remove('hidden');
                 }
 
+                // Fetch Tier & Usage
+                const planBadge = document.getElementById('planBadge');
+                const userRef = doc(db, "users", user.uid);
+                
+                try {
+                    const snap = await getDoc(userRef);
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        userTier = data.subscriptionTier || 'recruit';
+                        
+                        // Ensure dailyUsage exists for today
+                        const today = new Date().toDateString();
+                        if (!data.dailyUsage || data.dailyUsage.date !== today) {
+                            await setDoc(userRef, { dailyUsage: { date: today, count: 0 } }, { merge: true });
+                        }
+                    } else {
+                        // First time login fallback
+                        await setDoc(userRef, { 
+                            email: user.email, 
+                            subscriptionTier: 'recruit', 
+                            dailyUsage: { date: new Date().toDateString(), count: 0 } 
+                        });
+                    }
+                } catch(e) {
+                    console.error("Profile fetch error", e);
+                }
+
+                planBadge.innerText = userTier.toUpperCase();
+                if(userTier === 'commander' || userTier === 'titan') {
+                    planBadge.classList.replace('text-slate-300', 'text-purple-400');
+                    planBadge.classList.replace('border-slate-600', 'border-purple-500');
+                }
+
                 // Reveal main UI
                 document.getElementById('appBody').style.opacity = '1';
 
@@ -1568,6 +1620,57 @@
                 window.location.href = 'login.html';
             }
         });
+
+        // Global function to check usage limits before running
+        window.checkLimit = async () => {
+            if (!userUid) return false;
+            // Commander/Titan have no limits
+            if (userTier !== 'recruit') return true; 
+
+            const userRef = doc(db, "users", userUid);
+            const snap = await getDoc(userRef);
+            const data = snap.data();
+            const today = new Date().toDateString();
+            
+            // Check if usage matches today and exceeds limit
+            if (data.dailyUsage && data.dailyUsage.date === today) {
+                if (data.dailyUsage.count >= 3) {
+                    alert("Daily Limit Reached (3/3).\n\nYou are on the Recruit plan. Please upgrade to Commander for unlimited access.");
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        // Global function to increment usage after successful run
+        window.incrementUsage = async () => {
+            if (!userUid) return;
+            
+            const userRef = doc(db, "users", userUid);
+            const snap = await getDoc(userRef);
+            const data = snap.data();
+            const today = new Date().toDateString();
+            
+            let newCount = 1;
+            // If entry exists for today, increment. Else start at 1.
+            if (data.dailyUsage && data.dailyUsage.date === today) {
+                newCount = data.dailyUsage.count + 1;
+            }
+            
+            await updateDoc(userRef, {
+                dailyUsage: { date: today, count: newCount }
+            });
+            
+            // Log visible feedback only for free tier users
+            if (userTier === 'recruit') {
+                const consoleLog = document.getElementById('consoleLog');
+                const div = document.createElement('div');
+                div.className = "console-line";
+                div.innerHTML = `<span class="console-time">[sys]</span><span class="log-warn">Daily Usage: ${newCount}/3</span>`;
+                consoleLog.appendChild(div);
+                consoleLog.scrollTop = consoleLog.scrollHeight;
+            }
+        };
     </script>
 </body>
 </html>
