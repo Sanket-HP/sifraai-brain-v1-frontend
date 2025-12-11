@@ -89,6 +89,31 @@
             z-index: -1;
             pointer-events: none;
         }
+
+        /* Modal Transitions */
+        .modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            transform: translate(-50%, -60%);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal.active .modal-content {
+            transform: translate(-50%, -50%);
+        }
+        
+        /* Avatar Option Hover */
+        .avatar-option:hover {
+            transform: scale(1.1);
+            border-color: #06b6d4;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        }
     </style>
 </head>
 <body class="bg-sifra-bg text-slate-200 font-sans min-h-screen flex flex-col relative overflow-x-hidden bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
@@ -109,7 +134,7 @@
             <a href="#" class="hidden md:block text-xs font-mono text-slate-400 hover:text-cyan-400 transition-colors uppercase tracking-widest">Docs</a>
             <button class="flex items-center gap-2 group">
                 <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center overflow-hidden">
-                    <img id="navAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Commander" alt="Profile" class="w-full h-full">
+                    <img id="navAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Commander" alt="Profile" class="w-full h-full object-cover">
                 </div>
             </button>
         </div>
@@ -143,12 +168,21 @@
                     <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-purple-500"></div>
                     
                     <div class="flex flex-col items-center text-center">
-                        <div class="relative w-24 h-24 mb-4">
+                        <!-- Profile Image Container with Click Event -->
+                        <div class="relative w-28 h-28 mb-4 cursor-pointer group/avatar" onclick="openAvatarModal()">
                             <div class="absolute inset-0 bg-cyan-500 blur-xl opacity-20 animate-pulse-slow"></div>
-                            <div class="relative w-full h-full rounded-full p-1 bg-gradient-to-br from-cyan-500 to-purple-600">
-                                <img id="profileAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Commander" alt="User Avatar" class="w-full h-full rounded-full bg-slate-900 p-1">
+                            
+                            <!-- The Image Wrapper -->
+                            <div class="relative w-full h-full rounded-full p-1 bg-gradient-to-br from-cyan-500 to-purple-600 overflow-hidden">
+                                <img id="profileAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Commander" alt="User Avatar" class="w-full h-full rounded-full bg-slate-900 p-1 object-cover">
+                                
+                                <!-- Edit Overlay -->
+                                <div class="absolute inset-1 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity backdrop-blur-sm">
+                                    <i class="fas fa-pen text-white text-lg"></i>
+                                </div>
                             </div>
-                            <div class="absolute bottom-0 right-0 w-6 h-6 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700">
+                            
+                            <div class="absolute bottom-1 right-1 w-6 h-6 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700 z-10">
                                 <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                             </div>
                         </div>
@@ -314,15 +348,6 @@
                                         <button class="text-slate-500 hover:text-cyan-400"><i class="fas fa-external-link-alt"></i></button>
                                     </td>
                                 </tr>
-                                <tr class="group hover:bg-slate-800/30 transition-colors">
-                                    <td class="py-4 pl-2 font-medium text-slate-200">Inventory Anomalies</td>
-                                    <td class="py-4 text-slate-400 text-xs font-mono">Auto-Anomaly</td>
-                                    <td class="py-4"><span class="bg-red-500/10 text-red-400 border border-red-500/20 text-[10px] px-2 py-0.5 rounded font-mono">FAILED</span></td>
-                                    <td class="py-4 text-slate-500 text-xs">Oct 24, 2024</td>
-                                    <td class="py-4 text-right pr-2">
-                                        <button class="text-slate-500 hover:text-red-400"><i class="fas fa-redo"></i></button>
-                                    </td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -330,6 +355,25 @@
             </div>
         </div>
     </main>
+
+    <!-- Avatar Selection Modal -->
+    <div id="avatarModal" class="fixed inset-0 z-[100] modal">
+        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm cursor-pointer" onclick="closeAvatarModal()"></div>
+        <div class="absolute top-1/2 left-1/2 w-[90%] max-w-lg bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-white font-orbitron text-lg tracking-wider">SELECT IDENTITY</h3>
+                <button onclick="closeAvatarModal()" class="text-slate-400 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-4" id="avatarGrid">
+                <!-- Avatars injected by JS -->
+            </div>
+
+            <div class="mt-6 text-center">
+                <p class="text-[10px] text-slate-500 font-mono">IDENTITY MATRIX v2.0 // CLICK TO EQUIP</p>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="border-t border-slate-800/50 mt-12 bg-slate-950/50 backdrop-blur-md">
@@ -350,7 +394,8 @@
     <!-- Firebase Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // Firebase Configuration
         const firebaseConfig = {
@@ -365,11 +410,18 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Make functions global for onclick events
+        window.auth = auth;
+        window.db = db;
+        window.updateProfile = updateProfile;
+        window.updateDoc = updateDoc;
+        window.doc = doc;
 
         // Auth State Listener (Protects Route & Updates UI)
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // User is signed in, update UI
                 console.log("User detected:", user.email);
                 
                 const displayName = user.displayName || user.email.split('@')[0].toUpperCase();
@@ -401,14 +453,79 @@
             btn.innerHTML = `<i class="fas fa-circle-notch fa-spin mr-2"></i>DISCONNECTING...`;
             
             signOut(auth).then(() => {
-                // Sign-out successful.
                 window.location.href = 'login.html';
             }).catch((error) => {
-                // An error happened.
                 console.error("Sign out error", error);
                 alert("Error disconnecting. See console.");
             });
         });
+
+        // --- Avatar Selection Logic ---
+        
+        // 1. Define Avatar List
+        const avatars = [
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",   // Male
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",   // Female
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight", // Boy/Dark
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Lily",    // Girl
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack",    // Male 2
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Bella",   // Female 2
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Rocky",   // Cool
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Sassy",   // Glasses
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Cyber",   // Techish
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Shadow"   // Mystery
+        ];
+
+        // 2. Populate Grid
+        const avatarGrid = document.getElementById('avatarGrid');
+        avatars.forEach(url => {
+            const div = document.createElement('div');
+            div.className = "avatar-option w-full aspect-square rounded-full border-2 border-slate-700 bg-slate-800 p-1 cursor-pointer transition-all duration-300";
+            div.onclick = () => selectAvatar(url);
+            div.innerHTML = `<img src="${url}" class="w-full h-full rounded-full" alt="Avatar Option">`;
+            avatarGrid.appendChild(div);
+        });
+
+        // 3. Modal Functions
+        window.openAvatarModal = () => {
+            document.getElementById('avatarModal').classList.add('active');
+        };
+
+        window.closeAvatarModal = () => {
+            document.getElementById('avatarModal').classList.remove('active');
+        };
+
+        // 4. Select & Save Function
+        window.selectAvatar = async (url) => {
+            // UI Feedback
+            const profileImg = document.getElementById('profileAvatar');
+            const navImg = document.getElementById('navAvatar');
+            
+            // Optimistic update
+            profileImg.src = url;
+            navImg.src = url;
+            closeAvatarModal();
+
+            // Firebase Update
+            const user = window.auth.currentUser;
+            if (user) {
+                try {
+                    // Update Auth Profile
+                    await window.updateProfile(user, { photoURL: url });
+                    
+                    // Update Firestore Document (User Profile)
+                    const userRef = window.doc(window.db, "users", user.uid);
+                    await window.updateDoc(userRef, { photoURL: url }, { merge: true });
+                    
+                    console.log("Avatar updated successfully");
+                } catch (error) {
+                    console.error("Error updating avatar:", error);
+                    // Revert if failed (optional, but good UX)
+                    alert("Failed to save avatar. Please try again.");
+                }
+            }
+        };
+
     </script>
 
     <script>
