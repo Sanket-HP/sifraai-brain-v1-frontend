@@ -3,8 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIFRA AI | Autonomous Data Scientist Engine</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
+    <!-- ==============================================
+         SEO METADATA FOR GOOGLE & MICROSOFT (BING)
+         ============================================== -->
+    <title>SIFRA AI | Autonomous Data Scientist Engine | No-Code Analytics</title>
+    <meta name="description" content="SIFRA AI is the world's first autonomous data scientist engine. Analyze, forecast, and visualize massive datasets instantly without prompts, training, or LLMs. Powered by HDP-FusionNet.">
+    <meta name="keywords" content="autonomous data scientist, Sanket Sarjerao Patil, Sanket More-Patil, Sanket, India, USA, Global, World, Kolhapur, AI data analysis, no-code data science, AutoML, predictive analytics, HDP-FusionNet, enterprise forecasting, govtech data tools, big data visualization">
+    <meta name="author" content="SIFRA AI Inc.">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    
+    <!-- Canonical URL (Prevents duplicate content penalties) -->
+    <link rel="canonical" href="https://sifra.ai/">
+
+    <!-- Microsoft / Bing Verification (Placeholder) -->
+    <meta name="msvalidate.01" content="YOUR_BING_VERIFICATION_CODE">
+
+    <!-- Open Graph (Facebook, LinkedIn, Discord) -->
+    <meta property="og:site_name" content="SIFRA AI">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="SIFRA AI - The First Autonomous Data Scientist">
+    <meta property="og:description" content="Transform raw numbers into decisions instantly. No prompts. No training. Just pure algorithmic intelligence.">
+    <meta property="og:url" content="https://sifra.ai/">
+    <meta property="og:image" content="https://sifra.ai/assets/og-image.jpg"> <!-- Replace with actual image URL -->
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SIFRA AI | Autonomous Data Scientist">
+    <meta name="twitter:description" content="Experience the AI engine that doesn't need training. Forecasting, anomalies, and insights in seconds.">
+    <meta name="twitter:image" content="https://sifra.ai/assets/twitter-card.jpg"> <!-- Replace with actual image URL -->
+
+    <!-- Structured Data (JSON-LD) for Software Application -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "SIFRA AI",
+      "headline": "Autonomous Data Scientist Engine",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "Autonomous Data Scientist Engine for instant analysis, forecasting, and visualization using HDP-FusionNet.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "SIFRA AI Inc."
+      }
+    }
+    </script>
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,6 +78,7 @@
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
                         orbitron: ['Orbitron', 'sans-serif'],
                     },
                     colors: {
@@ -167,7 +220,7 @@
 <body class="bg-slate-900 text-white transition-colors duration-300 antialiased dark selection:bg-cyan-500 selection:text-white">
 
     <!-- Navigation -->
-    <nav class="fixed w-full z-50 glass-nav transition-all duration-300" id="navbar">
+    <nav class="fixed w-full z-50 glass-nav transition-all duration-300" id="navbar" role="navigation" aria-label="Main Navigation">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
                 <div class="flex items-center space-x-2">
@@ -189,7 +242,7 @@
                     <a href="login.html" id="nav-login" class="text-sm font-medium text-slate-300 hover:text-white hover:underline decoration-cyan-400 decoration-2 underline-offset-4 transition-all hidden md:block">LOGIN</a>
 
                     <!-- Theme Toggle -->
-                    <button id="theme-toggle" class="p-2 rounded-full hover:bg-white/10 transition-colors focus:outline-none">
+                    <button id="theme-toggle" aria-label="Toggle Dark Mode" class="p-2 rounded-full hover:bg-white/10 transition-colors focus:outline-none">
                         <i class="fas fa-sun text-yellow-400 hidden dark:block"></i>
                         <i class="fas fa-moon text-slate-600 block dark:hidden"></i>
                     </button>
@@ -204,7 +257,7 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+    <header class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20" role="banner">
         <canvas id="particle-canvas"></canvas>
         
         <!-- Background Glow Blobs -->
@@ -290,7 +343,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </header>
 
     <!-- Why SIFRA is Different Section -->
     <section id="why-sifra" class="py-24 relative bg-slate-950 dark:bg-slate-950 bg-slate-50 transition-colors border-t border-slate-800">
@@ -354,53 +407,53 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Auto-Analyze -->
-                <div class="glass-card p-6 rounded-xl neon-border group" data-aos="fade-up">
+                <article class="glass-card p-6 rounded-xl neon-border group" data-aos="fade-up">
                     <i class="fas fa-magnifying-glass-chart text-3xl text-cyan-400 mb-4 group-hover:scale-110 transition-transform"></i>
                     <h3 class="text-lg font-bold text-white mb-2">Auto-Analyze</h3>
                     <p class="text-xs text-slate-400">Deep pattern recognition without manual queries.</p>
-                </div>
+                </article>
                 <!-- Auto-Predict -->
-                <div class="glass-card p-6 rounded-xl neon-border group" data-aos="fade-up" data-aos-delay="100">
+                <article class="glass-card p-6 rounded-xl neon-border group" data-aos="fade-up" data-aos-delay="100">
                     <i class="fas fa-crystal-ball text-3xl text-purple-400 mb-4 group-hover:scale-110 transition-transform"></i>
                     <h3 class="text-lg font-bold text-white mb-2">Auto-Predict</h3>
                     <p class="text-xs text-slate-400">Future state estimation using regression & classification.</p>
-                </div>
+                </article>
                 <!-- Auto-Forecast -->
-                <div class="glass-card p-6 rounded-xl neon-border group" data-aos="fade-up" data-aos-delay="200">
+                <article class="glass-card p-6 rounded-xl neon-border group" data-aos="fade-up" data-aos-delay="200">
                     <i class="fas fa-chart-line text-3xl text-green-400 mb-4 group-hover:scale-110 transition-transform"></i>
                     <h3 class="text-lg font-bold text-white mb-2">Auto-Forecast</h3>
                     <p class="text-xs text-slate-400">Time-series forecasting with seasonality detection.</p>
-                </div>
+                </article>
                 <!-- Auto-Anomaly -->
-                <div class="glass-card p-6 rounded-xl neon-border group" data-aos="fade-up" data-aos-delay="300">
+                <article class="glass-card p-6 rounded-xl neon-border group" data-aos="fade-up" data-aos-delay="300">
                     <i class="fas fa-triangle-exclamation text-3xl text-red-400 mb-4 group-hover:scale-110 transition-transform"></i>
                     <h3 class="text-lg font-bold text-white mb-2">Auto-Anomaly</h3>
                     <p class="text-xs text-slate-400">Instant outlier & fraud detection alerts.</p>
-                </div>
+                </article>
                 <!-- Auto-Insights -->
-                <div class="glass-card p-6 rounded-xl neon-border group" data-aos="fade-up" data-aos-delay="400">
+                <article class="glass-card p-6 rounded-xl neon-border group" data-aos="fade-up" data-aos-delay="400">
                     <i class="fas fa-lightbulb text-3xl text-yellow-400 mb-4 group-hover:scale-110 transition-transform"></i>
                     <h3 class="text-lg font-bold text-white mb-2">Auto-Insights</h3>
                     <p class="text-xs text-slate-400">Narrative generation explaining the 'Why' behind data.</p>
-                </div>
+                </article>
                 <!-- Auto-Visualization -->
-                <div class="glass-card p-6 rounded-xl neon-border group" data-aos="fade-up" data-aos-delay="500">
+                <article class="glass-card p-6 rounded-xl neon-border group" data-aos="fade-up" data-aos-delay="500">
                     <i class="fas fa-chart-pie text-3xl text-pink-400 mb-4 group-hover:scale-110 transition-transform"></i>
                     <h3 class="text-lg font-bold text-white mb-2">Auto-Visualization</h3>
                     <p class="text-xs text-slate-400">Smart chart selection based on data topology.</p>
-                </div>
+                </article>
                 <!-- Auto-Feature Engineering -->
-                <div class="glass-card p-6 rounded-xl neon-border group" data-aos="fade-up" data-aos-delay="600">
+                <article class="glass-card p-6 rounded-xl neon-border group" data-aos="fade-up" data-aos-delay="600">
                     <i class="fas fa-cogs text-3xl text-orange-400 mb-4 group-hover:scale-110 transition-transform"></i>
                     <h3 class="text-lg font-bold text-white mb-2">Auto-Feature Eng.</h3>
                     <p class="text-xs text-slate-400">Automatic creation of relevant variables.</p>
-                </div>
+                </article>
                 <!-- Auto-ML Model Builder -->
-                <div class="glass-card p-6 rounded-xl neon-border group" data-aos="fade-up" data-aos-delay="700">
+                <article class="glass-card p-6 rounded-xl neon-border group" data-aos="fade-up" data-aos-delay="700">
                     <i class="fas fa-robot text-3xl text-indigo-400 mb-4 group-hover:scale-110 transition-transform"></i>
                     <h3 class="text-lg font-bold text-white mb-2">Auto-ML Builder</h3>
                     <p class="text-xs text-slate-400">Builds, tunes, and deploys models autonomously.</p>
-                </div>
+                </article>
             </div>
         </div>
     </section>
@@ -713,9 +766,9 @@
             <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-slate-600 text-sm">
                 <p>&copy; 2025 SIFRA AI Inc. All rights reserved.</p>
                 <div class="flex space-x-6 mt-4 md:mt-0">
-                    <a href="#" class="hover:text-white transition-colors"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="hover:text-white transition-colors"><i class="fab fa-github"></i></a>
-                    <a href="#" class="hover:text-white transition-colors"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" aria-label="Twitter" class="hover:text-white transition-colors"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Github" class="hover:text-white transition-colors"><i class="fab fa-github"></i></a>
+                    <a href="#" aria-label="LinkedIn" class="hover:text-white transition-colors"><i class="fab fa-linkedin"></i></a>
                 </div>
             </div>
         </div>
