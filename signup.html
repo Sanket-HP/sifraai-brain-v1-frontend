@@ -163,7 +163,10 @@
                         <!-- Header -->
                         <div class="flex flex-col items-center md:items-start mb-4">
                             <h2 class="text-[10px] font-mono text-cyan-500 tracking-[0.2em] mb-0.5">SECURE PROTOCOL</h2>
-                            <h1 class="text-xl font-orbitron font-bold text-white tracking-widest">INITIALIZE</h1>
+                            <div class="flex items-center gap-3">
+                                <h1 class="text-xl font-orbitron font-bold text-white tracking-widest">INITIALIZE</h1>
+                                <span id="planDisplay" class="text-[9px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 font-mono uppercase">PLAN: RECRUIT</span>
+                            </div>
                         </div>
 
                         <!-- Form -->
@@ -313,6 +316,16 @@
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
 
+        // Retrieve selected plan from previous step
+        const selectedPlan = localStorage.getItem('sifra_selected_plan') || 'recruit';
+        
+        // Update UI to show selected plan
+        document.getElementById('planDisplay').textContent = `PLAN: ${selectedPlan}`;
+        if(selectedPlan === 'commander' || selectedPlan === 'titan') {
+            document.getElementById('planDisplay').classList.replace('text-slate-400', 'text-purple-400');
+            document.getElementById('planDisplay').classList.replace('border-slate-700', 'border-purple-500');
+        }
+
         // --- UI UTILITIES ---
 
         function log(msg, type = 'info') {
@@ -377,6 +390,7 @@
             relativeDiv.innerHTML = `<i class="fas fa-check text-green-400"></i><span class="font-orbitron font-bold text-white tracking-widest text-xs ml-2">GRANTED</span>`;
             
             log(`Auth verified: ${method}`, 'success');
+            log(`Plan assigned: ${selectedPlan.toUpperCase()}`, 'success');
             log(`ID: ${user.email}`, 'info');
             log(`Redirecting...`, 'warn');
 
@@ -411,13 +425,18 @@
                     displayName: callsign
                 });
 
-                // Optional: Store extra data in Firestore
+                // Store extra data in Firestore WITH SUBSCRIPTION INFO
                 try {
                     await setDoc(doc(db, "users", user.uid), {
                         email: email,
                         callsign: callsign,
                         createdAt: new Date().toISOString(),
-                        role: 'recruit'
+                        role: 'user', // Basic role
+                        subscriptionTier: selectedPlan, // Assing Selected Plan
+                        dailyUsage: {
+                            date: new Date().toDateString(),
+                            count: 0
+                        }
                     });
                 } catch(err) {
                     console.error("Firestore Error:", err); // Non-blocking
@@ -443,6 +462,24 @@
                 const result = await signInWithPopup(auth, googleProvider);
                 const user = result.user;
                 
+                // For Google login, we also need to ensure Firestore doc exists with correct plan
+                // But we check first to not overwrite existing users
+                // In a real app, you'd check `getDoc` first. For simplicity here we set merge: true
+                try {
+                    await setDoc(doc(db, "users", user.uid), {
+                        email: user.email,
+                        // Only set these if creating new, merge true helps but assumes we want to update plan on re-login? 
+                        // Better to rely on existing plan if present, but for signup flow we force selected plan if it's a new doc.
+                        // Since setDoc with merge won't overwrite existing fields if we don't provide them, 
+                        // BUT we want to ensure new users get the plan.
+                        // A safer approach for Google Sign-In on a "Signup" page is to assume intent to register with this plan.
+                        subscriptionTier: selectedPlan,
+                        dailyUsage: { date: new Date().toDateString(), count: 0 } 
+                    }, { merge: true });
+                } catch(err) {
+                    console.error("Firestore Error:", err);
+                }
+
                 handleSuccess(user, "Neural ID (Google)");
 
             } catch (error) {

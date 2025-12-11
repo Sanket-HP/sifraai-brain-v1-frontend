@@ -189,7 +189,7 @@
                             <div class="space-y-0.5">
                                 <div class="flex justify-between items-center px-1">
                                     <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Access Key</label>
-                                    <a href="/forgott-password.html" class="text-[9px] text-purple-400 hover:text-purple-300 transition-colors">FORGOT KEY?</a>
+                                    <a href="/forgot_password.html" class="text-[9px] text-purple-400 hover:text-purple-300 transition-colors">FORGOT KEY?</a>
                                 </div>
                                 <div class="relative group input-glow rounded-md transition-all duration-300">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-white transition-colors">
@@ -292,7 +292,7 @@
         // Import Firebase Functions from CDN
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // Firebase Configuration
         const firebaseConfig = {
@@ -365,25 +365,55 @@
             }
         }
 
-        function handleSuccess(user, method) {
+        async function handleSuccess(user, method, redirectUrl = 'home.html') {
             const btn = document.getElementById('submitBtn');
             const relativeDiv = btn.querySelector('.relative');
             
             // Visual success state
-            btn.querySelector('.absolute').classList.replace('from-purple-600', 'from-green-500');
-            btn.querySelector('.absolute').classList.replace('to-cyan-500', 'to-green-600');
-            relativeDiv.innerHTML = `<i class="fas fa-check text-green-400"></i><span class="font-orbitron font-bold text-white tracking-widest text-xs ml-2">GRANTED</span>`;
+            if(btn) {
+                btn.querySelector('.absolute').classList.replace('from-purple-600', 'from-green-500');
+                btn.querySelector('.absolute').classList.replace('to-cyan-500', 'to-green-600');
+                relativeDiv.innerHTML = `<i class="fas fa-check text-green-400"></i><span class="font-orbitron font-bold text-white tracking-widest text-xs ml-2">GRANTED</span>`;
+            }
             
             log(`Identity Verified: ${method}`, 'success');
             log(`User: ${user.email}`, 'info');
-            log(`Decrypting session...`, 'warn');
+            log(`Redirecting...`, 'warn');
 
             setTimeout(() => {
-                window.location.href = 'home.html';
+                window.location.href = redirectUrl;
             }, 2000);
         }
 
         // --- AUTH LOGIC ---
+
+        async function checkSubscriptionAndRedirect(user, method) {
+            try {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    if (userData.subscriptionTier) {
+                        log(`Plan Detected: ${userData.subscriptionTier.toUpperCase()}`, 'success');
+                        handleSuccess(user, method, "home.html");
+                    } else {
+                        // User exists but has no subscriptionTier field
+                        log("⚠️ ALERT: User profile lacks subscription tier.", "error");
+                        log("RECOMMENDATION: Redirecting to Plan Selection...", "warn");
+                        handleSuccess(user, method, "subscription.html");
+                    }
+                } else {
+                    // User document doesn't exist at all
+                    log("⚠️ ALERT: No profile found in database.", "error");
+                    log("RECOMMENDATION: Redirecting to Plan Selection...", "warn");
+                    handleSuccess(user, method, "subscription.html");
+                }
+            } catch (err) {
+                console.error("Firestore Check Error:", err);
+                // Fallback to home if check fails, usually
+                handleSuccess(user, method, "home.html");
+            }
+        }
 
         // 1. Email/Password Login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -403,7 +433,7 @@
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                handleSuccess(user, "Key Match");
+                await checkSubscriptionAndRedirect(user, "Key Match");
 
             } catch (error) {
                 setLoadingState(false, 'submitBtn');
@@ -426,7 +456,7 @@
                 const result = await signInWithPopup(auth, googleProvider);
                 const user = result.user;
                 
-                handleSuccess(user, "Neural ID (Google)");
+                await checkSubscriptionAndRedirect(user, "Neural ID (Google)");
 
             } catch (error) {
                 setLoadingState(false, 'googleBtn');
