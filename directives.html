@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIFRA AI | Core Directives</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        orbitron: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        sifra: {
+                            bg: '#020617', 
+                            cyan: '#06b6d4',
+                            purple: '#8b5cf6',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'scan': 'scan 2s linear infinite',
+                    },
+                    keyframes: {
+                        scan: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(100%)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Global Page Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .directive-block {
+            border-left: 2px solid #1e293b;
+            background: rgba(30, 41, 59, 0.3);
+            transition: all 0.3s ease;
+        }
+        .directive-block:hover {
+            border-left-color: #06b6d4;
+            background: rgba(30, 41, 59, 0.6);
+        }
+        .directive-block.active {
+            border-left-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        /* Scanline Overlay (Fixed Position) */
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to bottom, transparent, rgba(6, 182, 212, 0.3), transparent);
+            animation: scan 3s linear infinite;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        #neural-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.4;
+        }
+    </style>
+</head>
+<body class="bg-[#020617] text-slate-300 font-sans min-h-screen flex flex-col overflow-y-auto overflow-x-hidden bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
+
+    <!-- Canvas Background -->
+    <canvas id="neural-canvas"></canvas>
+
+    <!-- Scanline -->
+    <div class="scanline"></div>
+
+    <!-- Nav -->
+    <nav class="w-full px-6 py-4 flex items-center justify-between border-b border-white/5 bg-[#020617]/80 backdrop-blur-md sticky top-0 z-40 transition-all">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold font-orbitron text-sm shadow-lg shadow-cyan-500/20">S</div>
+            <span class="text-lg font-orbitron font-bold text-white tracking-widest">SIFRA<span class="text-cyan-500">.AI</span></span>
+        </div>
+        <div class="flex gap-4 items-center">
+            <div class="hidden md:flex items-center gap-2 text-[10px] font-mono text-green-400">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                SYSTEM_SECURE
+            </div>
+            <button onclick="window.history.back()" class="text-xs font-mono text-slate-500 hover:text-white transition-colors border border-slate-700 rounded px-3 py-1 hover:border-slate-500">
+                [ ESC : RETURN ]
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 md:py-12 max-w-5xl relative z-10">
+        
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-orbitron font-bold text-white mb-2 tracking-wide">OPERATIONAL DIRECTIVES</h1>
+                <p class="text-sm font-mono text-cyan-500">SYSTEM_PROTOCOL_V4.2 // LEGAL_FRAMEWORK_INIT</p>
+            </div>
+            <div class="flex gap-2 w-full md:w-auto">
+                <div class="relative flex-grow md:flex-grow-0">
+                    <input type="text" id="searchInput" placeholder="Search Protocols..." class="w-full md:w-64 bg-slate-900/80 border border-slate-700 text-xs text-white px-3 py-2 pl-8 rounded focus:outline-none focus:border-cyan-500 transition-colors font-mono shadow-sm">
+                    <i class="fas fa-search absolute left-2.5 top-2.5 text-slate-500 text-xs"></i>
+                </div>
+                <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded border border-slate-700 transition-colors" title="Print Protocols">
+                    <i class="fas fa-print"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Glass Panel Container -->
+        <div class="glass-panel rounded-xl p-1 relative overflow-hidden mb-12">
+            <!-- Top Loading Bar (Decorator) -->
+            <div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50"></div>
+
+            <div class="p-6 md:p-10" id="directivesContainer">
+                
+                <!-- Intro -->
+                <p class="text-sm text-slate-400 mb-8 leading-relaxed font-light border-b border-white/5 pb-6">
+                    <i class="fas fa-info-circle text-cyan-500 mr-2"></i>
+                    By initializing the SIFRA AI engine (hereinafter referred to as "The System"), the entity (hereinafter "User") agrees to bind their neural identifiers and data streams to the following protocols. Access is a privilege, not a right.
+                </p>
+
+                <!-- Directive 1 -->
+                <div class="directive-block mb-4 rounded-r-lg overflow-hidden group">
+                    <button class="w-full text-left p-4 flex justify-between items-center focus:outline-none" onclick="toggleDirective(this)">
+                        <div>
+                            <span class="text-xs font-mono text-cyan-500 block mb-1">PROTOCOL_01</span>
+                            <h3 class="text-white font-bold font-orbitron tracking-wide text-lg group-hover:text-cyan-400 transition-colors">DATA SOVEREIGNTY (Privacy)</h3>
+                        </div>
+                        <i class="fas fa-chevron-down text-slate-500 transition-transform duration-300"></i>
+                    </button>
+                    <div class="px-4 pb-4 hidden text-sm leading-relaxed text-slate-400 border-t border-slate-700/50 pt-4 mt-2 bg-slate-900/20">
+                        The System analyzes data provided by the User via the <strong>HDP-FusionNet</strong>. 
+                        <br><br>
+                        <span class="text-cyan-400 font-mono text-xs">>> PROTOCOL:</span> SIFRA AI does not claim ownership of User datasets. Data processed in "Volatile Memory Mode" is purged upon session termination. Data stored in "Persistent Vaults" (Firestore) remains the intellectual property of the User, encrypted via AES-256 standards.
+                    </div>
+                </div>
+
+                <!-- Directive 2 -->
+                <div class="directive-block mb-4 rounded-r-lg overflow-hidden group">
+                    <button class="w-full text-left p-4 flex justify-between items-center focus:outline-none" onclick="toggleDirective(this)">
+                        <div>
+                            <span class="text-xs font-mono text-purple-500 block mb-1">PROTOCOL_02</span>
+                            <h3 class="text-white font-bold font-orbitron tracking-wide text-lg group-hover:text-purple-400 transition-colors">AUTONOMOUS LIABILITY</h3>
+                        </div>
+                        <i class="fas fa-chevron-down text-slate-500 transition-transform duration-300"></i>
+                    </button>
+                    <div class="px-4 pb-4 hidden text-sm leading-relaxed text-slate-400 border-t border-slate-700/50 pt-4 mt-2 bg-slate-900/20">
+                        The System utilizes advanced AutoML heuristics to generate predictions, insights, and code.
+                        <br><br>
+                        <span class="text-purple-400 font-mono text-xs">>> WARNING:</span> While accuracy ratings often exceed 99.9%, the User acknowledges that algorithmic outputs are probabilistic estimations. SIFRA AI Inc. is not liable for financial losses, strategic errors, or timeline deviations resulting from autonomous decisions made by the engine.
+                    </div>
+                </div>
+
+                <!-- Directive 3 -->
+                <div class="directive-block mb-4 rounded-r-lg overflow-hidden group">
+                    <button class="w-full text-left p-4 flex justify-between items-center focus:outline-none" onclick="toggleDirective(this)">
+                        <div>
+                            <span class="text-xs font-mono text-red-500 block mb-1">PROTOCOL_03</span>
+                            <h3 class="text-white font-bold font-orbitron tracking-wide text-lg group-hover:text-red-400 transition-colors">ACCEPTABLE USE VECTORS</h3>
+                        </div>
+                        <i class="fas fa-chevron-down text-slate-500 transition-transform duration-300"></i>
+                    </button>
+                    <div class="px-4 pb-4 hidden text-sm leading-relaxed text-slate-400 border-t border-slate-700/50 pt-4 mt-2 bg-slate-900/20">
+                        The User shall not utilize The System for:
+                        <ul class="list-disc list-inside text-sm text-slate-400 mt-2 space-y-1 font-mono text-xs pl-2">
+                            <li>Reverse engineering the HDS-Unity Matrix.</li>
+                            <li>Processing illicit or classified government data without clearance.</li>
+                            <li>Generating deepfake vectors or malicious code injection.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Directive 4 -->
+                <div class="directive-block mb-4 rounded-r-lg overflow-hidden group">
+                    <button class="w-full text-left p-4 flex justify-between items-center focus:outline-none" onclick="toggleDirective(this)">
+                        <div>
+                            <span class="text-xs font-mono text-green-500 block mb-1">PROTOCOL_04</span>
+                            <h3 class="text-white font-bold font-orbitron tracking-wide text-lg group-hover:text-green-400 transition-colors">SUBSCRIPTION TIERS</h3>
+                        </div>
+                        <i class="fas fa-chevron-down text-slate-500 transition-transform duration-300"></i>
+                    </button>
+                    <div class="px-4 pb-4 hidden text-sm leading-relaxed text-slate-400 border-t border-slate-700/50 pt-4 mt-2 bg-slate-900/20">
+                        <span class="text-slate-200 font-bold">RECRUIT:</span> Limited processing power. 3 Executions/Day.<br>
+                        <span class="text-purple-400 font-bold">COMMANDER:</span> Uncapped processing. Priority GPU allocation.<br>
+                        <br>
+                        Payments are processed via secure quantum-resistant gateways (Stripe/Razorpay). Refunds are processed only if the engine fails to initialize due to server-side errors.
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer Signature -->
+            <div class="bg-slate-950/50 p-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 backdrop-blur-md">
+                <div class="text-xs text-slate-500 font-mono">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="w-1.5 h-1.5 bg-cyan-500 rounded-full"></span>
+                        LAST_UPDATE: 2025-12-01
+                    </div>
+                    <div>HASH: 8x92...a1b4</div>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="window.history.back()" class="px-6 py-2 rounded text-xs font-mono text-slate-400 hover:text-white border border-transparent hover:border-slate-600 transition-all">
+                        CANCEL
+                    </button>
+                    <button onclick="acknowledgeAndProceed()" id="ackBtn" class="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-2 px-8 rounded text-sm transition-all shadow-lg shadow-cyan-500/20 font-orbitron tracking-wider flex items-center gap-2">
+                        <span>I ACKNOWLEDGE</span>
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full py-6 text-center text-[10px] text-slate-600 font-mono relative z-20">
+        &copy; 2025 SIFRA AI INC. ALL RIGHTS RESERVED.
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        // --- 1. Canvas Animation (Neural Network Background) ---
+        const canvas = document.getElementById('neural-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        const particleCount = 50; 
+        const connectionDistance = 150; 
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.3; 
+                this.vy = (Math.random() - 0.5) * 0.3; 
+                this.size = Math.random() * 2 + 1;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(6, 182, 212, 0.5)';
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+        }
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, width, height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                for (let j = i; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < connectionDistance) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(139, 92, 246, ${0.15 - distance / (connectionDistance * 10)})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateCanvas);
+        }
+
+        window.addEventListener('resize', () => { resize(); initParticles(); });
+        resize();
+        initParticles();
+        animateCanvas();
+
+        // --- 2. Accordion Logic ---
+        function toggleDirective(btn) {
+            const content = btn.nextElementSibling;
+            const icon = btn.querySelector('.fa-chevron-down');
+            const parent = btn.parentElement;
+
+            // Close others (Optional - remove this block if you want multiple open)
+            document.querySelectorAll('.directive-block').forEach(block => {
+                if(block !== parent && block.classList.contains('active')) {
+                    block.classList.remove('active');
+                    block.querySelector('div.hidden, div.block').classList.add('hidden');
+                    block.querySelector('div.hidden, div.block').classList.remove('block');
+                    block.querySelector('.fa-chevron-down').classList.remove('rotate-180');
+                }
+            });
+
+            // Toggle Current
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                content.classList.add('block');
+                icon.classList.add('rotate-180');
+                parent.classList.add('active');
+            } else {
+                content.classList.add('hidden');
+                content.classList.remove('block');
+                icon.classList.remove('rotate-180');
+                parent.classList.remove('active');
+            }
+        }
+
+        // --- 3. Search Logic ---
+        document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            const term = e.target.value.toLowerCase();
+            const blocks = document.querySelectorAll('.directive-block');
+            
+            blocks.forEach(block => {
+                const title = block.querySelector('h3').innerText.toLowerCase();
+                const content = block.querySelector('div[class*="text-sm"]').innerText.toLowerCase();
+                
+                if (title.includes(term) || content.includes(term)) {
+                    block.style.display = "block";
+                    // Auto open if searching
+                    if(term.length > 2) {
+                        const contentDiv = block.querySelector('div[class*="text-sm"]');
+                        contentDiv.classList.remove('hidden');
+                        block.querySelector('.fa-chevron-down').classList.add('rotate-180');
+                    }
+                } else {
+                    block.style.display = "none";
+                }
+            });
+        });
+
+        // --- 4. Acknowledge Logic ---
+        function acknowledgeAndProceed() {
+            const btn = document.getElementById('ackBtn');
+            const originalHTML = btn.innerHTML;
+            
+            // Loading State
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> ENCRYPTING SIGNATURE...`;
+            btn.disabled = true;
+            btn.classList.add('opacity-75');
+
+            setTimeout(() => {
+                // Save to local storage (Mocking backend consent record)
+                localStorage.setItem('sifra_directives_accepted', 'true');
+                localStorage.setItem('sifra_consent_date', new Date().toISOString());
+                
+                // Visual Success
+                btn.innerHTML = `<i class="fas fa-lock"></i> SECURE PROTOCOL BINDING`;
+                btn.classList.replace('from-cyan-600', 'from-green-600');
+                btn.classList.replace('to-blue-600', 'to-green-500');
+                
+                setTimeout(() => {
+                    // Go back to previous page (likely Signup)
+                    window.history.back();
+                }, 800);
+            }, 1500);
+        }
+    </script>
+
+</body>
+</html>

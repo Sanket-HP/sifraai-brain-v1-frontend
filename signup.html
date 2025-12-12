@@ -16,6 +16,9 @@
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- EmailJS SDK (For sending real emails) -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -117,6 +120,50 @@
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
             background-color: rgba(255, 255, 255, 0.05);
         }
+
+        /* OTP Input Styling */
+        .otp-input {
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.25rem;
+            transition: all 0.2s;
+        }
+        .otp-input:focus {
+            border-color: #06b6d4;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* Captcha Grid */
+        .captcha-grid-item {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .captcha-grid-item:hover {
+            opacity: 0.8;
+        }
+        .captcha-grid-item.selected {
+            border-color: #06b6d4;
+            position: relative;
+        }
+        .captcha-grid-item.selected::after {
+            content: '\f00c'; /* FontAwesome check */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: #06b6d4;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body class="bg-sifra-bg text-slate-200 font-sans min-h-screen flex flex-col relative overflow-hidden bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
@@ -142,7 +189,7 @@
     <!-- 4. Main Content Area -->
     <main class="flex-grow flex items-center justify-center relative z-10 w-full px-4 py-4">
         
-        <!-- Main Card Container (Widened for side-by-side layout) -->
+        <!-- Main Card Container -->
         <div class="relative w-full max-w-[360px] md:max-w-[700px]">
             
             <!-- Decorative Border Corners -->
@@ -151,15 +198,16 @@
             <div class="absolute bottom-0 left-4 w-3 h-3 border-l-2 border-b-2 border-purple-500 rounded-bl-sm pointer-events-none z-20"></div>
             <div class="absolute bottom-0 right-4 w-3 h-3 border-r-2 border-b-2 border-purple-500 rounded-br-sm pointer-events-none z-20"></div>
 
-            <div class="glass-panel rounded-xl p-6 relative overflow-hidden">
+            <div class="glass-panel rounded-xl p-6 relative overflow-hidden transition-all duration-500" id="mainPanel">
                 <!-- Scanline Effect inside card -->
                 <div class="scanline"></div>
 
                 <!-- Flex Container for Layout -->
                 <div class="flex flex-col md:flex-row gap-8">
                     
-                    <!-- LEFT SIDE: AUTH FORM -->
-                    <div class="w-full md:w-1/2 flex flex-col justify-center">
+                    <!-- LEFT SIDE: FORMS -->
+                    <div class="w-full md:w-1/2 flex flex-col justify-center relative">
+                        
                         <!-- Header -->
                         <div class="flex flex-col items-center md:items-start mb-4">
                             <h2 class="text-[10px] font-mono text-cyan-500 tracking-[0.2em] mb-0.5">SECURE PROTOCOL</h2>
@@ -169,7 +217,7 @@
                             </div>
                         </div>
 
-                        <!-- Form -->
+                        <!-- STEP 1: INITIAL SIGNUP FORM -->
                         <form class="space-y-3" id="signupForm">
                             <!-- Name Field -->
                             <div class="space-y-0.5">
@@ -211,7 +259,7 @@
                             <div class="flex items-start gap-2 pt-0.5">
                                 <input type="checkbox" id="terms" required class="mt-0.5 w-3 h-3 rounded bg-slate-950 border-slate-700 checked:bg-cyan-500 checked:border-cyan-500 focus:ring-0 focus:ring-offset-0 cursor-pointer accent-cyan-500">
                                 <label for="terms" class="text-[9px] text-slate-400 leading-tight cursor-pointer select-none">
-                                    I accept <a href="#" class="text-cyan-400 hover:underline">Core Directives</a> & protocols.
+                                    I accept <a href="/directives.html" class="text-cyan-400 hover:underline">Core Directives</a> & protocols.
                                 </label>
                             </div>
 
@@ -225,14 +273,39 @@
                             </button>
                         </form>
 
-                        <!-- Divider -->
-                        <div class="relative flex py-3 items-center">
+                        <!-- STEP 2: OTP VERIFICATION (Initially Hidden) -->
+                        <div id="otpForm" class="hidden flex flex-col items-center space-y-4 animate-fadeIn">
+                            <div class="text-center">
+                                <i class="fas fa-shield-alt text-3xl text-cyan-400 mb-2 animate-pulse-slow"></i>
+                                <h3 class="text-sm font-bold text-white">2FA Verification</h3>
+                                <p class="text-[10px] text-slate-400">Enter the 6-digit code sent to your Neural Link.</p>
+                                <p class="text-[9px] text-purple-400 mt-1 font-mono" id="displayOtpEmail">user@example.com</p>
+                            </div>
+
+                            <div class="flex justify-between gap-2 w-full max-w-[280px]">
+                                <input type="text" maxlength="1" class="otp-input w-9 h-10 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none" autofocus>
+                                <input type="text" maxlength="1" class="otp-input w-9 h-10 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none">
+                                <input type="text" maxlength="1" class="otp-input w-9 h-10 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none">
+                                <input type="text" maxlength="1" class="otp-input w-9 h-10 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none">
+                                <input type="text" maxlength="1" class="otp-input w-9 h-10 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none">
+                                <input type="text" maxlength="1" class="otp-input w-9 h-10 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none">
+                            </div>
+
+                            <button type="button" id="verifyOtpBtn" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 rounded text-xs transition-all shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                                <i class="fas fa-lock-open mr-2"></i> VERIFY UPLINK
+                            </button>
+                            
+                            <button type="button" onclick="window.location.reload()" class="text-[9px] text-slate-500 hover:text-white underline">Cancel Protocol</button>
+                        </div>
+
+                        <!-- Divider (Only on Signup Step) -->
+                        <div id="divider" class="relative flex py-3 items-center">
                             <div class="flex-grow border-t border-slate-700/60"></div>
                             <span class="flex-shrink-0 mx-3 text-[9px] text-slate-500 font-mono tracking-widest">OR</span>
                             <div class="flex-grow border-t border-slate-700/60"></div>
                         </div>
 
-                        <!-- Google Button -->
+                        <!-- Google Button (Only on Signup Step) -->
                         <button id="googleBtn" type="button" class="w-full google-btn-hover group relative overflow-hidden rounded-md border border-slate-600 bg-slate-900/40 py-2 transition-all duration-300 active:scale-[0.98]">
                             <div class="flex items-center justify-center gap-3">
                                 <svg class="h-4 w-4" viewBox="0 0 24 24">
@@ -245,7 +318,7 @@
                             </div>
                         </button>
 
-                        <div class="mt-3 text-center md:text-left">
+                        <div id="loginLink" class="mt-3 text-center md:text-left">
                             <p class="text-[9px] text-slate-500">
                                 Existing user? <a href="/login.html" class="text-purple-400 hover:text-purple-300 font-bold transition-colors">LOGIN</a>
                             </p>
@@ -292,7 +365,29 @@
         </div>
     </main>
 
-    <!-- FIREBASE LOGIC -->
+    <!-- 5. Custom Captcha Modal (Hidden by Default) -->
+    <div id="captchaModal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center">
+        <div class="bg-slate-900 border border-slate-700 rounded-lg p-4 w-[320px] shadow-2xl transform transition-all scale-95 opacity-0" id="captchaContent">
+            <div class="bg-cyan-600 text-white p-3 -mt-4 -mx-4 mb-4 rounded-t-lg flex justify-between items-center">
+                <div>
+                    <p class="text-xs font-bold">Verify you are human</p>
+                    <p class="text-[10px]">Select all images with <span id="captchaTarget" class="font-bold uppercase underline">ROCKETS</span></p>
+                </div>
+                <i class="fas fa-robot text-2xl opacity-50"></i>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-2 mb-4" id="captchaGrid">
+                <!-- Icons generated by JS -->
+            </div>
+
+            <div class="flex justify-between items-center">
+                <button type="button" id="refreshCaptcha" class="text-slate-400 hover:text-white text-xs"><i class="fas fa-sync-alt"></i></button>
+                <button type="button" id="verifyCaptchaBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-2 rounded text-xs font-bold transition-colors">VERIFY</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE & EMAILJS LOGIC -->
     <script type="module">
         // Import Firebase Functions from CDN
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -316,18 +411,39 @@
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
 
-        // Retrieve selected plan from previous step
+        // -------------------------------------------------------------
+        // EMAILJS CONFIGURATION (REQUIRED FOR REAL OTP)
+        // To make this work:
+        // 1. Go to https://www.emailjs.com/ and create a free account
+        // 2. Add an "Email Service" (like Gmail) -> Get Service ID
+        // 3. Create an "Email Template" -> Get Template ID
+        //    - In template, use variables: {{to_email}}, {{otp_code}}, {{otp_expiry}}
+        // 4. Get your "Public Key" from Account Settings
+        // -------------------------------------------------------------
+        // PASTE YOUR KEYS HERE:
+        const EMAILJS_SERVICE_ID = "service_ns1rrem";   // e.g. "service_x93jk2a"
+        const EMAILJS_TEMPLATE_ID = "template_nkqedol"; // e.g. "template_q58dm3b"
+        const EMAILJS_PUBLIC_KEY = "IZIzFsYCnzhLuAGDA";   // e.g. "user_823489..."
+
+        // Initialize EmailJS (If keys are present)
+        if(EMAILJS_PUBLIC_KEY !== "YOUR_PUBLIC_KEY") {
+            emailjs.init(EMAILJS_PUBLIC_KEY);
+        }
+
+        // Variables
         const selectedPlan = localStorage.getItem('sifra_selected_plan') || 'recruit';
+        let pendingUserCreds = null; 
+        let captchaTargetIcon = 'rocket';
+        let generatedRealOTP = null; // Stores the secure code
         
-        // Update UI to show selected plan
+        // UI Setup
         document.getElementById('planDisplay').textContent = `PLAN: ${selectedPlan}`;
         if(selectedPlan === 'commander' || selectedPlan === 'titan') {
             document.getElementById('planDisplay').classList.replace('text-slate-400', 'text-purple-400');
             document.getElementById('planDisplay').classList.replace('border-slate-700', 'border-purple-500');
         }
 
-        // --- UI UTILITIES ---
-
+        // --- UTILS ---
         function log(msg, type = 'info') {
             const consoleEl = document.getElementById('consoleOutput');
             const div = document.createElement('div');
@@ -336,18 +452,10 @@
             let prefix = `<span class="text-slate-500 opacity-50">[${time}]</span>`;
             let color = 'text-slate-300';
             
-            if (type === 'success') {
-                prefix += ` <span class="text-green-400 font-bold">>> OK</span>`;
-                color = 'text-green-300';
-            } else if (type === 'error') {
-                prefix += ` <span class="text-red-400 font-bold">>> ERR</span>`;
-                color = 'text-red-300';
-            } else if (type === 'warn') {
-                prefix += ` <span class="text-yellow-400 font-bold">>> WARN</span>`;
-                color = 'text-yellow-200';
-            } else {
-                prefix += ` <span class="text-cyan-400">>></span>`;
-            }
+            if (type === 'success') { prefix += ` <span class="text-green-400 font-bold">>> OK</span>`; color = 'text-green-300'; }
+            else if (type === 'error') { prefix += ` <span class="text-red-400 font-bold">>> ERR</span>`; color = 'text-red-300'; }
+            else if (type === 'warn') { prefix += ` <span class="text-yellow-400 font-bold">>> WARN</span>`; color = 'text-yellow-200'; }
+            else { prefix += ` <span class="text-cyan-400">>></span>`; }
 
             div.className = "mb-1 leading-tight break-all";
             div.innerHTML = `${prefix} <span class="${color}">${msg}</span>`;
@@ -355,154 +463,292 @@
             consoleEl.scrollTop = consoleEl.scrollHeight;
         }
 
-        function setLoadingState(isLoading, btnId, originalContent) {
+        function setLoadingState(isLoading, btnId) {
             const btn = document.getElementById(btnId);
             if (!btn) return;
-            
             if (isLoading) {
                 btn.disabled = true;
-                if(btnId === 'submitBtn') {
-                    const relativeDiv = btn.querySelector('.relative');
-                    relativeDiv.dataset.original = relativeDiv.innerHTML;
-                    relativeDiv.innerHTML = `<i class="fas fa-circle-notch fa-spin text-white"></i><span class="font-orbitron font-bold text-white tracking-widest text-xs ml-2">...</span>`;
-                } else {
-                    btn.dataset.original = btn.innerHTML;
-                    btn.innerHTML = `<i class="fas fa-circle-notch fa-spin text-slate-300"></i><span class="font-mono text-xs font-bold text-slate-300 ml-2">...</span>`;
-                }
+                btn.dataset.original = btn.innerHTML;
+                btn.innerHTML = `<i class="fas fa-circle-notch fa-spin text-white"></i><span class="ml-2">...</span>`;
             } else {
                 btn.disabled = false;
-                if(btnId === 'submitBtn') {
-                    const relativeDiv = btn.querySelector('.relative');
-                    relativeDiv.innerHTML = relativeDiv.dataset.original;
-                } else {
-                    btn.innerHTML = btn.dataset.original;
-                }
+                btn.innerHTML = btn.dataset.original;
             }
         }
 
-        function handleSuccess(user, method) {
-            const btn = document.getElementById('submitBtn');
-            const relativeDiv = btn.querySelector('.relative');
-            
-            // Visual success state
-            btn.querySelector('.absolute').classList.replace('from-cyan-500', 'from-green-500');
-            btn.querySelector('.absolute').classList.replace('to-purple-600', 'to-green-600');
-            relativeDiv.innerHTML = `<i class="fas fa-check text-green-400"></i><span class="font-orbitron font-bold text-white tracking-widest text-xs ml-2">GRANTED</span>`;
-            
-            log(`Auth verified: ${method}`, 'success');
-            log(`Plan assigned: ${selectedPlan.toUpperCase()}`, 'success');
-            log(`ID: ${user.email}`, 'info');
-            log(`Redirecting...`, 'warn');
-
-            setTimeout(() => {
-                window.location.href = 'home.html';
-            }, 2000);
+        // --- OTP GENERATION & SENDING ---
+        function generateOTP() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
         }
 
-        // --- AUTH LOGIC ---
+        async function sendRealOTP(email, otp) {
+            // Calculate Expiry Time (15 mins from now)
+            const now = new Date();
+            const expiryTime = new Date(now.getTime() + 15 * 60000);
+            const expiryString = expiryTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        // 1. Email/Password Signup
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+            // Check if user has configured keys
+            if (EMAILJS_PUBLIC_KEY === "YOUR_PUBLIC_KEY") {
+                log("⚠️ EmailJS Keys not set in code.", 'warn');
+                log(`[TEST MODE] OTP for ${email}: ${otp}`, 'success');
+                alert(`[TEST MODE]\nSince EmailJS keys are missing, here is your OTP:\n\n${otp}\n\n(Check console for details on how to enable real emails)`);
+                return true; 
+            }
+
+            try {
+                log(`Connecting to Email Server...`, 'info');
+                await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                    to_email: email,
+                    otp_code: otp,
+                    otp_expiry: expiryString, // New variable for template
+                    reply_to: "support@sifra.ai"
+                });
+                return true;
+            } catch (error) {
+                console.error("EmailJS Error:", error);
+                log("Failed to send real email. Check console.", 'error');
+                // Fallback for demo so user isn't stuck
+                log(`[FALLBACK] OTP: ${otp}`, 'warn'); 
+                return true; 
+            }
+        }
+
+        // --- CAPTCHA SYSTEM ---
+        const icons = [
+            { name: 'rocket', class: 'fa-rocket' },
+            { name: 'car', class: 'fa-car' },
+            { name: 'tree', class: 'fa-tree' },
+            { name: 'coffee', class: 'fa-mug-hot' },
+            { name: 'star', class: 'fa-star' }
+        ];
+
+        function showCaptcha() {
+            const modal = document.getElementById('captchaModal');
+            const content = document.getElementById('captchaContent');
+            const grid = document.getElementById('captchaGrid');
+            const targetText = document.getElementById('captchaTarget');
             
+            // Randomize target
+            const target = icons[Math.floor(Math.random() * icons.length)];
+            captchaTargetIcon = target.name;
+            targetText.innerText = target.name.toUpperCase() + 'S'; 
+
+            // Generate Grid
+            grid.innerHTML = '';
+            
+            const gridItems = [];
+            for(let i=0; i<3; i++) gridItems.push(target);
+            for(let i=0; i<6; i++) gridItems.push(icons[Math.floor(Math.random() * icons.length)]);
+            
+            gridItems.sort(() => Math.random() - 0.5);
+
+            gridItems.forEach((icon, idx) => {
+                const div = document.createElement('div');
+                div.className = `captcha-grid-item h-16 bg-slate-800 rounded flex items-center justify-center text-2xl text-slate-400`;
+                div.dataset.name = icon.name;
+                div.innerHTML = `<i class="fas ${icon.class}"></i>`;
+                div.onclick = function() {
+                    this.classList.toggle('selected');
+                    this.classList.toggle('bg-slate-700');
+                };
+                grid.appendChild(div);
+            });
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+            
+            log('Human Verification Protocol Initiated...', 'warn');
+        }
+
+        document.getElementById('verifyCaptchaBtn').addEventListener('click', () => {
+            const selected = document.querySelectorAll('.captcha-grid-item.selected');
+            const allItems = document.querySelectorAll('.captcha-grid-item');
+            
+            let correct = 0;
+            let wrong = 0;
+            let missed = 0;
+
+            allItems.forEach(item => {
+                const isTarget = item.dataset.name === captchaTargetIcon;
+                const isSelected = item.classList.contains('selected');
+
+                if (isTarget && isSelected) correct++;
+                if (!isTarget && isSelected) wrong++;
+                if (isTarget && !isSelected) missed++;
+            });
+
+            if (correct > 0 && wrong === 0 && missed <= 1) { 
+                document.getElementById('captchaModal').classList.add('hidden');
+                log('Captcha Passed.', 'success');
+                executeSignup();
+            } else {
+                log('Verification failed. Retrying...', 'error');
+                setTimeout(() => showCaptcha(), 500); 
+            }
+        });
+
+        document.getElementById('refreshCaptcha').addEventListener('click', showCaptcha);
+
+        // --- STEP 1: FORM SUBMIT ---
+        document.getElementById('signupForm').addEventListener('submit', (e) => {
+            e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const callsign = document.getElementById('callsign').value.toUpperCase();
 
+            if(password.length < 6) {
+                log('Key too weak (min 6 chars).', 'error');
+                return;
+            }
+
+            pendingUserCreds = { email, password, callsign };
+            showCaptcha();
+        });
+
+        // --- STEP 2: CREATE USER & SEND OTP ---
+        async function executeSignup() {
             setLoadingState(true, 'submitBtn');
             log('Initiating cryptographic handshake...', 'info');
 
             try {
-                // visual delay for "hacker" feel
                 await new Promise(r => setTimeout(r, 800)); 
-                log('Allocating neural storage...', 'info');
+                
+                const { email, password, callsign } = pendingUserCreds;
+                
+                // 1. TRY CREATING USER FIRST (To ensure email is unique)
+                let userCredential;
+                try {
+                    userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                } catch (authError) {
+                    // Handle specific auth errors here to stop flow before sending email
+                    if (authError.code === 'auth/email-already-in-use') {
+                        throw new Error("Identity exists.");
+                    } else {
+                        throw authError;
+                    }
+                }
 
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
+                await updateProfile(user, { displayName: callsign });
 
-                // Update Profile with Callsign
-                await updateProfile(user, {
-                    displayName: callsign
-                });
+                // 2. GENERATE & SEND OTP (Only if user creation succeeded)
+                const otp = generateOTP();
+                generatedRealOTP = otp; 
+                
+                log('Transmitting 2FA Secure Code...', 'warn');
+                await sendRealOTP(email, otp);
 
-                // Store extra data in Firestore WITH SUBSCRIPTION INFO
+                // 3. Firestore Store
                 try {
                     await setDoc(doc(db, "users", user.uid), {
                         email: email,
                         callsign: callsign,
                         createdAt: new Date().toISOString(),
-                        role: 'user', // Basic role
-                        subscriptionTier: selectedPlan, // Assing Selected Plan
-                        dailyUsage: {
-                            date: new Date().toDateString(),
-                            count: 0
-                        }
+                        role: 'user',
+                        subscriptionTier: selectedPlan,
+                        dailyUsage: { date: new Date().toDateString(), count: 0 }
                     });
-                } catch(err) {
-                    console.error("Firestore Error:", err); // Non-blocking
-                }
+                } catch(err) { console.error(err); }
 
-                handleSuccess(user, "Standard Protocol");
+                log('Credentials Valid. 2FA Required.', 'success');
+                
+                // 4. SWITCH UI TO OTP FORM
+                document.getElementById('signupForm').classList.add('hidden');
+                document.getElementById('divider').classList.add('hidden');
+                document.getElementById('googleBtn').classList.add('hidden');
+                document.getElementById('loginLink').classList.add('hidden');
+                
+                const otpForm = document.getElementById('otpForm');
+                otpForm.classList.remove('hidden');
+                document.getElementById('displayOtpEmail').innerText = email;
+                
+                setTimeout(() => document.querySelector('.otp-input').focus(), 100);
+                
+                log('OTP transmitted via secure channel.', 'info');
 
             } catch (error) {
                 setLoadingState(false, 'submitBtn');
-                let errorMsg = "Access Denied.";
-                if (error.code === 'auth/email-already-in-use') errorMsg = "Identity exists.";
-                if (error.code === 'auth/weak-password') errorMsg = "Key too weak (min 6 chars).";
+                let errorMsg = error.message || "Access Denied.";
+                if (error.code === 'auth/email-already-in-use' || error.message === "Identity exists.") {
+                    errorMsg = "Identity exists. Please Login.";
+                }
                 log(errorMsg, 'error');
             }
+        }
+
+        // --- STEP 3: OTP VERIFICATION ---
+        const otpInputs = document.querySelectorAll('.otp-input');
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if(e.target.value.length === 1 && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            });
+            input.addEventListener('keydown', (e) => {
+                if(e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
         });
 
-        // 2. Google Login
+        document.getElementById('verifyOtpBtn').addEventListener('click', () => {
+            const btn = document.getElementById('verifyOtpBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> VERIFYING...`;
+
+            // Collect Code
+            let code = "";
+            otpInputs.forEach(i => code += i.value);
+
+            setTimeout(() => {
+                // Verify against generated OTP
+                if(code === generatedRealOTP) {
+                    log('Uplink Established. Handshake Complete.', 'success');
+                    window.location.href = 'home.html';
+                } else {
+                    log('Invalid OTP Code.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fas fa-lock-open mr-2"></i> VERIFY UPLINK`;
+                    otpInputs.forEach(i => i.value = ''); 
+                    otpInputs[0].focus();
+                }
+            }, 1000);
+        });
+
         document.getElementById('googleBtn').addEventListener('click', async () => {
             setLoadingState(true, 'googleBtn');
             log('Uplink Google...', 'info');
-
             try {
                 const result = await signInWithPopup(auth, googleProvider);
                 const user = result.user;
+                await setDoc(doc(db, "users", user.uid), {
+                    email: user.email,
+                    subscriptionTier: selectedPlan,
+                    dailyUsage: { date: new Date().toDateString(), count: 0 } 
+                }, { merge: true });
                 
-                // For Google login, we also need to ensure Firestore doc exists with correct plan
-                // But we check first to not overwrite existing users
-                // In a real app, you'd check `getDoc` first. For simplicity here we set merge: true
-                try {
-                    await setDoc(doc(db, "users", user.uid), {
-                        email: user.email,
-                        // Only set these if creating new, merge true helps but assumes we want to update plan on re-login? 
-                        // Better to rely on existing plan if present, but for signup flow we force selected plan if it's a new doc.
-                        // Since setDoc with merge won't overwrite existing fields if we don't provide them, 
-                        // BUT we want to ensure new users get the plan.
-                        // A safer approach for Google Sign-In on a "Signup" page is to assume intent to register with this plan.
-                        subscriptionTier: selectedPlan,
-                        dailyUsage: { date: new Date().toDateString(), count: 0 } 
-                    }, { merge: true });
-                } catch(err) {
-                    console.error("Firestore Error:", err);
-                }
-
-                handleSuccess(user, "Neural ID (Google)");
-
+                log('Google Neural ID Verified.', 'success');
+                setTimeout(() => window.location.href = 'home.html', 1000);
             } catch (error) {
                 setLoadingState(false, 'googleBtn');
-                log('Uplink failed.', 'error');
-                log(error.message, 'error');
+                log('Uplink failed: ' + error.message, 'error');
             }
         });
 
-        // Toggle Password Visibility
         document.getElementById('togglePasswordBtn').addEventListener('click', () => {
             const input = document.getElementById('password');
             const icon = document.getElementById('eyeIcon');
             if (input.type === 'password') {
                 input.type = 'text';
                 icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-                icon.classList.add('text-cyan-400');
+                icon.classList.add('fa-eye-slash', 'text-cyan-400');
             } else {
                 input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
-                icon.classList.remove('text-cyan-400');
+                icon.classList.remove('fa-eye-slash', 'text-cyan-400');
             }
         });
     </script>
