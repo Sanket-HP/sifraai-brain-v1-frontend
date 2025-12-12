@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIFRA AI | System Documentation</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        orbitron: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        sifra: {
+                            bg: '#020617', // Slate 950
+                            panel: '#0f172a', // Slate 900
+                            border: '#1e293b', // Slate 800
+                            cyan: '#06b6d4',
+                            purple: '#8b5cf6',
+                            success: '#10b981',
+                            error: '#ef4444',
+                            warn: '#f59e0b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Glassmorphism */
+        .glass-nav {
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-sidebar {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: #e2e8f0;
+            overflow-x: auto;
+        }
+
+        .token-keyword { color: #c084fc; } /* Purple */
+        .token-string { color: #22d3ee; }  /* Cyan */
+        .token-func { color: #fbbf24; }    /* Amber */
+        .token-comment { color: #64748b; font-style: italic; }
+
+        /* Typography */
+        h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
+        
+        .nav-link.active {
+            color: #22d3ee;
+            border-left: 2px solid #22d3ee;
+            background: rgba(34, 211, 238, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-sifra-bg text-slate-200 font-sans min-h-screen flex flex-col relative overflow-x-hidden bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
+
+    <!-- Background Elements -->
+    <div class="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-cyan-500 z-[60]"></div>
+    <div class="fixed top-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-900/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 glass-nav w-full px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold font-orbitron text-sm shadow-lg shadow-cyan-500/20">S</div>
+            <a href="index.html" class="text-lg font-orbitron font-bold text-white tracking-widest hover:text-cyan-400 transition-colors">SIFRA<span class="text-cyan-500">.DOCS</span></a>
+        </div>
+    </nav>
+
+    <div class="flex flex-1 max-w-7xl mx-auto w-full pt-6">
+        
+        <!-- Sidebar Navigation (Desktop) -->
+        <aside class="hidden lg:block w-64 glass-sidebar fixed h-[calc(100vh-5rem)] rounded-lg overflow-y-auto custom-scrollbar">
+            <div class="p-6 space-y-8">
+                <div>
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Getting Started</h3>
+                    <ul class="space-y-1">
+                        <li><a href="#intro" class="nav-link active block text-sm text-slate-300 py-1.5 px-3 rounded-r border-l-2 border-transparent hover:text-cyan-400 transition-colors">Introduction</a></li>
+                        <li><a href="#architecture" class="nav-link block text-sm text-slate-300 py-1.5 px-3 rounded-r border-l-2 border-transparent hover:text-cyan-400 transition-colors">Core Architecture</a></li>
+                        <li><a href="#quickstart" class="nav-link block text-sm text-slate-300 py-1.5 px-3 rounded-r border-l-2 border-transparent hover:text-cyan-400 transition-colors">Quick Start</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Modules</h3>
+                    <ul class="space-y-1">
+                        <li><a href="#automl" class="nav-link block text-sm text-slate-300 py-1.5 px-3 rounded-r border-l-2 border-transparent hover:text-cyan-400 transition-colors">AutoML Engine</a></li>
+                        <li><a href="#fusion" class="nav-link block text-sm text-slate-300 py-1.5 px-3 rounded-r border-l-2 border-transparent hover:text-cyan-400 transition-colors">HDP-FusionNet</a></li>
+                        <li><a href="#llm" class="nav-link block text-sm text-slate-300 py-1.5 px-3 rounded-r border-l-2 border-transparent hover:text-cyan-400 transition-colors">Synthetic LLMs</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">API Reference</h3>
+                    <ul class="space-y-1">
+                        <li><a href="#api-auth" class="nav-link block text-sm text-slate-300 py-1.5 px-3 rounded-r border-l-2 border-transparent hover:text-cyan-400 transition-colors">Authentication</a></li>
+                        <li><a href="#api-predict" class="nav-link block text-sm text-slate-300 py-1.5 px-3 rounded-r border-l-2 border-transparent hover:text-cyan-400 transition-colors">Prediction Endpoints</a></li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 lg:ml-72 px-4 sm:px-6 lg:px-8 pb-20">
+            
+            <!-- Introduction -->
+            <section id="intro" class="mb-16 scroll-mt-24">
+                <div class="inline-block px-3 py-1 rounded bg-cyan-900/30 border border-cyan-500/30 text-cyan-400 text-[10px] font-bold tracking-widest uppercase mb-4">
+                    v4.2.1 Documentation
+                </div>
+                <h1 class="text-4xl font-bold text-white mb-6">Introduction to SIFRA</h1>
+                <p class="text-slate-400 leading-relaxed mb-6 text-lg">
+                    SIFRA (Synthetic Intelligence for Real-time Analysis) is an autonomous data scientist engine designed to bypass the latency of human analysis. Unlike traditional LLM wrappers, SIFRA utilizes <strong>HDP-FusionNet</strong>, a proprietary vector-based intent engine, to perform hard mathematical computations, forecasting, and anomaly detection instantly.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-lg">
+                        <h4 class="text-white font-bold mb-2 flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Deterministic</h4>
+                        <p class="text-sm text-slate-500">Results are mathematically verifiable, not hallucinated.</p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-lg">
+                        <h4 class="text-white font-bold mb-2 flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Zero-Config</h4>
+                        <p class="text-sm text-slate-500">Auto-detects schema, seasonality, and correlations.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Architecture -->
+            <section id="architecture" class="mb-16 scroll-mt-24 pt-8 border-t border-slate-800">
+                <h2 class="text-2xl font-bold text-white mb-4">Core Architecture</h2>
+                <p class="text-slate-400 leading-relaxed mb-6">
+                    The system is composed of three primary nodes operating in parallel:
+                </p>
+                <div class="space-y-6">
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 rounded bg-purple-500/10 flex items-center justify-center text-purple-400 shrink-0 border border-purple-500/20"><i class="fas fa-network-wired"></i></div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white mb-1">HDP-FusionNet</h3>
+                            <p class="text-sm text-slate-400">High-Dimensional Processing layer. It ingests raw CSV/JSON streams and converts them into normalized vector tensors for analysis.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 rounded bg-cyan-500/10 flex items-center justify-center text-cyan-400 shrink-0 border border-cyan-500/20"><i class="fas fa-layer-group"></i></div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white mb-1">HDS-Unity Matrix</h3>
+                            <p class="text-sm text-slate-400">The central state machine. It orchestrates the flow between the forecasting engine, the anomaly detector, and the visualization renderer.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Start -->
+            <section id="quickstart" class="mb-16 scroll-mt-24 pt-8 border-t border-slate-800">
+                <h2 class="text-2xl font-bold text-white mb-4">Quick Start Guide</h2>
+                <p class="text-slate-400 mb-4">Follow this protocol to initiate your first analysis run.</p>
+                
+                <ol class="relative border-l border-slate-800 ml-3 space-y-8">
+                    <li class="mb-10 ml-6">
+                        <span class="absolute flex items-center justify-center w-6 h-6 bg-slate-900 rounded-full -left-3 ring-4 ring-slate-900 border border-slate-600 text-[10px] font-bold text-slate-300">1</span>
+                        <h3 class="flex items-center mb-1 text-lg font-semibold text-white">Upload Dataset</h3>
+                        <p class="mb-4 text-base font-normal text-slate-400">Navigate to the Command Center and upload a CSV file. Ensure the first row contains headers.</p>
+                        <div class="code-block">Date,Revenue,Cost
+2024-01-01,1500,800
+2024-01-02,1800,900</div>
+                    </li>
+                    <li class="mb-10 ml-6">
+                        <span class="absolute flex items-center justify-center w-6 h-6 bg-slate-900 rounded-full -left-3 ring-4 ring-slate-900 border border-slate-600 text-[10px] font-bold text-slate-300">2</span>
+                        <h3 class="flex items-center mb-1 text-lg font-semibold text-white">Select Operation</h3>
+                        <p class="text-base font-normal text-slate-400">Choose "Deep Analysis" or "Forecasting" from the Input Parameters panel.</p>
+                    </li>
+                    <li class="ml-6">
+                        <span class="absolute flex items-center justify-center w-6 h-6 bg-slate-900 rounded-full -left-3 ring-4 ring-slate-900 border border-slate-600 text-[10px] font-bold text-slate-300">3</span>
+                        <h3 class="flex items-center mb-1 text-lg font-semibold text-white">Initialize Engine</h3>
+                        <p class="text-base font-normal text-slate-400">Click the "Initialize Engine" button. The system log will display real-time processing events.</p>
+                    </li>
+                </ol>
+            </section>
+
+            <!-- API Reference -->
+            <section id="api-auth" class="mb-16 scroll-mt-24 pt-8 border-t border-slate-800">
+                <h2 class="text-2xl font-bold text-white mb-2">API Reference</h2>
+                <div class="bg-yellow-900/20 border border-yellow-700/50 p-4 rounded-lg mb-6 flex gap-3 items-start">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 mt-1"></i>
+                    <div>
+                        <h4 class="text-yellow-500 font-bold text-sm">Titan Tier Required</h4>
+                        <p class="text-xs text-yellow-200/80">Direct API access is restricted to Titan subscribers. Recruit and Commander users must use the web interface.</p>
+                    </div>
+                </div>
+
+                <h3 class="text-lg font-bold text-white mb-4">Authentication</h3>
+                <p class="text-slate-400 mb-4">Include your Secret Key in the header of every request.</p>
+                
+                <div class="code-block mb-6">
+                    <span class="token-comment"># Example Authentication Header</span>
+                    Authorization: Bearer <span class="token-string">sk_live_9482...</span>
+                </div>
+
+                <h3 class="text-lg font-bold text-white mb-4" id="api-predict">Prediction Endpoint</h3>
+                <p class="text-slate-400 mb-4">Send data for real-time inference using a pre-trained model.</p>
+                
+                <div class="mb-2 flex items-center gap-2">
+                    <span class="px-2 py-1 bg-green-900/50 text-green-400 text-xs font-bold rounded border border-green-700">POST</span>
+                    <span class="font-mono text-sm text-slate-300">/v1/predict</span>
+                </div>
+
+                <div class="code-block">
+<span class="token-keyword">curl</span> -X POST https://api.sifra.ai/v1/predict \
+  -H <span class="token-string">"Authorization: Bearer sk_live_..."</span> \
+  -H <span class="token-string">"Content-Type: application/json"</span> \
+  -d <span class="token-string">'{
+    "model_id": "model_alpha_01",
+    "features": [150, 2.5, "Q4"]
+  }'</span>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBu6CIgw5njjcl9dVhNYjitSUBKE87_S6M",
+            authDomain: "sifraaiweb.firebaseapp.com",
+            projectId: "sifraaiweb",
+            storageBucket: "sifraaiweb.firebasestorage.app",
+            messagingSenderId: "927713452336",
+            appId: "1:927713452336:web:f3affb6ef66091619e68f5",
+            measurementId: "G-V3TXBH3GCD"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            const statusDiv = document.getElementById('authStatus');
+            if (user) {
+                const avatar = user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`;
+                statusDiv.innerHTML = `
+                    <a href="profile.html" class="flex items-center gap-2 group">
+                        <img src="${avatar}" class="w-8 h-8 rounded-full border border-slate-600 group-hover:border-cyan-400 transition-colors">
+                    </a>
+                `;
+            } else {
+                statusDiv.innerHTML = `<a href="login.html" class="text-xs font-bold text-white bg-slate-800 px-4 py-2 rounded hover:bg-slate-700 transition">LOGIN</a>`;
+            }
+        });
+
+        // Sidebar Navigation Highlight
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
