@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIFRA AI | Configuration</title>
+    <title>SIFRA AI | Commander Profile</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,318 +28,385 @@
                     },
                     colors: {
                         sifra: {
-                            bg: '#020617', 
+                            bg: '#020617', // Slate 950
+                            panel: '#0f172a', // Slate 900
+                            border: '#1e293b', // Slate 800
                             cyan: '#06b6d4',
                             purple: '#8b5cf6',
-                            danger: '#ef4444'
+                            success: '#10b981',
+                            error: '#ef4444',
+                            warn: '#f59e0b'
                         }
                     },
                     animation: {
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
                     }
                 }
             }
         }
     </script>
     <style>
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #020617; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
+        /* Glassmorphism */
         .glass-panel {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(16px);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
-        .input-dark {
-            background: rgba(2, 6, 23, 0.6);
-            border: 1px solid #1e293b;
-            color: #e2e8f0;
-            transition: all 0.3s ease;
-        }
-        .input-dark:focus {
-            outline: none;
-            border-color: #06b6d4;
-            box-shadow: 0 0 10px rgba(6, 182, 212, 0.15);
+        .glass-nav {
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Toggle Switch */
-        .toggle-checkbox:checked {
-            right: 0;
-            border-color: #06b6d4;
-        }
-        .toggle-checkbox:checked + .toggle-label {
-            background-color: #06b6d4;
+        /* Neon Borders */
+        .neon-border-cyan:hover {
+            border-color: rgba(6, 182, 212, 0.5);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
         }
         
-        .sidebar-link {
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
+        /* Particle Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
         }
-        .sidebar-link.active {
-            background: rgba(255, 255, 255, 0.05);
-            border-left-color: #06b6d4;
-            color: #fff;
+
+        /* Modal Transitions */
+        .modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
         }
-        .sidebar-link:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.03);
-            color: #cbd5e1;
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            transform: translate(-50%, -60%);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal.active .modal-content {
+            transform: translate(-50%, -50%);
+        }
+        
+        /* Avatar Option Hover */
+        .avatar-option:hover {
+            transform: scale(1.1);
+            border-color: #06b6d4;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
         }
     </style>
 </head>
-<body class="bg-[#020617] text-slate-300 font-sans min-h-screen flex flex-col relative bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
+<body class="bg-sifra-bg text-slate-200 font-sans min-h-screen flex flex-col relative overflow-x-hidden bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
 
-    <!-- Background Decoration -->
-    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-900/10 rounded-full blur-[100px] pointer-events-none"></div>
-    <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-900/10 rounded-full blur-[100px] pointer-events-none"></div>
+    <!-- Background Animation -->
+    <canvas id="bg-canvas"></canvas>
+    <div class="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-600/5 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-cyan-600/5 rounded-full blur-[120px] pointer-events-none"></div>
 
     <!-- Navigation -->
-    <nav class="w-full px-6 py-4 flex items-center justify-between border-b border-white/5 bg-[#020617]/80 backdrop-blur-md sticky top-0 z-50">
-        <div class="flex items-center gap-8">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold font-orbitron text-sm shadow-lg shadow-cyan-500/20">S</div>
-                <span class="text-lg font-orbitron font-bold text-white tracking-widest">SIFRA<span class="text-cyan-500">.AI</span></span>
-            </div>
-            <a href="home.html" class="text-xs font-mono text-slate-500 hover:text-white transition-colors flex items-center gap-2">
-                <i class="fas fa-arrow-left"></i> BACK TO DASHBOARD
-            </a>
+    <nav class="sticky top-0 z-50 glass-nav w-full px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold font-orbitron text-sm shadow-lg shadow-cyan-500/20">S</div>
+            <a href="home.html" class="text-lg font-orbitron font-bold text-white tracking-widest hover:text-cyan-400 transition-colors">SIFRA<span class="text-cyan-500">.AI</span></a>
         </div>
-        <div class="flex items-center gap-4">
-            <div class="text-right hidden md:block">
-                <div id="navUserName" class="text-sm font-bold text-white leading-none">--</div>
-                <div id="navUserPlan" class="text-[10px] font-mono text-cyan-400">LOADING...</div>
-            </div>
-            <div id="navAvatar" class="w-9 h-9 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-white overflow-hidden">
-                --
-            </div>
+        <div class="flex items-center gap-6">
+            <a href="home.html" class="hidden md:block text-xs font-mono text-slate-400 hover:text-cyan-400 transition-colors uppercase tracking-widest">Dashboard</a>
+            <a href="#" class="hidden md:block text-xs font-mono text-slate-400 hover:text-cyan-400 transition-colors uppercase tracking-widest">Docs</a>
+            <button class="flex items-center gap-2 group">
+                <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center overflow-hidden">
+                    <img id="navAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Commander" alt="Profile" class="w-full h-full object-cover">
+                </div>
+            </button>
         </div>
     </nav>
 
-    <!-- Main Layout -->
-    <div class="flex-grow container mx-auto px-4 py-8 max-w-6xl relative z-10">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-orbitron font-bold text-white flex items-center gap-3">
-                <i class="fas fa-cog text-slate-500"></i> SYSTEM CONFIGURATION
-            </h1>
-            <!-- Added Link to Settings Page -->
-            <a href="/settings.html" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono rounded border border-slate-700 transition-colors flex items-center gap-2">
-                <i class="fas fa-cog"></i> SETTINGS
-            </a>
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 opacity-0 transition-opacity duration-700" id="mainContent">
+        
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+            <div>
+                <h2 class="text-xs font-mono text-cyan-500 tracking-widest mb-2">USER IDENTIFICATION: CONFIRMED</h2>
+                <h1 class="text-3xl md:text-4xl font-orbitron font-bold text-white">COMMAND CENTER</h1>
+            </div>
+            <div class="flex gap-3">
+                <button class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono rounded border border-slate-700 transition-colors">
+                    <i class="fas fa-cog mr-2"></i>SETTINGS
+                </button>
+                <button id="logoutBtn" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-mono rounded border border-red-500/20 transition-colors group">
+                    <i class="fas fa-power-off mr-2 group-hover:animate-pulse"></i>DISCONNECT
+                </button>
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <!-- Sidebar Navigation -->
-            <aside class="lg:col-span-1">
-                <div class="glass-panel rounded-xl overflow-hidden sticky top-24">
-                    <nav class="flex flex-col text-sm font-medium">
-                        <button onclick="switchTab('general')" id="btn-general" class="sidebar-link active flex items-center gap-3 px-4 py-4 text-slate-300">
-                            <i class="fas fa-user-astronaut w-5 text-center"></i> Neural Identity
-                        </button>
-                        <button onclick="switchTab('security')" id="btn-security" class="sidebar-link flex items-center gap-3 px-4 py-4 text-slate-400">
-                            <i class="fas fa-shield-alt w-5 text-center"></i> Security Protocol
-                        </button>
-                        <button onclick="switchTab('billing')" id="btn-billing" class="sidebar-link flex items-center gap-3 px-4 py-4 text-slate-400">
-                            <i class="fas fa-credit-card w-5 text-center"></i> Subscription Core
-                        </button>
-                        <button onclick="switchTab('api')" id="btn-api" class="sidebar-link flex items-center gap-3 px-4 py-4 text-slate-400">
-                            <i class="fas fa-code w-5 text-center"></i> API Gateway
-                        </button>
-                        <div class="border-t border-white/5 my-1"></div>
-                        <button onclick="logout()" class="flex items-center gap-3 px-4 py-4 text-red-400 hover:bg-red-500/10 transition-colors w-full text-left">
-                            <i class="fas fa-power-off w-5 text-center"></i> Terminate Session
-                        </button>
-                    </nav>
-                </div>
-            </aside>
-
-            <!-- Content Area -->
-            <main class="lg:col-span-3">
-                
-                <!-- GENERAL TAB -->
-                <div id="tab-general" class="space-y-6 animate-fadeIn">
-                    <div class="glass-panel rounded-xl p-6 md:p-8">
-                        <h2 class="text-lg font-bold text-white mb-1">Profile Configuration</h2>
-                        <p class="text-xs text-slate-500 mb-6">Manage your public identity and neural link identifiers.</p>
-
-                        <div class="flex flex-col md:flex-row gap-8 items-start">
-                            <!-- Avatar Upload -->
-                            <div class="flex flex-col items-center gap-3">
-                                <div class="w-24 h-24 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center relative group overflow-hidden">
-                                    <img id="profileImage" src="" class="w-full h-full object-cover hidden" alt="Profile">
-                                    <span id="profileInitials" class="text-2xl font-bold text-slate-500">--</span>
-                                    
-                                    <!-- Hover Overlay -->
-                                    <div class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" onclick="alert('Upload feature coming in v4.3')">
-                                        <i class="fas fa-camera text-white"></i>
-                                    </div>
-                                </div>
-                                <span class="text-[10px] text-slate-500 uppercase tracking-wide">Commander Avatar</span>
-                            </div>
-
-                            <!-- Inputs -->
-                            <div class="flex-grow space-y-4 w-full">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Callsign (Display Name)</label>
-                                        <input type="text" id="inputName" class="w-full input-dark rounded-md px-3 py-2 text-sm font-mono focus:border-cyan-500" placeholder="ENTER_CALLSIGN">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Role / Job Title</label>
-                                        <input type="text" id="inputRole" class="w-full input-dark rounded-md px-3 py-2 text-sm font-mono focus:border-purple-500" placeholder="DATA_ARCHITECT">
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Neural Link (Email)</label>
-                                    <div class="relative">
-                                        <input type="email" id="inputEmail" class="w-full input-dark rounded-md px-3 py-2 text-sm font-mono text-slate-500 cursor-not-allowed" disabled>
-                                        <i class="fas fa-lock absolute right-3 top-2.5 text-xs text-slate-600"></i>
-                                    </div>
-                                    <p class="text-[9px] text-slate-500 mt-1">Identity vector locked. Contact admin to change.</p>
-                                </div>
-                                <div class="pt-2">
-                                    <button onclick="saveGeneralProfile()" id="saveGeneralBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-6 rounded text-xs transition-all shadow-lg shadow-cyan-500/20">
-                                        SAVE CONFIGURATION
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SECURITY TAB -->
-                <div id="tab-security" class="space-y-6 hidden animate-fadeIn">
-                    <div class="glass-panel rounded-xl p-6 md:p-8">
-                        <h2 class="text-lg font-bold text-white mb-1">Security Protocols</h2>
-                        <p class="text-xs text-slate-500 mb-6">Manage authentication layers and encryption keys.</p>
-
-                        <div class="space-y-6">
-                            <!-- Password Change -->
-                            <div class="border border-slate-800 rounded-lg p-4 bg-slate-900/30">
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                        <h3 class="text-sm font-bold text-white">Access Key Rotation</h3>
-                                        <p class="text-xs text-slate-500 mt-1">Send a secure link to reset your password.</p>
-                                    </div>
-                                    <button onclick="resetPassword()" id="resetPwdBtn" class="border border-slate-600 hover:border-slate-400 text-slate-300 hover:text-white px-4 py-2 rounded text-xs transition-all">
-                                        SEND RESET LINK
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- 2FA Toggle -->
-                            <div class="border border-slate-800 rounded-lg p-4 bg-slate-900/30">
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                        <h3 class="text-sm font-bold text-white">Multi-Factor Authentication (MFA)</h3>
-                                        <p class="text-xs text-slate-500 mt-1">Require neural handshake (OTP) on new device logins.</p>
-                                    </div>
-                                    <div class="relative inline-block w-10 h-5 align-middle select-none">
-                                        <input type="checkbox" id="toggleMFA" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-slate-700 transition-all duration-300"/>
-                                        <label for="toggleMFA" class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-700 cursor-pointer transition-colors duration-300"></label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Delete Account -->
-                            <div class="border border-red-900/30 rounded-lg p-4 bg-red-950/10">
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                        <h3 class="text-sm font-bold text-red-400">Terminate Protocol</h3>
-                                        <p class="text-xs text-red-900/60 mt-1">Permanently purge all data and neural pathways.</p>
-                                    </div>
-                                    <button onclick="alert('Critical: Contact Support to purge data.')" class="bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-900/50 px-4 py-2 rounded text-xs transition-all">
-                                        DELETE ACCOUNT
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- BILLING TAB -->
-                <div id="tab-billing" class="space-y-6 hidden animate-fadeIn">
-                    <div class="glass-panel rounded-xl p-6 md:p-8">
-                        <h2 class="text-lg font-bold text-white mb-1">Resource Allocation</h2>
-                        <p class="text-xs text-slate-500 mb-6">Current subscription tier and usage metrics.</p>
-
-                        <!-- Plan Card -->
-                        <div class="relative overflow-hidden rounded-xl border border-purple-500/30 bg-gradient-to-br from-purple-900/20 to-slate-900 p-6 mb-6">
-                            <div class="absolute top-0 right-0 p-4">
-                                <i class="fas fa-crown text-6xl text-purple-500/10 rotate-12"></i>
-                            </div>
-                            <div class="relative z-10">
-                                <p class="text-[10px] font-mono text-purple-400 uppercase tracking-widest mb-2">CURRENT TIER</p>
-                                <h3 id="billingPlanName" class="text-3xl font-orbitron font-bold text-white">LOADING...</h3>
-                                <p id="billingPlanDesc" class="text-sm text-slate-400 mt-2 max-w-md">Retrieving subscription details from the core...</p>
+            <!-- Left Column: Profile Card (4 cols) -->
+            <div class="lg:col-span-4 space-y-6">
+                <!-- User Card -->
+                <div class="glass-panel p-6 rounded-xl relative overflow-hidden group transition-all duration-300 neon-border-cyan">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-purple-500"></div>
+                    
+                    <div class="flex flex-col items-center text-center">
+                        <!-- Profile Image Container with Click Event -->
+                        <div class="relative w-28 h-28 mb-4 cursor-pointer group/avatar" onclick="openAvatarModal()">
+                            <div class="absolute inset-0 bg-cyan-500 blur-xl opacity-20 animate-pulse-slow"></div>
+                            
+                            <!-- The Image Wrapper -->
+                            <div class="relative w-full h-full rounded-full p-1 bg-gradient-to-br from-cyan-500 to-purple-600 overflow-hidden">
+                                <img id="profileAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Commander" alt="User Avatar" class="w-full h-full rounded-full bg-slate-900 p-1 object-cover">
                                 
-                                <div class="mt-6 flex gap-3">
-                                    <a href="subscription-page.html" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded text-xs transition-colors shadow-lg shadow-purple-500/20">
-                                        UPGRADE TIER
-                                    </a>
-                                    <button class="text-slate-400 hover:text-white text-xs font-mono underline decoration-dotted">Manage Payment Method</button>
+                                <!-- Edit Overlay -->
+                                <div class="absolute inset-1 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity backdrop-blur-sm">
+                                    <i class="fas fa-pen text-white text-lg"></i>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Usage Stats -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-slate-900/50 rounded p-4 border border-slate-800">
-                                <div class="text-[10px] text-slate-500 uppercase">Daily Executions</div>
-                                <div id="usageExecutions" class="text-xl font-mono text-cyan-400 mt-1">--/--</div>
-                            </div>
-                            <div class="bg-slate-900/50 rounded p-4 border border-slate-800">
-                                <div class="text-[10px] text-slate-500 uppercase">Storage Used</div>
-                                <div class="text-xl font-mono text-purple-400 mt-1">124 MB</div>
-                            </div>
-                            <div class="bg-slate-900/50 rounded p-4 border border-slate-800">
-                                <div class="text-[10px] text-slate-500 uppercase">Next Billing</div>
-                                <div class="text-xl font-mono text-white mt-1">Auto-Renew</div>
+                            
+                            <div class="absolute bottom-1 right-1 w-6 h-6 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700 z-10">
+                                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- API TAB -->
-                <div id="tab-api" class="space-y-6 hidden animate-fadeIn">
-                    <div class="glass-panel rounded-xl p-6 md:p-8">
-                        <h2 class="text-lg font-bold text-white mb-1">API Gateway</h2>
-                        <p class="text-xs text-slate-500 mb-6">Manage access keys for external programmatic access.</p>
-
-                        <div class="bg-black/30 border border-slate-800 rounded-lg p-4 font-mono text-xs">
-                            <div class="flex justify-between items-center mb-2">
-                                <label class="text-slate-500 uppercase font-bold">Secret Key</label>
-                                <span class="px-2 py-0.5 rounded bg-green-900/30 text-green-400 border border-green-900">ACTIVE</span>
-                            </div>
-                            <div class="flex gap-2">
-                                <input type="text" value="sifra_sk_live_8392...99a1" readonly class="w-full bg-transparent border-none text-slate-300 focus:ring-0 px-0">
-                                <button onclick="navigator.clipboard.writeText('sifra_sk_live_8392...99a1')" class="text-cyan-400 hover:text-white" title="Copy"><i class="fas fa-copy"></i></button>
-                            </div>
+                        
+                        <h2 id="profileName" class="text-xl font-bold text-white font-orbitron animate-pulse">Initializing...</h2>
+                        <p id="profileEmail" class="text-sm text-slate-400 font-mono mb-4">...</p>
+                        
+                        <div class="w-full flex justify-between items-center py-3 border-t border-slate-800">
+                            <span class="text-xs text-slate-500 uppercase tracking-wider">Clearance</span>
+                            <span class="text-xs font-bold text-cyan-400 bg-cyan-950/30 px-2 py-1 rounded border border-cyan-500/20">LEVEL 4</span>
                         </div>
-
-                        <div class="mt-6">
-                            <button class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded text-xs transition-colors border border-slate-600">
-                                <i class="fas fa-plus mr-2"></i> GENERATE NEW KEY
-                            </button>
-                            <p class="text-[10px] text-slate-500 mt-2">Rotating keys will immediately invalidate old connections.</p>
+                        <div class="w-full flex justify-between items-center py-3 border-t border-slate-800">
+                            <span class="text-xs text-slate-500 uppercase tracking-wider">Node ID</span>
+                            <span id="nodeId" class="text-xs font-mono text-slate-300">SFR-8842-X</span>
+                        </div>
+                        <div class="w-full flex justify-between items-center py-3 border-t border-slate-800">
+                            <span class="text-xs text-slate-500 uppercase tracking-wider">Status</span>
+                            <span class="text-xs font-mono text-green-400">ACTIVE</span>
                         </div>
                     </div>
                 </div>
 
-            </main>
+                <!-- Usage Stats -->
+                <div class="glass-panel p-6 rounded-xl">
+                    <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fas fa-chart-pie text-purple-400"></i> RESOURCE USAGE
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">Processing Units</span>
+                                <span class="text-slate-200">74%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                <div class="bg-gradient-to-r from-cyan-500 to-blue-500 h-1.5 rounded-full" style="width: 74%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">Storage (FusionNet)</span>
+                                <span class="text-slate-200">42%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-1.5 rounded-full" style="width: 42%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">API Quota</span>
+                                <span class="text-slate-200">8,420 / 10k</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                <div class="bg-gradient-to-r from-orange-500 to-red-500 h-1.5 rounded-full" style="width: 84%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Dashboard (8 cols) -->
+            <div class="lg:col-span-8 space-y-6">
+                
+                <!-- Quick Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="glass-panel p-4 rounded-xl border-l-2 border-l-cyan-500 flex items-center justify-between group hover:bg-slate-800/50 transition-colors">
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Active Projects</p>
+                            <h4 class="text-2xl font-bold text-white font-mono group-hover:text-cyan-400 transition-colors">12</h4>
+                        </div>
+                        <div class="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border-l-2 border-l-purple-500 flex items-center justify-between group hover:bg-slate-800/50 transition-colors">
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Models Deployed</p>
+                            <h4 class="text-2xl font-bold text-white font-mono group-hover:text-purple-400 transition-colors">05</h4>
+                        </div>
+                        <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
+                            <i class="fas fa-cube"></i>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border-l-2 border-l-green-500 flex items-center justify-between group hover:bg-slate-800/50 transition-colors">
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">System Status</p>
+                            <h4 class="text-lg font-bold text-green-400 font-mono">ONLINE</h4>
+                        </div>
+                        <div class="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center text-green-400">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Keys Section -->
+                <div class="glass-panel p-6 rounded-xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fas fa-key text-yellow-400"></i> API CREDENTIALS
+                        </h3>
+                        <button class="text-[10px] text-cyan-400 hover:text-cyan-300 font-mono underline">REGENERATE KEY</button>
+                    </div>
+                    
+                    <div class="bg-slate-950/50 border border-slate-800 rounded-lg p-3 flex items-center justify-between">
+                        <div class="flex-grow mr-4">
+                            <p class="text-[10px] text-slate-500 mb-1">Secret Key (Production)</p>
+                            <div class="flex items-center gap-2">
+                                <code class="text-xs font-mono text-slate-300 tracking-wider">sk_live_9482...8472</code>
+                                <span class="text-[10px] bg-slate-800 text-slate-500 px-1 rounded">HIDDEN</span>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboard()" class="p-2 text-slate-400 hover:text-white transition-colors" title="Copy to clipboard">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Table -->
+                <div class="glass-panel p-6 rounded-xl overflow-hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fas fa-list text-cyan-400"></i> RECENT ANALYSIS
+                        </h3>
+                        <a href="#" class="text-xs text-slate-400 hover:text-white transition-colors">View All</a>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="text-[10px] text-slate-500 uppercase tracking-wider border-b border-slate-800">
+                                    <th class="pb-3 pl-2">Project Name</th>
+                                    <th class="pb-3">Engine</th>
+                                    <th class="pb-3">Status</th>
+                                    <th class="pb-3">Date</th>
+                                    <th class="pb-3 text-right pr-2">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm">
+                                <tr class="border-b border-slate-800/50 group hover:bg-slate-800/30 transition-colors">
+                                    <td class="py-4 pl-2 font-medium text-slate-200">Global Logistics Opt.</td>
+                                    <td class="py-4 text-slate-400 text-xs font-mono">HDS-Unity</td>
+                                    <td class="py-4"><span class="bg-green-500/10 text-green-400 border border-green-500/20 text-[10px] px-2 py-0.5 rounded font-mono">COMPLETED</span></td>
+                                    <td class="py-4 text-slate-500 text-xs">2 hours ago</td>
+                                    <td class="py-4 text-right pr-2">
+                                        <button class="text-slate-500 hover:text-cyan-400"><i class="fas fa-external-link-alt"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-800/50 group hover:bg-slate-800/30 transition-colors">
+                                    <td class="py-4 pl-2 font-medium text-slate-200">Q4 Sales Forecast</td>
+                                    <td class="py-4 text-slate-400 text-xs font-mono">AutoML v4</td>
+                                    <td class="py-4"><span class="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-[10px] px-2 py-0.5 rounded font-mono flex w-fit items-center gap-1"><i class="fas fa-circle-notch fa-spin text-[8px]"></i> PROCESSING</span></td>
+                                    <td class="py-4 text-slate-500 text-xs">Just now</td>
+                                    <td class="py-4 text-right pr-2">
+                                        <button class="text-slate-500 hover:text-cyan-400"><i class="fas fa-pause"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-800/50 group hover:bg-slate-800/30 transition-colors">
+                                    <td class="py-4 pl-2 font-medium text-slate-200">Customer Churn - EU</td>
+                                    <td class="py-4 text-slate-400 text-xs font-mono">HDP-FusionNet</td>
+                                    <td class="py-4"><span class="bg-green-500/10 text-green-400 border border-green-500/20 text-[10px] px-2 py-0.5 rounded font-mono">COMPLETED</span></td>
+                                    <td class="py-4 text-slate-500 text-xs">Yesterday</td>
+                                    <td class="py-4 text-right pr-2">
+                                        <button class="text-slate-500 hover:text-cyan-400"><i class="fas fa-external-link-alt"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="group hover:bg-slate-800/30 transition-colors">
+                                    <td class="py-4 pl-2 font-medium text-slate-200">Inventory Anomalies</td>
+                                    <td class="py-4 text-slate-400 text-xs font-mono">Auto-Anomaly</td>
+                                    <td class="py-4"><span class="bg-red-500/10 text-red-400 border border-red-500/20 text-[10px] px-2 py-0.5 rounded font-mono">FAILED</span></td>
+                                    <td class="py-4 text-slate-500 text-xs">Oct 24, 2024</td>
+                                    <td class="py-4 text-right pr-2">
+                                        <button class="text-slate-500 hover:text-red-400"><i class="fas fa-redo"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Avatar Selection Modal -->
+    <div id="avatarModal" class="fixed inset-0 z-[100] modal">
+        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm cursor-pointer" onclick="closeAvatarModal()"></div>
+        <div class="absolute top-1/2 left-1/2 w-[90%] max-w-lg bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-white font-orbitron text-lg tracking-wider">SELECT IDENTITY</h3>
+                <button onclick="closeAvatarModal()" class="text-slate-400 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-4" id="avatarGrid">
+                <!-- Avatars injected by JS -->
+            </div>
+
+            <div class="mt-6 text-center">
+                <p class="text-[10px] text-slate-500 font-mono">IDENTITY MATRIX v2.0 // CLICK TO EQUIP</p>
+            </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/50 mt-12 bg-slate-950/50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
+            <div class="mb-4 md:mb-0">
+                <span class="font-orbitron font-bold text-slate-400">SIFRA<span class="text-cyan-600">.AI</span></span>
+                <span class="mx-2">|</span>
+                <span>SECURE CONNECTION ESTABLISHED</span>
+            </div>
+            <div class="flex gap-6">
+                <a href="#" class="hover:text-cyan-400 transition-colors">Support Node</a>
+                <a href="#" class="hover:text-cyan-400 transition-colors">System Status</a>
+                <a href="#" class="hover:text-cyan-400 transition-colors">Privacy Protocol</a>
+            </div>
+        </div>
+    </footer>
 
     <!-- Firebase Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, updateProfile, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Config
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBu6CIgw5njjcl9dVhNYjitSUBKE87_S6M",
             authDomain: "sifraaiweb.firebaseapp.com",
@@ -354,181 +421,185 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let currentUserUid = null;
+        // Make functions global for onclick events
+        window.auth = auth;
+        window.db = db;
+        window.updateProfile = updateProfile;
+        window.updateDoc = updateDoc;
+        window.doc = doc;
 
-        // Auth Listener
-        onAuthStateChanged(auth, async (user) => {
+        // Auth State Listener (Protects Route & Updates UI)
+        onAuthStateChanged(auth, (user) => {
             if (user) {
-                currentUserUid = user.uid;
-                await loadUserProfile(user);
+                console.log("User detected:", user.email);
+                
+                const displayName = user.displayName || user.email.split('@')[0].toUpperCase();
+                const avatarUrl = user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayName}`;
+                
+                // Update elements
+                document.getElementById('profileName').textContent = displayName;
+                document.getElementById('profileName').classList.remove('animate-pulse');
+                document.getElementById('profileEmail').textContent = user.email;
+                document.getElementById('profileAvatar').src = avatarUrl;
+                document.getElementById('navAvatar').src = avatarUrl;
+                
+                // Fake Node ID generation for effect
+                document.getElementById('nodeId').textContent = `SFR-${user.uid.substr(0, 4).toUpperCase()}-X`;
+
+                // Fade in main content
+                document.getElementById('mainContent').style.opacity = '1';
+
             } else {
+                // No user is signed in, redirect to login
+                console.warn("No user found. Redirecting...");
                 window.location.href = 'login.html';
             }
         });
 
-        // 1. Load User Data
-        async function loadUserProfile(user) {
-            // Basic Auth Info
-            document.getElementById('inputEmail').value = user.email;
-            document.getElementById('inputName').value = user.displayName || "";
-            updateAvatar(user.displayName);
-
-            // Firestore Info
-            try {
-                const userRef = doc(db, "users", user.uid);
-                const snap = await getDoc(userRef);
-                
-                if (snap.exists()) {
-                    const data = snap.data();
-                    
-                    // General
-                    if (data.callsign) document.getElementById('inputName').value = data.callsign;
-                    if (data.role) document.getElementById('inputRole').value = data.role;
-                    updateAvatar(data.callsign || user.email);
-
-                    // Nav
-                    document.getElementById('navUserName').innerText = (data.callsign || user.email).toUpperCase();
-                    document.getElementById('navUserPlan').innerText = (data.subscriptionTier || 'RECRUIT').toUpperCase();
-
-                    // Billing Logic
-                    const tier = data.subscriptionTier || 'recruit';
-                    document.getElementById('billingPlanName').innerText = tier.toUpperCase();
-                    
-                    if (tier === 'titan') {
-                        document.getElementById('billingPlanDesc').innerText = "Unlimited processing power. Full API access. Dedicated support.";
-                        document.getElementById('billingPlanName').classList.add('text-purple-400');
-                    } else if (tier === 'commander') {
-                        document.getElementById('billingPlanDesc').innerText = "Enhanced priority processing. 100GB secure storage.";
-                        document.getElementById('billingPlanName').classList.add('text-cyan-400');
-                    } else {
-                        document.getElementById('billingPlanDesc').innerText = "Standard access. Limited execution threads.";
-                        document.getElementById('billingPlanName').classList.add('text-slate-300');
-                    }
-
-                    // Usage
-                    const usage = data.dailyUsage?.count || 0;
-                    const limit = tier === 'recruit' ? 3 : '∞';
-                    document.getElementById('usageExecutions').innerText = `${usage} / ${limit}`;
-
-                    // Security
-                    if (data.mfaEnabled) {
-                        document.getElementById('toggleMFA').checked = true;
-                    }
-                }
-            } catch(e) {
-                console.error("Error loading profile:", e);
-            }
-        }
-
-        // 2. Update Avatar Helper
-        function updateAvatar(name) {
-            const el = document.getElementById('navAvatar');
-            const lgEl = document.getElementById('profileInitials');
-            const nameStr = name || "U";
-            const initials = nameStr.substring(0, 2).toUpperCase();
-            el.innerText = initials;
-            lgEl.innerText = initials;
-        }
-
-        // 3. Save General Profile
-        window.saveGeneralProfile = async () => {
-            const btn = document.getElementById('saveGeneralBtn');
-            const originalText = btn.innerText;
-            const newName = document.getElementById('inputName').value;
-            const newRole = document.getElementById('inputRole').value;
-
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> SAVING...`;
-
-            try {
-                // Update Auth Profile
-                if (auth.currentUser.displayName !== newName) {
-                    await updateProfile(auth.currentUser, { displayName: newName });
-                }
-
-                // Update Firestore
-                const userRef = doc(db, "users", currentUserUid);
-                await updateDoc(userRef, {
-                    callsign: newName,
-                    role: newRole
-                });
-
-                // Update UI immediately
-                updateAvatar(newName);
-                document.getElementById('navUserName').innerText = newName.toUpperCase();
-
-                btn.classList.replace('bg-cyan-600', 'bg-green-600');
-                btn.innerHTML = `<i class="fas fa-check"></i> SAVED`;
-                
-                setTimeout(() => {
-                    btn.classList.replace('bg-green-600', 'bg-cyan-600');
-                    btn.innerText = originalText;
-                    btn.disabled = false;
-                }, 2000);
-
-            } catch (error) {
-                console.error(error);
-                btn.innerText = "ERROR";
-                setTimeout(() => { btn.disabled = false; btn.innerText = originalText; }, 2000);
-            }
-        };
-
-        // 4. Password Reset
-        window.resetPassword = async () => {
-            const btn = document.getElementById('resetPwdBtn');
-            const email = auth.currentUser.email;
+        // Logout Logic
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            const btn = document.getElementById('logoutBtn');
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin mr-2"></i>DISCONNECTING...`;
             
-            btn.disabled = true;
-            btn.innerText = "SENDING...";
-
-            try {
-                await sendPasswordResetEmail(auth, email);
-                btn.innerText = "EMAIL SENT";
-                btn.classList.add('text-green-400', 'border-green-500');
-            } catch (e) {
-                alert("Error: " + e.message);
-                btn.innerText = "RETRY";
-                btn.disabled = false;
-            }
-        };
-
-        // 5. MFA Toggle
-        document.getElementById('toggleMFA').addEventListener('change', async (e) => {
-            const isChecked = e.target.checked;
-            try {
-                const userRef = doc(db, "users", currentUserUid);
-                await updateDoc(userRef, { mfaEnabled: isChecked });
-            } catch (err) {
-                console.error("MFA Toggle Error", err);
-                e.target.checked = !isChecked; // Revert on fail
-            }
+            signOut(auth).then(() => {
+                window.location.href = 'login.html';
+            }).catch((error) => {
+                console.error("Sign out error", error);
+                alert("Error disconnecting. See console.");
+            });
         });
 
-        // 6. Logout
-        window.logout = async () => {
-            await signOut(auth);
-            window.location.href = 'index.html';
+        // --- Avatar Selection Logic ---
+        
+        // 1. Define Avatar List
+        const avatars = [
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",   // Male
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",   // Female
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight", // Boy/Dark
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Lily",    // Girl
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack",    // Male 2
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Bella",   // Female 2
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Rocky",   // Cool
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Sassy",   // Glasses
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Cyber",   // Techish
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Shadow"   // Mystery
+        ];
+
+        // 2. Populate Grid
+        const avatarGrid = document.getElementById('avatarGrid');
+        avatars.forEach(url => {
+            const div = document.createElement('div');
+            div.className = "avatar-option w-full aspect-square rounded-full border-2 border-slate-700 bg-slate-800 p-1 cursor-pointer transition-all duration-300";
+            div.onclick = () => selectAvatar(url);
+            div.innerHTML = `<img src="${url}" class="w-full h-full rounded-full" alt="Avatar Option">`;
+            avatarGrid.appendChild(div);
+        });
+
+        // 3. Modal Functions
+        window.openAvatarModal = () => {
+            document.getElementById('avatarModal').classList.add('active');
         };
 
-        // Expose to window for HTML onClick
-        window.switchTab = (tabId) => {
-            // Hide all contents
-            document.getElementById('tab-general').classList.add('hidden');
-            document.getElementById('tab-security').classList.add('hidden');
-            document.getElementById('tab-billing').classList.add('hidden');
-            document.getElementById('tab-api').classList.add('hidden');
-
-            // Deactivate all buttons
-            document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active', 'text-slate-300', 'bg-white/5'));
-            document.querySelectorAll('.sidebar-link').forEach(el => el.classList.add('text-slate-400'));
-
-            // Activate Target
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            const btn = document.getElementById(`btn-${tabId}`);
-            btn.classList.add('active', 'text-slate-300');
-            btn.classList.remove('text-slate-400');
+        window.closeAvatarModal = () => {
+            document.getElementById('avatarModal').classList.remove('active');
         };
 
+        // 4. Select & Save Function
+        window.selectAvatar = async (url) => {
+            // UI Feedback
+            const profileImg = document.getElementById('profileAvatar');
+            const navImg = document.getElementById('navAvatar');
+            
+            // Optimistic update
+            profileImg.src = url;
+            navImg.src = url;
+            closeAvatarModal();
+
+            // Firebase Update
+            const user = window.auth.currentUser;
+            if (user) {
+                try {
+                    // Update Auth Profile
+                    await window.updateProfile(user, { photoURL: url });
+                    
+                    // Update Firestore Document (User Profile)
+                    const userRef = window.doc(window.db, "users", user.uid);
+                    await window.updateDoc(userRef, { photoURL: url }, { merge: true });
+                    
+                    console.log("Avatar updated successfully");
+                } catch (error) {
+                    console.error("Error updating avatar:", error);
+                    // Revert if failed (optional, but good UX)
+                    alert("Failed to save avatar. Please try again.");
+                }
+            }
+        };
+
+    </script>
+
+    <script>
+        // --- Particle Background Logic ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.2; // Slower movement for profile
+                this.vy = (Math.random() - 0.5) * 0.2;
+                this.size = Math.random() * 1.5;
+                this.alpha = Math.random() * 0.5;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if(this.x < 0) this.x = width;
+                if(this.x > width) this.x = 0;
+                if(this.y < 0) this.y = height;
+                if(this.y > height) this.y = 0;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(148, 163, 184, ${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for(let i=0; i<40; i++) particles.push(new Particle());
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- Copy Clipboard Logic ---
+        function copyToClipboard() {
+            const key = "sk_live_948273645102938472"; // Mock key
+            navigator.clipboard.writeText(key).then(() => {
+                const btn = document.querySelector('button[title="Copy to clipboard"]');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check text-green-400"></i>';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                }, 2000);
+            });
+        }
     </script>
 </body>
 </html>
