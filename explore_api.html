@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIFRA AI | Developer API Documentation</title>
+    <meta name="description" content="Integrate Sifra's Autonomous Data Scientist Engine into your applications. API references, guides, and examples.">
+    
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- Highlight.js for Code Syntax -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        orbitron: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        sifra: {
+                            bg: '#020617', // Slate 950
+                            card: '#0f172a', // Slate 900
+                            accent: '#06b6d4', // Cyan 500
+                            purple: '#8b5cf6', // Violet 500
+                        }
+                    },
+                    backgroundImage: {
+                        'hero-pattern': "url('https://grainy-gradients.vercel.app/noise.svg')",
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #020617;
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-sidebar {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .code-block {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 0.5rem;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+
+        /* Syntax Highlighting overrides */
+        .hljs { background: transparent !important; padding: 0 !important; }
+        
+        /* Smooth anchor offset */
+        html {
+            scroll-padding-top: 100px;
+        }
+    </style>
+</head>
+<body class="bg-hero-pattern">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-panel">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <a href="index.html" class="flex items-center gap-2 group">
+                        <img src="sifra-ai-logo.png" alt="Logo" class="w-8 h-8 rounded-lg object-contain opacity-90 group-hover:opacity-100 transition-opacity">
+                        <span class="font-orbitron font-bold text-lg tracking-wider text-white">SIFRA<span class="text-cyan-400">.AI</span> <span class="text-xs font-sans font-normal text-slate-400 ml-2 border border-slate-700 rounded px-2 py-0.5">DEV</span></span>
+                    </a>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="index.html" class="text-sm text-slate-400 hover:text-white transition-colors">Back to Home</a>
+                    <a href="/login.html" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all">
+                        Console Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-16 flex min-h-screen">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 glass-sidebar fixed h-full hidden lg:block overflow-y-auto pt-8 pb-20">
+            <div class="px-6">
+                <div class="mb-8">
+                    <h5 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Getting Started</h5>
+                    <ul class="space-y-1">
+                        <li><a href="#introduction" class="block text-sm text-white border-l-2 border-cyan-500 pl-4 py-1 bg-cyan-500/10 rounded-r">Introduction</a></li>
+                        <li><a href="#authentication" class="block text-sm text-slate-400 hover:text-cyan-400 pl-4 py-1 border-l-2 border-transparent transition-colors">Authentication</a></li>
+                        <li><a href="#rate-limits" class="block text-sm text-slate-400 hover:text-cyan-400 pl-4 py-1 border-l-2 border-transparent transition-colors">Rate Limits</a></li>
+                    </ul>
+                </div>
+
+                <div class="mb-8">
+                    <h5 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Core Endpoints</h5>
+                    <ul class="space-y-1">
+                        <li><a href="#upload-dataset" class="block text-sm text-slate-400 hover:text-cyan-400 pl-4 py-1 border-l-2 border-transparent transition-colors">Upload Dataset</a></li>
+                        <li><a href="#autonomous-analyze" class="block text-sm text-slate-400 hover:text-cyan-400 pl-4 py-1 border-l-2 border-transparent transition-colors">Autonomous Analyze</a></li>
+                        <li><a href="#generate-chart" class="block text-sm text-slate-400 hover:text-cyan-400 pl-4 py-1 border-l-2 border-transparent transition-colors">Generate Visualization</a></li>
+                    </ul>
+                </div>
+
+                <div class="mb-8">
+                    <h5 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Resources</h5>
+                    <ul class="space-y-1">
+                        <li><a href="#sdks" class="block text-sm text-slate-400 hover:text-cyan-400 pl-4 py-1 border-l-2 border-transparent transition-colors">SDKs & Libraries</a></li>
+                        <li><a href="#errors" class="block text-sm text-slate-400 hover:text-cyan-400 pl-4 py-1 border-l-2 border-transparent transition-colors">Error Codes</a></li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 lg:ml-64 px-4 sm:px-12 py-12 max-w-5xl mx-auto">
+            
+            <!-- Introduction -->
+            <section id="introduction" class="mb-20" data-aos="fade-up">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-mono mb-4">
+                    v1.0.4 Stable
+                </div>
+                <h1 class="text-4xl md:text-5xl font-orbitron font-bold text-white mb-6">SIFRA Engine API</h1>
+                <p class="text-lg text-slate-400 leading-relaxed mb-8">
+                    The Sifra API allows you to programmatically access the Autonomous Data Scientist Engine. Integrate automated data cleaning, predictive modeling, and insight generation directly into your own applications, dashboards, or ETL pipelines.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-6 rounded-xl border border-slate-800 bg-slate-900/50">
+                        <div class="w-10 h-10 bg-cyan-500/10 rounded flex items-center justify-center text-cyan-400 mb-4"><i class="fas fa-bolt"></i></div>
+                        <h3 class="text-white font-bold mb-2">RESTful Architecture</h3>
+                        <p class="text-slate-400 text-sm">Standard HTTP methods and JSON responses for easy integration with any stack.</p>
+                    </div>
+                    <div class="p-6 rounded-xl border border-slate-800 bg-slate-900/50">
+                        <div class="w-10 h-10 bg-purple-500/10 rounded flex items-center justify-center text-purple-400 mb-4"><i class="fas fa-shield-alt"></i></div>
+                        <h3 class="text-white font-bold mb-2">Enterprise Security</h3>
+                        <p class="text-slate-400 text-sm">All data is encrypted in transit and at rest. Strict access controls via API keys.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Authentication -->
+            <section id="authentication" class="mb-20 pt-10 border-t border-slate-800" data-aos="fade-up">
+                <h2 class="text-3xl font-orbitron font-bold text-white mb-6">Authentication</h2>
+                <p class="text-slate-400 mb-6">
+                    Authenticate your API requests by including your API key in the <code>Authorization</code> header of every request. You can manage your API keys in the <a href="/login.html" class="text-cyan-400 hover:underline">Console Dashboard</a>.
+                </p>
+
+                <div class="code-block p-4 relative group">
+                    <button class="absolute top-4 right-4 text-xs text-slate-500 hover:text-white transition-colors" onclick="copyCode(this)"><i class="fas fa-copy mr-1"></i> Copy</button>
+                    <div class="flex gap-4 mb-4 border-b border-slate-800 pb-2">
+                        <span class="text-xs font-bold text-cyan-400 border-b-2 border-cyan-400 pb-2">Header Format</span>
+                    </div>
+                    <pre><code class="language-bash">Authorization: Bearer sifra_live_sk_8f92...</code></pre>
+                </div>
+                
+                <div class="mt-4 p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-lg flex items-start gap-3">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 mt-1"></i>
+                    <p class="text-sm text-yellow-200">Your API keys carry many privileges, so be sure to keep them secure! Do not share your secret API keys in publicly accessible areas such as GitHub, client-side code, and so forth.</p>
+                </div>
+            </section>
+
+            <!-- Rate Limits -->
+            <section id="rate-limits" class="mb-20 pt-10 border-t border-slate-800" data-aos="fade-up">
+                <h2 class="text-3xl font-orbitron font-bold text-white mb-6">Rate Limits</h2>
+                <p class="text-slate-400 mb-6">
+                    API usage is limited based on your subscription tier. Rate limits are applied per API key.
+                </p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-400">
+                        <thead class="text-xs uppercase bg-slate-900 text-slate-200 border-b border-slate-700">
+                            <tr>
+                                <th class="px-6 py-3">Tier</th>
+                                <th class="px-6 py-3">Requests / Min</th>
+                                <th class="px-6 py-3">Concurrent Analysis</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-slate-800 bg-slate-900/50">
+                                <td class="px-6 py-4 font-bold text-white">Starter</td>
+                                <td class="px-6 py-4">60</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr class="border-b border-slate-800">
+                                <td class="px-6 py-4 font-bold text-cyan-400">Pro</td>
+                                <td class="px-6 py-4">1,000</td>
+                                <td class="px-6 py-4">10</td>
+                            </tr>
+                            <tr class="border-b border-slate-800 bg-slate-900/50">
+                                <td class="px-6 py-4 font-bold text-purple-400">Enterprise</td>
+                                <td class="px-6 py-4">Unlimited</td>
+                                <td class="px-6 py-4">Unlimited</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Upload Dataset -->
+            <section id="upload-dataset" class="mb-20 pt-10 border-t border-slate-800" data-aos="fade-up">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="px-2 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded font-mono">POST</span>
+                    <h2 class="text-2xl font-orbitron font-bold text-white">/v1/datasets/upload</h2>
+                </div>
+                <p class="text-slate-400 mb-6">
+                    Upload a CSV or JSON dataset to the Sifra Engine. The engine will perform initial profiling and return a dataset ID for further analysis.
+                </p>
+
+                <!-- Code Switcher -->
+                <div class="code-block overflow-hidden">
+                    <div class="flex items-center bg-slate-900 border-b border-slate-800 px-4">
+                        <button class="text-xs font-medium text-white px-4 py-3 border-b-2 border-cyan-500" onclick="switchTab(this, 'upload-curl')">cURL</button>
+                        <button class="text-xs font-medium text-slate-500 px-4 py-3 border-b-2 border-transparent hover:text-white transition-colors" onclick="switchTab(this, 'upload-python')">Python</button>
+                        <button class="text-xs font-medium text-slate-500 px-4 py-3 border-b-2 border-transparent hover:text-white transition-colors" onclick="switchTab(this, 'upload-node')">Node.js</button>
+                    </div>
+                    
+                    <div class="p-4 relative">
+                        <button class="absolute top-4 right-4 text-xs text-slate-500 hover:text-white transition-colors" onclick="copyCode(this)"><i class="fas fa-copy mr-1"></i> Copy</button>
+                        
+                        <!-- cURL -->
+                        <div id="upload-curl" class="tab-content">
+<pre><code class="language-bash">curl -X POST https://api.sifra.ai/v1/datasets/upload \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@sales_data_q3.csv"</code></pre>
+                        </div>
+
+                        <!-- Python -->
+                        <div id="upload-python" class="tab-content hidden">
+<pre><code class="language-python">import requests
+
+url = "https://api.sifra.ai/v1/datasets/upload"
+headers = {"Authorization": "Bearer YOUR_API_KEY"}
+files = {"file": open("sales_data_q3.csv", "rb")}
+
+response = requests.post(url, headers=headers, files=files)
+print(response.json())</code></pre>
+                        </div>
+
+                        <!-- Node.js -->
+                        <div id="upload-node" class="tab-content hidden">
+<pre><code class="language-javascript">const axios = require('axios');
+const fs = require('fs');
+const FormData = require('form-data');
+
+const form = new FormData();
+form.append('file', fs.createReadStream('sales_data_q3.csv'));
+
+axios.post('https://api.sifra.ai/v1/datasets/upload', form, {
+  headers: {
+    ...form.getHeaders(),
+    'Authorization': 'Bearer YOUR_API_KEY'
+  }
+}).then(response => console.log(response.data));</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Autonomous Analyze -->
+            <section id="autonomous-analyze" class="mb-20 pt-10 border-t border-slate-800" data-aos="fade-up">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="px-2 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded font-mono">POST</span>
+                    <h2 class="text-2xl font-orbitron font-bold text-white">/v1/engine/analyze</h2>
+                </div>
+                <p class="text-slate-400 mb-6">
+                    Trigger the <strong>HDP-FusionNet</strong> algorithm on a specific dataset. This endpoint returns comprehensive insights, detected anomalies, and suggested visualizations.
+                </p>
+
+                <div class="mb-6">
+                    <h4 class="text-sm font-bold text-white mb-2">Request Body</h4>
+                    <ul class="text-sm text-slate-400 space-y-2 border border-slate-800 rounded p-4">
+                        <li class="flex gap-4"><span class="font-mono text-cyan-400 w-24">dataset_id</span> <span>(Required) The ID returned from the upload endpoint.</span></li>
+                        <li class="flex gap-4"><span class="font-mono text-cyan-400 w-24">mode</span> <span>(Optional) 'fast', 'balanced', or 'deep'. Default: 'balanced'.</span></li>
+                        <li class="flex gap-4"><span class="font-mono text-cyan-400 w-24">target_col</span> <span>(Optional) Specific column to predict or analyze.</span></li>
+                    </ul>
+                </div>
+
+                <!-- Code Switcher -->
+                <div class="code-block overflow-hidden">
+                    <div class="flex items-center bg-slate-900 border-b border-slate-800 px-4">
+                        <button class="text-xs font-medium text-white px-4 py-3 border-b-2 border-cyan-500" onclick="switchTab(this, 'analyze-curl')">cURL</button>
+                        <button class="text-xs font-medium text-slate-500 px-4 py-3 border-b-2 border-transparent hover:text-white transition-colors" onclick="switchTab(this, 'analyze-python')">Python</button>
+                    </div>
+                    
+                    <div class="p-4 relative">
+                        <button class="absolute top-4 right-4 text-xs text-slate-500 hover:text-white transition-colors" onclick="copyCode(this)"><i class="fas fa-copy mr-1"></i> Copy</button>
+                        
+                        <!-- cURL -->
+                        <div id="analyze-curl" class="tab-content">
+<pre><code class="language-bash">curl -X POST https://api.sifra.ai/v1/engine/analyze \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dataset_id": "ds_88a91b2c",
+    "mode": "deep",
+    "target_col": "revenue"
+  }'</code></pre>
+                        </div>
+
+                        <!-- Python -->
+                        <div id="analyze-python" class="tab-content hidden">
+<pre><code class="language-python">payload = {
+    "dataset_id": "ds_88a91b2c",
+    "mode": "deep",
+    "target_col": "revenue"
+}
+
+response = requests.post("https://api.sifra.ai/v1/engine/analyze", 
+                         headers=headers, 
+                         json=payload)
+print(response.json())</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h4 class="text-sm font-bold text-white mb-2">Example Response</h4>
+                    <div class="code-block p-4">
+<pre><code class="language-json">{
+  "status": "success",
+  "analysis_id": "an_77f22x90",
+  "summary": "Revenue shows a strong positive correlation with Ad_Spend (0.85). Seasonality detected: Monthly.",
+  "insights": [
+    {
+      "type": "correlation",
+      "description": "High correlation between User_Age and Purchase_Frequency."
+    },
+    {
+      "type": "anomaly",
+      "description": "3 outliers detected in Q4 data points."
+    }
+  ],
+  "suggested_charts": ["heatmap", "time_series_decomposition"]
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Generate Visualization -->
+            <section id="generate-chart" class="mb-20 pt-10 border-t border-slate-800" data-aos="fade-up">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="px-2 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded font-mono">POST</span>
+                    <h2 class="text-2xl font-orbitron font-bold text-white">/v1/engine/visualize</h2>
+                </div>
+                <p class="text-slate-400 mb-6">
+                    Generates a JSON configuration for charts (Plotly/ECharts compatible) or a static image based on the analysis results.
+                </p>
+
+                <div class="code-block p-4 relative">
+                    <button class="absolute top-4 right-4 text-xs text-slate-500 hover:text-white transition-colors" onclick="copyCode(this)"><i class="fas fa-copy mr-1"></i> Copy</button>
+<pre><code class="language-bash">curl -X POST https://api.sifra.ai/v1/engine/visualize \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "analysis_id": "an_77f22x90",
+    "chart_type": "heatmap"
+  }'</code></pre>
+                </div>
+            </section>
+
+            <!-- SDKs & Libraries -->
+            <section id="sdks" class="mb-20 pt-10 border-t border-slate-800" data-aos="fade-up">
+                <h2 class="text-3xl font-orbitron font-bold text-white mb-6">SDKs & Libraries</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <a href="#" class="block p-4 rounded-lg bg-slate-900 border border-slate-800 hover:border-cyan-500 transition-colors group">
+                        <div class="flex items-center gap-3 mb-2">
+                            <i class="fab fa-python text-2xl text-blue-400"></i>
+                            <span class="font-bold text-white group-hover:text-cyan-400">sifra-python</span>
+                        </div>
+                        <p class="text-xs text-slate-500">Official Python wrapper for Sifra Engine.</p>
+                        <code class="text-xs text-slate-600 mt-2 block bg-black/30 p-2 rounded">pip install sifra-ai</code>
+                    </a>
+                    <a href="#" class="block p-4 rounded-lg bg-slate-900 border border-slate-800 hover:border-cyan-500 transition-colors group">
+                        <div class="flex items-center gap-3 mb-2">
+                            <i class="fab fa-node-js text-2xl text-green-400"></i>
+                            <span class="font-bold text-white group-hover:text-cyan-400">sifra-node</span>
+                        </div>
+                        <p class="text-xs text-slate-500">Node.js client for backend integration.</p>
+                        <code class="text-xs text-slate-600 mt-2 block bg-black/30 p-2 rounded">npm install sifra-ai</code>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Error Codes -->
+            <section id="errors" class="mb-20 pt-10 border-t border-slate-800" data-aos="fade-up">
+                <h2 class="text-3xl font-orbitron font-bold text-white mb-6">Error Codes</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-400">
+                        <thead class="text-xs uppercase bg-slate-900 text-slate-200 border-b border-slate-700">
+                            <tr>
+                                <th class="px-6 py-3">Code</th>
+                                <th class="px-6 py-3">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-slate-800">
+                                <td class="px-6 py-4 font-mono text-red-400">400</td>
+                                <td class="px-6 py-4">Bad Request - Invalid JSON or missing parameters.</td>
+                            </tr>
+                            <tr class="border-b border-slate-800 bg-slate-900/50">
+                                <td class="px-6 py-4 font-mono text-red-400">401</td>
+                                <td class="px-6 py-4">Unauthorized - Invalid API key.</td>
+                            </tr>
+                            <tr class="border-b border-slate-800">
+                                <td class="px-6 py-4 font-mono text-red-400">429</td>
+                                <td class="px-6 py-4">Too Many Requests - Rate limit exceeded.</td>
+                            </tr>
+                            <tr class="border-b border-slate-800 bg-slate-900/50">
+                                <td class="px-6 py-4 font-mono text-red-400">500</td>
+                                <td class="px-6 py-4">Internal Server Error - The engine encountered an issue processing the data.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Script for Code Tabs, Highlighting, and AOS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize AOS Animation
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 50
+        });
+
+        // Initialize Highlight.js
+        hljs.highlightAll();
+
+        function switchTab(btn, tabId) {
+            // Remove active classes from all buttons in the same container
+            const container = btn.parentElement;
+            const buttons = container.querySelectorAll('button');
+            buttons.forEach(b => {
+                b.classList.remove('text-white', 'border-cyan-500');
+                b.classList.add('text-slate-500', 'border-transparent');
+            });
+
+            // Add active class to clicked button
+            btn.classList.remove('text-slate-500', 'border-transparent');
+            btn.classList.add('text-white', 'border-cyan-500');
+
+            // Hide all tab contents in the parent code block
+            const codeBlock = container.parentElement;
+            const contents = codeBlock.querySelectorAll('.tab-content');
+            contents.forEach(c => c.classList.add('hidden'));
+
+            // Show selected tab content
+            document.getElementById(tabId).classList.remove('hidden');
+        }
+
+        function copyCode(btn) {
+            const code = btn.nextElementSibling.querySelector('.tab-content:not(.hidden) code') ? 
+                         btn.nextElementSibling.querySelector('.tab-content:not(.hidden) code').innerText :
+                         btn.nextElementSibling.innerText; // Fallback for simple blocks
+            
+            navigator.clipboard.writeText(code);
+            
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check text-green-400 mr-1"></i> Copied!';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

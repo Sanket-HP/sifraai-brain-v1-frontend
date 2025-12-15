@@ -424,10 +424,13 @@
                                     <i class="fas fa-download"></i> Download Visual
                                 </button>
                             </div>
-                            <div class="flex-1 bg-slate-900/50 rounded-lg border border-white/5 p-4 relative min-h-[300px]">
+                            <div class="flex-1 bg-slate-900/50 rounded-lg border border-white/5 p-4 relative min-h-[300px] flex flex-col">
                                 <h4 class="text-[10px] font-bold text-slate-500 mb-2 uppercase absolute top-4 left-4 z-10">Main Visualization</h4>
-                                <canvas id="mainChart"></canvas>
-                                <div id="chart3d" class="w-full h-full hidden"></div>
+                                <!-- FIXED: Added w-full h-full and container styling for visibility -->
+                                <div class="relative flex-1 w-full min-h-[350px]">
+                                    <canvas id="mainChart" class="w-full h-full"></canvas>
+                                    <div id="chart3d" class="w-full h-full hidden"></div>
+                                </div>
                             </div>
                             <div class="w-full bg-slate-900/50 rounded-lg border border-white/5 p-4">
                                 <h4 class="text-[10px] font-bold text-slate-500 mb-4 uppercase">Correlation Heatmap</h4>
@@ -1449,13 +1452,14 @@
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
                 scene: {
-                    xaxis: { title: parsed.headers[xIdx], color: '#94a3b8' },
-                    yaxis: { title: parsed.headers[yIdx], color: '#94a3b8' },
-                    zaxis: { title: parsed.headers[zIdx], color: '#94a3b8' },
-                }
+                    xaxis: { title: parsed.headers[xIdx], color: '#cbd5e1', gridcolor: '#334155' },
+                    yaxis: { title: parsed.headers[yIdx], color: '#cbd5e1', gridcolor: '#334155' },
+                    zaxis: { title: parsed.headers[zIdx], color: '#cbd5e1', gridcolor: '#334155' },
+                },
+                font: { color: '#cbd5e1', family: 'Inter' }
             };
 
-            Plotly.newPlot('chart3d', [trace], layout, {displayModeBar: false});
+            Plotly.newPlot('chart3d', [trace], layout, {displayModeBar: false, responsive: true});
         }
 
         function render2DChart(parsed, goal, response) {
@@ -1477,16 +1481,34 @@
                 borderColor = palette; 
                 backgroundAlpha = 0.7;
             }
-            let chartData = { labels: labels, datasets: [{ label: dataLabel, data: values, borderColor: borderColor, backgroundColor: (Array.isArray(borderColor)) ? borderColor : `rgba(${currentChartType === 'bar' ? '139, 92, 246' : '6, 182, 212'}, ${backgroundAlpha})`, borderWidth: 2, tension: 0.4, fill: true, pointRadius: 3 }] };
+            let chartData = { labels: labels, datasets: [{ label: dataLabel, data: values, borderColor: borderColor, backgroundColor: (Array.isArray(borderColor)) ? borderColor : `rgba(${currentChartType === 'bar' ? '139, 92, 246' : '6, 182, 212'}, ${backgroundAlpha})`, borderWidth: 2, tension: 0.4, fill: true, pointRadius: 4 }] };
             if (goal === 'forecast' && response.predictions && (currentChartType === 'line' || currentChartType === 'bar')) {
                 const lastVal = values[values.length - 1];
                 const predValues = response.predictions.map(p => p.value);
                 const extendedLabels = [...labels, ...response.predictions.map((_, i) => `Forecast +${i+1}`)];
                 const paddedActual = [...values, ...Array(predValues.length).fill(null)];
                 const paddedForecast = [...Array(values.length - 1).fill(null), lastVal, ...predValues];
-                chartData = { labels: extendedLabels, datasets: [{ label: 'Historical', data: paddedActual, borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.2)', tension: 0.4 }, { label: 'Forecast', data: paddedForecast, borderColor: '#a855f7', borderDash: [5, 5], tension: 0.4 }] };
+                chartData = { labels: extendedLabels, datasets: [{ label: 'Historical', data: paddedActual, borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.2)', tension: 0.4, borderWidth: 2, pointRadius: 4 }, { label: 'Forecast', data: paddedForecast, borderColor: '#a855f7', borderDash: [5, 5], tension: 0.4, borderWidth: 2, pointRadius: 4 }] };
             }
-            chartInstance = new Chart(ctx, { type: currentChartType, data: chartData, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8', font: { family: 'Orbitron' } } } }, scales: (['doughnut', 'polarArea', 'pie', 'radar'].includes(currentChartType)) ? {} : { y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } }, x: { grid: { display: false }, ticks: { color: '#64748b' } } } } });
+            chartInstance = new Chart(ctx, { 
+                type: currentChartType, 
+                data: chartData, 
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { 
+                            labels: { color: '#e2e8f0', font: { family: 'Orbitron' } } 
+                        } 
+                    }, 
+                    scales: (['doughnut', 'polarArea', 'pie', 'radar'].includes(currentChartType)) ? {
+                         r: { grid: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { color: '#e2e8f0' }, ticks: { backdropColor: 'transparent', color: '#cbd5e1' } }
+                    } : { 
+                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#cbd5e1' } }, 
+                        x: { grid: { display: false }, ticks: { color: '#cbd5e1' } } 
+                    } 
+                } 
+            });
         }
 
         function downloadVisual() {
