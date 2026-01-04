@@ -1006,51 +1006,43 @@
                     throw new Error("Backend Offline. Agent-safe training requires HDP-FusionNet connection.");
                 }
 
-                // ===============================
-                // AGENT-CONTRACT MODEL PARSING
-                // ===============================
-                const fullResponse = data; // preserve original response structure
-                const modelId = fullResponse.model_id;
+                // ✅ FINAL, SAFE NORMALIZATION
+                const finalResult = {
+                    model_id: data.model_id,
+                    ...(data.result || data)
+                };
 
-                // AUTHORITATIVE PATH: Check result or navigate agent results trace
-                const modelNode =
-                    fullResponse.result ||
-                    fullResponse.raw_output?.results?.find(r => r.task === "auto_modeler")?.output;
-
-                if (!modelId || !modelNode) {
-                    console.error("FINAL NORMALIZED TRAIN RESPONSE:", fullResponse);
+                if (!finalResult.model_id) {
+                    console.error("RAW TRAIN RESPONSE:", data);
                     logToConsole("CRITICAL: model_id missing from backend response.", "error");
                     return;
                 }
 
                 // ✅ SUCCESS - Extract details
-                trainedModelId = modelId;
+                trainedModelId = finalResult.model_id;
                 document.getElementById("mlTask").innerText =
-                    modelNode.task_type || modelNode.task || "Train";
+                    finalResult.task_type || "Train";
                 document.getElementById("bestModel").innerText =
-                    modelNode.best_model || "-";
-                
-                const scoreValue = modelNode.best_score !== undefined ? modelNode.best_score : modelNode.score;
+                    finalResult.best_model || "-";
                 document.getElementById("bestScore").innerText =
-                    scoreValue !== undefined
-                        ? Number(scoreValue).toFixed(4)
+                    finalResult.best_score !== undefined
+                        ? Number(finalResult.best_score).toFixed(4)
                         : "N/A";
 
-                // Filter engineered features (Interactions/Polynomials) to keep UI clean
-                trainedModelFeatureNames = (modelNode.feature_names || uploadedHeaders.slice(0, -1)).filter(
-                  f => !f.includes("^") && !f.includes(" ")
-                );
+                trainedModelFeatureNames =
+                    finalResult.feature_names || uploadedHeaders.slice(0, -1);
 
-                trainedModelFeatureCount = trainedModelFeatureNames.length;
-                
-                document.getElementById("modelSummary").innerText = "Serialized in Registry";
+                trainedModelFeatureCount =
+                    finalResult.feature_count || trainedModelFeatureNames.length;
+                document.getElementById("modelSummary").innerText =
+                    "Serialized in Registry";
                 
                 // UI indicators
                 const accEl = document.getElementById("accuracy");
                 if(accEl) {
-                  accEl.innerText = scoreValue !== undefined ? Number(scoreValue).toFixed(4) : "N/A";
+                  accEl.innerText = finalResult.best_score !== undefined ? Number(finalResult.best_score).toFixed(4) : "N/A";
                 }
-                trainedModelHex = modelNode.model_hex || null;
+                trainedModelHex = finalResult.model_hex || null;
 
                 logToConsole(
                     `Training Complete. Agent Model Registered: ${trainedModelId}`,
@@ -1124,8 +1116,12 @@
             const resultSpan = document.getElementById('testResult');
             resultSpan.innerText = "Predicting...";
 
+            // 🔧 FIX 2 — Log backendOnline state (debug safety)
+            console.log("backendOnline:", backendOnline);
+
             try {
-                if (backendOnline) {
+                // 🔧 FIX 1 — FORCE REAL BACKEND PREDICTION
+                if (true) {
                     // --- SIFRA AI Agent-Safe: CORRECT PAYLOAD (MANDATORY) ---
                     const payload = {
                         model_id: trainedModelId,
@@ -1150,13 +1146,13 @@
 
                     const data = await res.json();
                     
-                    // ✅ Polished UI display
-                    if (data.prediction && Array.isArray(data.prediction)) {
-                        resultSpan.innerText = data.prediction.length === 1 
-                            ? (isNaN(Number(data.prediction[0])) ? data.prediction[0] : Number(data.prediction[0]).toFixed(2))
-                            : data.prediction.join(", ");
+                    // 🔧 FIX 3 — Show REAL prediction result (Explicit Handling)
+                    if (Array.isArray(data.prediction)) {
+                        resultSpan.innerText = data.prediction
+                            .map(v => (v !== null && !isNaN(v)) ? Number(v).toFixed(4) : String(v))
+                            .join(", ");
                     } else {
-                        resultSpan.innerText = data.prediction || "N/A";
+                        resultSpan.innerText = String(data.prediction);
                     }
                     
                     logToConsole(`Inference complete: ${resultSpan.innerText}`, "success");
