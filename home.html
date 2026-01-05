@@ -154,7 +154,7 @@
         </nav>
         <div class="p-4 border-t border-sifra-border hidden lg:block bg-black/20">
             <div class="flex justify-between items-center mb-2">
-                <span class="text-[10px] font-bold text-slate-500 font-orbitron uppercase">System Uplink</span>
+                <span class="text-[10px] font-bold text-slate-500 font-orbitron">SYSTEM HEALTH</span>
                 <span id="pingValue" class="text-[10px] font-mono text-slate-400">--ms</span>
             </div>
             <div class="flex items-center gap-3 p-2 rounded bg-slate-900/50 border border-white/5">
@@ -180,7 +180,7 @@
             </div>
             <div class="flex items-center gap-6">
                 <div class="hidden md:flex items-center gap-2 text-xs font-mono text-slate-400">
-                    <span id="planBadge" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-600 uppercase font-bold tracking-widest">INITIALIZING...</span>
+                    <span id="planBadge" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-600 uppercase font-bold tracking-tighter">WAITING_AUTH...</span>
                     <span class="w-[1px] h-3 bg-slate-700"></span>
                     <span>MEM: <span class="text-cyan-400">42%</span></span>
                 </div>
@@ -207,7 +207,7 @@
                         </div>
                     </div>
 
-                    <a href="/profile.html" class="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-purple-500 p-[2px] block cursor-pointer hover:scale-110 transition-transform overflow-hidden relative shadow-lg shadow-cyan-500/20">
+                    <a href="/profile.html" class="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-purple-500 p-[2px] block cursor-pointer hover:scale-105 transition-transform overflow-hidden relative">
                         <div id="headerInitials" class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-xs font-bold text-white">--</div>
                     </a>
                 </div>
@@ -488,46 +488,41 @@
         window.onload = () => {
             document.getElementById('appBody').style.opacity = '1';
 
-            // Wait for auth to resolve before showing anything
             firebase.auth().onAuthStateChanged(user => {
                 if (!user) {
-                    // Critical: Redirect immediately to your profile page if not logged in
+                    // Redirect to login if no active account session found
                     window.location.href = "/profile.html";
                     return;
                 }
 
-                // If user is valid, initialize logic
+                // Initialize session context
                 window.SIFRA_SESSION_ID = user.uid;
-                window.SIFRA_PROJECT_ID = localStorage.getItem("sifra_project") || (() => {
-                    const id = `proj_${Date.now()}`;
-                    localStorage.setItem("sifra_project", id);
-                    return id;
-                })();
+                window.SIFRA_PROJECT_ID =
+                    localStorage.getItem("sifra_project") ||
+                    (() => {
+                        const id = `proj_${Date.now()}`;
+                        localStorage.setItem("sifra_project", id);
+                        return id;
+                    })();
 
-                // Update Visual Elements from User Account
+                // Update Header UI with account details
                 const initials = document.getElementById('headerInitials');
                 const badge = document.getElementById('planBadge');
                 
                 if (initials) {
-                    // Try display name first, then email char
-                    const name = user.displayName || user.email || "U";
-                    initials.innerText = name[0].toUpperCase();
+                    const email = user.email || "U";
+                    initials.innerText = email[0].toUpperCase();
                 }
 
                 if (badge) {
                     badge.innerText = 'ENTERPRISE NODE';
+                    badge.classList.remove('tracking-tighter');
                     badge.classList.replace('text-slate-300', 'text-cyan-400');
+                    badge.classList.replace('bg-slate-800', 'bg-cyan-500/10');
+                    badge.classList.replace('border-slate-600', 'border-cyan-500/30');
                 }
 
-                // Log success only when user is actually defined
-                logToConsole(`Neural Handshake Complete: ${user.email}`, "success");
-                logToConsole(`Session Node: OMEGA-${user.uid.slice(0,4).toUpperCase()}`, "info");
-                
-                // Set system health to secure
-                statusDot.className = "relative w-2 h-2 rounded-full bg-green-500";
-                if(statusPulse) statusPulse.className = "absolute inset-0 rounded-full bg-green-500 animate-ping opacity-75";
-                statusText.innerText = "Secure Uplink";
-                statusText.className = "text-xs font-bold text-green-400";
+                logToConsole(`Authenticated: ${user.email}`, "sys");
             });
         };
 
@@ -580,11 +575,19 @@
 
         function setOnlineState(latency) {
             backendOnline = true;
+            statusDot.className = "relative w-2 h-2 rounded-full bg-green-500";
+            if(statusPulse) statusPulse.className = "absolute inset-0 rounded-full bg-green-500 animate-ping opacity-75";
+            statusText.innerText = "Online";
+            statusText.className = "text-xs font-bold text-green-400";
             pingValue.innerText = `${latency}ms`;
         }
 
         function setOfflineState() {
             backendOnline = false;
+            statusDot.className = "relative w-2 h-2 rounded-full bg-red-500";
+            if(statusPulse) statusPulse.className = "absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75";
+            statusText.innerText = "Offline";
+            statusText.className = "text-xs font-bold text-red-400";
             pingValue.innerText = "--ms";
         }
 
@@ -663,12 +666,14 @@
             }
         }
 
+        // --- Core Execution Router ---
         async function runSifra() {
             const uiMode = document.getElementById('goal').value;
             if (uiMode === 'model') await generateModel();
             else await executeStandardAnalysis(uiMode); 
         }
 
+        // --- Analytics Flow ---
         async function executeStandardAnalysis(uiMode) {
             const rawText = document.getElementById('rawData').value;
             if (!rawText.trim()) return;
@@ -732,7 +737,7 @@
                 { label: "Data Rows", val: parsed.data.length, icon: "fa-list" },
                 { label: "Features", val: parsed.headers.length, icon: "fa-columns" },
                 { label: "Target Mean", val: targetMean, icon: "fa-bullseye" },
-                { label: "Uplink Node", val: "Verified", icon: "fa-shield-halved" }
+                { label: "System Node", val: "Validated", icon: "fa-shield-halved" }
             ];
 
             kpiContainer.innerHTML = kpis.map(k => `
@@ -858,6 +863,7 @@
             });
         }
 
+        // --- AutoML Flow ---
         async function generateModel() {
             const rawText = document.getElementById('rawData').value;
             if (!rawText.trim()) return;
@@ -879,6 +885,10 @@
                 const result = data.result || data;
                 trainedModelId = data.model_id;
                 
+                if (!result.feature_names) {
+                    logToConsole("Warning: Feature metadata missing. Using base headers only.", "warn");
+                }
+                
                 trainedModelFeatureNames = result.feature_names || parsed.headers.slice(0, -1);
                 
                 document.getElementById("mlTask").innerText = result.task_type || "Auto-detected";
@@ -892,7 +902,11 @@ Task Type: ${result.task_type || 'N/A'}
 Selected Model: ${result.best_model || 'N/A'}
 Score: ${result.best_score || 'N/A'}
 
-Engineered features are internal and auto-generated.
+Feature Count (internal): ${trainedModelFeatureNames.length}
+User-Visible Features: ${getBaseFeatures(trainedModelFeatureNames).length}
+
+Note: Engineered features are internal and auto-generated.
+User inputs are mapped only to base feature contract.
                 `.trim();
 
                 const dlBtn = document.getElementById('downloadModelBtn');
@@ -900,7 +914,10 @@ Engineered features are internal and auto-generated.
                 dlBtn.href = `${BACKEND_URL}/download_model/${trainedModelId}`;
                 dlBtn.setAttribute("download", `sifra_model_${trainedModelId}.pkl`);
 
-                if (result.feature_importance) renderFeatureImportance(result.feature_importance);
+                // Render Importance Panel
+                if (result.feature_importance) {
+                    renderFeatureImportance(result.feature_importance);
+                }
 
                 renderFeatureInputs(trainedModelFeatureNames);
                 document.getElementById("testModelSection").classList.remove("hidden");
@@ -952,7 +969,17 @@ Engineered features are internal and auto-generated.
             document.querySelectorAll('.prediction-input').forEach(input => { 
                 const name = input.getAttribute('data-feature');
                 if (isCategoricalFeature(name)) {
-                    input.value = "Category_A";
+                    const mocks = {
+                        'region': ['North', 'South', 'East', 'West'],
+                        'country': ['USA', 'UK', 'Germany', 'France', 'Japan'],
+                        'item type': ['Consumer', 'Industrial', 'Medical'],
+                        'sales channel': ['Online', 'Offline'],
+                        'order priority': ['High', 'Medium', 'Low'],
+                        'month': ['Jan', 'Mar', 'Jun', 'Oct']
+                    };
+                    const lowerName = name.toLowerCase();
+                    const key = Object.keys(mocks).find(k => lowerName.includes(k));
+                    input.value = key ? mocks[key][Math.floor(Math.random() * mocks[key].length)] : "Category_A";
                 } else {
                     input.value = (Math.random() * 80 + 10).toFixed(2); 
                 }
@@ -982,6 +1009,8 @@ Engineered features are internal and auto-generated.
                 const data = await res.json();
                 let pred = Array.isArray(data.prediction) ? data.prediction[0] : data.prediction;
                 if (typeof pred === 'number') {
+                    if (!isFinite(pred)) pred = 0;
+                    pred = Math.max(Math.min(pred, 1e9), -1e9); 
                     resultSpan.innerText = pred.toFixed(4);
                 } else resultSpan.innerText = pred;
                 logToConsole(`Inference complete: ${resultSpan.innerText}`, "success");

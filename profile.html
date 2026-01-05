@@ -16,7 +16,26 @@
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Firebase SDK (Compat Version) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBu6CIgw5njjcl9dVhNYjitSUBKE87_S6M",
+            authDomain: "sifraaiweb.firebaseapp.com",
+            projectId: "sifraaiweb",
+            storageBucket: "sifraaiweb.firebasestorage.app",
+            messagingSenderId: "927713452336",
+            appId: "1:927713452336:web:f3affb6ef66091619e68f5",
+            measurementId: "G-V3TXBH3GCD"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -28,24 +47,12 @@
                     },
                     colors: {
                         sifra: {
-                            bg: '#020617', // Slate 950
-                            panel: '#0f172a', // Slate 900
-                            border: '#1e293b', // Slate 800
+                            bg: '#020617',
+                            panel: '#0f172a',
+                            border: '#1e293b',
                             cyan: '#06b6d4',
                             purple: '#8b5cf6',
-                            success: '#10b981',
-                            error: '#ef4444',
-                            warn: '#f59e0b'
-                        }
-                    },
-                    animation: {
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' },
+                            success: '#10b981'
                         }
                     }
                 }
@@ -53,33 +60,31 @@
         }
     </script>
     <style>
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #020617; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-
-        /* Glassmorphism */
+        
         .glass-panel {
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
-        .glass-nav {
-            background: rgba(2, 6, 23, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        .avatar-option {
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+        }
+        .avatar-option:hover {
+            transform: translateY(-5px) scale(1.05);
+            border-color: #06b6d4;
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+        }
+        .avatar-active {
+            border-color: #8b5cf6 !important;
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.4) !important;
         }
 
-        /* Neon Borders */
-        .neon-border-cyan:hover {
-            border-color: rgba(6, 182, 212, 0.5);
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
-        }
-        
-        /* Particle Background */
         #bg-canvas {
             position: fixed;
             top: 0;
@@ -88,518 +93,275 @@
             height: 100%;
             z-index: -1;
             pointer-events: none;
+            opacity: 0.4;
         }
 
-        /* Modal Transitions */
-        .modal {
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            opacity: 0;
-            visibility: hidden;
+        .category-tab {
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
         }
-        .modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        .modal-content {
-            transform: translate(-50%, -60%);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .modal.active .modal-content {
-            transform: translate(-50%, -50%);
-        }
-        
-        /* Avatar Option Hover */
-        .avatar-option:hover {
-            transform: scale(1.1);
+        .category-tab.active {
             border-color: #06b6d4;
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+            color: #06b6d4;
         }
     </style>
 </head>
 <body class="bg-sifra-bg text-slate-200 font-sans min-h-screen flex flex-col relative overflow-x-hidden bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
 
-    <!-- Background Animation -->
     <canvas id="bg-canvas"></canvas>
-    <div class="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-600/5 rounded-full blur-[120px] pointer-events-none"></div>
-    <div class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-cyan-600/5 rounded-full blur-[120px] pointer-events-none"></div>
 
     <!-- Navigation -->
-    <nav class="sticky top-0 z-50 glass-nav w-full px-6 py-4 flex justify-between items-center">
+    <nav class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md w-full px-6 py-4 flex justify-between items-center border-b border-white/5">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold font-orbitron text-sm shadow-lg shadow-cyan-500/20">S</div>
-            <a href="home.html" class="text-lg font-orbitron font-bold text-white tracking-widest hover:text-cyan-400 transition-colors">SIFRA<span class="text-cyan-500">.AI</span></a>
+            <div class="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold font-orbitron text-sm">S</div>
+            <a href="/index.html" class="text-lg font-orbitron font-bold text-white tracking-widest hover:text-cyan-400 transition-colors">SIFRA<span class="text-cyan-500">.AI</span></a>
         </div>
-        <div class="flex items-center gap-6">
-            <a href="home.html" class="hidden md:block text-xs font-mono text-slate-400 hover:text-cyan-400 transition-colors uppercase tracking-widest">Dashboard</a>
-            <a href="docs.html" class="hidden md:block text-xs font-mono text-slate-400 hover:text-cyan-400 transition-colors uppercase tracking-widest">Docs</a>
-            <button class="flex items-center gap-2 group">
-                <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center overflow-hidden">
-                    <img id="navAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Commander" alt="Profile" class="w-full h-full object-cover">
-                </div>
-            </button>
+        <div class="flex items-center gap-4">
+            <a href="/index.html" class="text-xs font-mono text-slate-400 hover:text-white uppercase tracking-widest transition-colors">Command Center</a>
+            <button onclick="handleLogout()" class="px-4 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] font-bold rounded border border-red-500/20 uppercase tracking-tighter">Disconnect</button>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 opacity-0 transition-opacity duration-700" id="mainContent">
+    <main class="flex-grow max-w-6xl mx-auto w-full px-4 py-10 opacity-0 transition-opacity duration-700" id="profileContent">
         
-        <!-- Header Section -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-            <div>
-                <h2 class="text-xs font-mono text-cyan-500 tracking-widest mb-2">USER IDENTIFICATION: CONFIRMED</h2>
-                <h1 class="text-3xl md:text-4xl font-orbitron font-bold text-white">COMMAND CENTER</h1>
-            </div>
-            <div class="flex gap-3">
-                <button onclick="window.location.href='settings.html'" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono rounded border border-slate-700 transition-colors">
-                    <i class="fas fa-cog mr-2"></i>SETTINGS
-                </button>
-                <button id="logoutBtn" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-mono rounded border border-red-500/20 transition-colors group">
-                    <i class="fas fa-power-off mr-2 group-hover:animate-pulse"></i>DISCONNECT
-                </button>
-            </div>
-        </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <!-- Left Column: Profile Card (4 cols) -->
+            <!-- Left: Identity Overview -->
             <div class="lg:col-span-4 space-y-6">
-                <!-- User Card -->
-                <div class="glass-panel p-6 rounded-xl relative overflow-hidden group transition-all duration-300 neon-border-cyan">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-purple-500"></div>
+                <div class="glass-panel p-8 rounded-2xl relative overflow-hidden border-t-4 border-t-cyan-500 text-center">
+                    <div class="relative w-32 h-32 mx-auto mb-6">
+                        <div class="absolute inset-0 bg-cyan-500 blur-2xl opacity-20 animate-pulse"></div>
+                        <img id="currentAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Base" alt="Commander" class="relative w-full h-full rounded-full border-4 border-slate-800 bg-slate-900 object-cover shadow-2xl">
+                        <div class="absolute bottom-1 right-1 w-6 h-6 bg-green-500 border-4 border-slate-900 rounded-full animate-pulse"></div>
+                    </div>
                     
-                    <div class="flex flex-col items-center text-center">
-                        <!-- Profile Image Container with Click Event -->
-                        <div class="relative w-28 h-28 mb-4 cursor-pointer group/avatar" onclick="openAvatarModal()">
-                            <div class="absolute inset-0 bg-cyan-500 blur-xl opacity-20 animate-pulse-slow"></div>
-                            
-                            <!-- The Image Wrapper -->
-                            <div class="relative w-full h-full rounded-full p-1 bg-gradient-to-br from-cyan-500 to-purple-600 overflow-hidden">
-                                <img id="profileAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Commander" alt="User Avatar" class="w-full h-full rounded-full bg-slate-900 p-1 object-cover">
-                                
-                                <!-- Edit Overlay -->
-                                <div class="absolute inset-1 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity backdrop-blur-sm">
-                                    <i class="fas fa-pen text-white text-lg"></i>
-                                </div>
-                            </div>
-                            
-                            <div class="absolute bottom-1 right-1 w-6 h-6 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700 z-10">
-                                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                            </div>
+                    <h2 id="userName" class="text-2xl font-bold text-white font-orbitron tracking-tight">COMMANDER</h2>
+                    <p id="userEmail" class="text-sm text-slate-400 font-mono mb-6">...</p>
+                    
+                    <div class="space-y-3 pt-6 border-t border-white/5">
+                        <div class="flex justify-between items-center text-[10px] uppercase font-bold tracking-widest">
+                            <span class="text-slate-500">Clearance Level</span>
+                            <span class="text-cyan-400">Level 04 // Admin</span>
                         </div>
-                        
-                        <h2 id="profileName" class="text-xl font-bold text-white font-orbitron animate-pulse">Initializing...</h2>
-                        <p id="profileEmail" class="text-sm text-slate-400 font-mono mb-4">...</p>
-                        
-                        <div class="w-full flex justify-between items-center py-3 border-t border-slate-800">
-                            <span class="text-xs text-slate-500 uppercase tracking-wider">Clearance</span>
-                            <span class="text-xs font-bold text-cyan-400 bg-cyan-950/30 px-2 py-1 rounded border border-cyan-500/20">LEVEL 4</span>
-                        </div>
-                        <div class="w-full flex justify-between items-center py-3 border-t border-slate-800">
-                            <span class="text-xs text-slate-500 uppercase tracking-wider">Node ID</span>
-                            <span id="nodeId" class="text-xs font-mono text-slate-300">SFR-8842-X</span>
-                        </div>
-                        <div class="w-full flex justify-between items-center py-3 border-t border-slate-800">
-                            <span class="text-xs text-slate-500 uppercase tracking-wider">Status</span>
-                            <span class="text-xs font-mono text-green-400">ACTIVE</span>
+                        <div class="flex justify-between items-center text-[10px] uppercase font-bold tracking-widest">
+                            <span class="text-slate-500">Node ID</span>
+                            <span id="displayNodeId" class="text-purple-400 font-mono">SFR-WAIT-X</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Usage Stats -->
-                <div class="glass-panel p-6 rounded-xl">
-                    <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                        <i class="fas fa-chart-pie text-purple-400"></i> RESOURCE USAGE
+                <div class="glass-panel p-6 rounded-2xl">
+                    <h3 class="text-xs font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
+                        <i class="fas fa-shield-halved text-cyan-500"></i> Account Security
                     </h3>
-                    
                     <div class="space-y-4">
-                        <div>
-                            <div class="flex justify-between text-xs mb-1">
-                                <span class="text-slate-400">Processing Units</span>
-                                <span class="text-slate-200">74%</span>
-                            </div>
-                            <div class="w-full bg-slate-800 rounded-full h-1.5">
-                                <div class="bg-gradient-to-r from-cyan-500 to-blue-500 h-1.5 rounded-full" style="width: 74%"></div>
-                            </div>
+                        <div class="p-3 bg-slate-950/40 rounded-lg border border-white/5">
+                            <p class="text-[9px] text-slate-500 uppercase mb-1">Firebase UID</p>
+                            <code id="displayUid" class="text-[10px] text-slate-300 break-all font-mono">...</code>
                         </div>
-                        <div>
-                            <div class="flex justify-between text-xs mb-1">
-                                <span class="text-slate-400">Storage (FusionNet)</span>
-                                <span class="text-slate-200">42%</span>
-                            </div>
-                            <div class="w-full bg-slate-800 rounded-full h-1.5">
-                                <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-1.5 rounded-full" style="width: 42%"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-xs mb-1">
-                                <span class="text-slate-400">API Quota</span>
-                                <span class="text-slate-200">8,420 / 10k</span>
-                            </div>
-                            <div class="w-full bg-slate-800 rounded-full h-1.5">
-                                <div class="bg-gradient-to-r from-orange-500 to-red-500 h-1.5 rounded-full" style="width: 84%"></div>
-                            </div>
+                        <div class="p-3 bg-slate-950/40 rounded-lg border border-white/5">
+                            <p class="text-[9px] text-slate-500 uppercase mb-1">Last Handshake</p>
+                            <p id="lastLogin" class="text-[10px] text-slate-300 font-mono">...</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column: Dashboard (8 cols) -->
+            <!-- Right: Identity Matrix (Avatar Selection) -->
             <div class="lg:col-span-8 space-y-6">
-                
-                <!-- Quick Stats Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="glass-panel p-4 rounded-xl border-l-2 border-l-cyan-500 flex items-center justify-between group hover:bg-slate-800/50 transition-colors">
+                <div class="glass-panel p-8 rounded-2xl">
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
                         <div>
-                            <p class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Active Projects</p>
-                            <h4 class="text-2xl font-bold text-white font-mono group-hover:text-cyan-400 transition-colors">12</h4>
+                            <h3 class="text-xl font-orbitron font-bold text-white">IDENTITY MATRIX</h3>
+                            <p class="text-xs text-slate-400 font-mono mt-1 uppercase tracking-tighter">Equip your visual presence across SIFRA nodes</p>
                         </div>
-                        <div class="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400">
-                            <i class="fas fa-project-diagram"></i>
+                        
+                        <div class="flex bg-slate-900/50 p-1 rounded-lg border border-white/5">
+                            <button onclick="filterAvatars('mens')" id="btn-mens" class="category-tab px-4 py-1.5 text-[10px] font-bold uppercase active">Mens</button>
+                            <button onclick="filterAvatars('womens')" id="btn-womens" class="category-tab px-4 py-1.5 text-[10px] font-bold uppercase">Womens</button>
+                            <button onclick="filterAvatars('cartoons')" id="btn-cartoons" class="category-tab px-4 py-1.5 text-[10px] font-bold uppercase">Cartoons</button>
                         </div>
                     </div>
-                    <div class="glass-panel p-4 rounded-xl border-l-2 border-l-purple-500 flex items-center justify-between group hover:bg-slate-800/50 transition-colors">
-                        <div>
-                            <p class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Models Deployed</p>
-                            <h4 class="text-2xl font-bold text-white font-mono group-hover:text-purple-400 transition-colors">05</h4>
-                        </div>
-                        <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
-                            <i class="fas fa-cube"></i>
-                        </div>
-                    </div>
-                    <div class="glass-panel p-4 rounded-xl border-l-2 border-l-green-500 flex items-center justify-between group hover:bg-slate-800/50 transition-colors">
-                        <div>
-                            <p class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">System Status</p>
-                            <h4 class="text-lg font-bold text-green-400 font-mono">ONLINE</h4>
-                        </div>
-                        <div class="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center text-green-400">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- API Keys Section -->
-                <div class="glass-panel p-6 rounded-xl">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                            <i class="fas fa-key text-yellow-400"></i> API CREDENTIALS
-                        </h3>
-                        <button class="text-[10px] text-cyan-400 hover:text-cyan-300 font-mono underline">REGENERATE KEY</button>
+                    <div id="avatarGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                        <!-- Avatars loaded via JS -->
                     </div>
-                    
-                    <div class="bg-slate-950/50 border border-slate-800 rounded-lg p-3 flex items-center justify-between">
-                        <div class="flex-grow mr-4">
-                            <p class="text-[10px] text-slate-500 mb-1">Secret Key (Production)</p>
-                            <div class="flex items-center gap-2">
-                                <code class="text-xs font-mono text-slate-300 tracking-wider">sk_live_9482...8472</code>
-                                <span class="text-[10px] bg-slate-800 text-slate-500 px-1 rounded">HIDDEN</span>
-                            </div>
-                        </div>
-                        <button onclick="copyToClipboard()" class="p-2 text-slate-400 hover:text-white transition-colors" title="Copy to clipboard">
-                            <i class="fas fa-copy"></i>
+
+                    <div class="mt-8 pt-8 border-t border-white/5 flex justify-end">
+                        <button id="saveIdentityBtn" onclick="saveNewIdentity()" disabled class="px-8 py-3 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold text-xs rounded-lg font-orbitron tracking-widest shadow-lg shadow-cyan-500/20 transition-all uppercase">
+                            Equip Identity
                         </button>
                     </div>
                 </div>
 
-                <!-- Recent Activity Table -->
-                <div class="glass-panel p-6 rounded-xl overflow-hidden">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                            <i class="fas fa-list text-cyan-400"></i> RECENT ANALYSIS
-                        </h3>
-                        <a href="#" class="text-xs text-slate-400 hover:text-white transition-colors">View All</a>
-                    </div>
-                    
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="text-[10px] text-slate-500 uppercase tracking-wider border-b border-slate-800">
-                                    <th class="pb-3 pl-2">Project Name</th>
-                                    <th class="pb-3">Engine</th>
-                                    <th class="pb-3">Status</th>
-                                    <th class="pb-3">Date</th>
-                                    <th class="pb-3 text-right pr-2">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-sm">
-                                <tr class="border-b border-slate-800/50 group hover:bg-slate-800/30 transition-colors">
-                                    <td class="py-4 pl-2 font-medium text-slate-200">Global Logistics Opt.</td>
-                                    <td class="py-4 text-slate-400 text-xs font-mono">HDS-Unity</td>
-                                    <td class="py-4"><span class="bg-green-500/10 text-green-400 border border-green-500/20 text-[10px] px-2 py-0.5 rounded font-mono">COMPLETED</span></td>
-                                    <td class="py-4 text-slate-500 text-xs">2 hours ago</td>
-                                    <td class="py-4 text-right pr-2">
-                                        <button class="text-slate-500 hover:text-cyan-400"><i class="fas fa-external-link-alt"></i></button>
-                                    </td>
-                                </tr>
-                                <tr class="border-b border-slate-800/50 group hover:bg-slate-800/30 transition-colors">
-                                    <td class="py-4 pl-2 font-medium text-slate-200">Q4 Sales Forecast</td>
-                                    <td class="py-4 text-slate-400 text-xs font-mono">AutoML v4</td>
-                                    <td class="py-4"><span class="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-[10px] px-2 py-0.5 rounded font-mono flex w-fit items-center gap-1"><i class="fas fa-circle-notch fa-spin text-[8px]"></i> PROCESSING</span></td>
-                                    <td class="py-4 text-slate-500 text-xs">Just now</td>
-                                    <td class="py-4 text-right pr-2">
-                                        <button class="text-slate-500 hover:text-cyan-400"><i class="fas fa-pause"></i></button>
-                                    </td>
-                                </tr>
-                                <tr class="border-b border-slate-800/50 group hover:bg-slate-800/30 transition-colors">
-                                    <td class="py-4 pl-2 font-medium text-slate-200">Customer Churn - EU</td>
-                                    <td class="py-4 text-slate-400 text-xs font-mono">HDP-FusionNet</td>
-                                    <td class="py-4"><span class="bg-green-500/10 text-green-400 border border-green-500/20 text-[10px] px-2 py-0.5 rounded font-mono">COMPLETED</span></td>
-                                    <td class="py-4 text-slate-500 text-xs">Yesterday</td>
-                                    <td class="py-4 text-right pr-2">
-                                        <button class="text-slate-500 hover:text-cyan-400"><i class="fas fa-external-link-alt"></i></button>
-                                    </td>
-                                </tr>
-                                <tr class="group hover:bg-slate-800/30 transition-colors">
-                                    <td class="py-4 pl-2 font-medium text-slate-200">Inventory Anomalies</td>
-                                    <td class="py-4 text-slate-400 text-xs font-mono">Auto-Anomaly</td>
-                                    <td class="py-4"><span class="bg-red-500/10 text-red-400 border border-red-500/20 text-[10px] px-2 py-0.5 rounded font-mono">FAILED</span></td>
-                                    <td class="py-4 text-slate-500 text-xs">Oct 24, 2024</td>
-                                    <td class="py-4 text-right pr-2">
-                                        <button class="text-slate-500 hover:text-red-400"><i class="fas fa-redo"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="glass-panel p-6 rounded-2xl border-l-4 border-l-purple-500">
+                    <h3 class="text-xs font-bold text-purple-400 mb-2 uppercase tracking-widest">Protocol Intelligence</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Your identity seed is encrypted and synced across all SIFRA AI Execution Nodes. Changing your avatar will update your presence in the Command Center Log Stream instantly.</p>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Avatar Selection Modal -->
-    <div id="avatarModal" class="fixed inset-0 z-[100] modal">
-        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm cursor-pointer" onclick="closeAvatarModal()"></div>
-        <div class="absolute top-1/2 left-1/2 w-[90%] max-w-lg bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-white font-orbitron text-lg tracking-wider">SELECT IDENTITY</h3>
-                <button onclick="closeAvatarModal()" class="text-slate-400 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
-            </div>
-            
-            <div class="grid grid-cols-2 sm:grid-cols-5 gap-4" id="avatarGrid">
-                <!-- Avatars injected by JS -->
-            </div>
-
-            <div class="mt-6 text-center">
-                <p class="text-[10px] text-slate-500 font-mono">IDENTITY MATRIX v2.0 // CLICK TO EQUIP</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="border-t border-slate-800/50 mt-12 bg-slate-950/50 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
-            <div class="mb-4 md:mb-0">
-                <span class="font-orbitron font-bold text-slate-400">SIFRA<span class="text-cyan-600">.AI</span></span>
-                <span class="mx-2">|</span>
-                <span>SECURE CONNECTION ESTABLISHED</span>
-            </div>
-            <div class="flex gap-6">
-                <a href="#" class="hover:text-cyan-400 transition-colors">Support Node</a>
-                <a href="#" class="hover:text-cyan-400 transition-colors">System Status</a>
-                <a href="#" class="hover:text-cyan-400 transition-colors">Privacy Protocol</a>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Firebase Logic -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBu6CIgw5njjcl9dVhNYjitSUBKE87_S6M",
-            authDomain: "sifraaiweb.firebaseapp.com",
-            projectId: "sifraaiweb",
-            storageBucket: "sifraaiweb.firebasestorage.app",
-            messagingSenderId: "927713452336",
-            appId: "1:927713452336:web:f3affb6ef66091619e68f5",
-            measurementId: "G-V3TXBH3GCD"
+    <script>
+        // --- DATA ---
+        const AVATAR_DB = {
+            mens: ['Jack', 'Felix', 'Rocky', 'Caleb', 'Victor', 'Leo', 'Max', 'Zane', 'Ivan', 'Grant'],
+            womens: ['Aneka', 'Lily', 'Bella', 'Sassy', 'Maya', 'Nora', 'Jade', 'Luna', 'Cleo', 'Sara'],
+            cartoons: ['Midnight', 'Shadow', 'Cyber', 'Ghost', 'Spark', 'Volt', 'Pixel', 'Sonic', 'Astro', 'Neo']
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        let selectedAvatarUrl = null;
+        let currentUserData = null;
 
-        // Make functions global for onclick events
-        window.auth = auth;
-        window.db = db;
-        window.updateProfile = updateProfile;
-        window.updateDoc = updateDoc;
-        window.doc = doc;
-
-        // Auth State Listener (Protects Route & Updates UI)
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                console.log("User detected:", user.email);
-                
-                const displayName = user.displayName || user.email.split('@')[0].toUpperCase();
-                const avatarUrl = user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayName}`;
-                
-                // Update elements
-                document.getElementById('profileName').textContent = displayName;
-                document.getElementById('profileName').classList.remove('animate-pulse');
-                document.getElementById('profileEmail').textContent = user.email;
-                document.getElementById('profileAvatar').src = avatarUrl;
-                document.getElementById('navAvatar').src = avatarUrl;
-                
-                // Fake Node ID generation for effect
-                document.getElementById('nodeId').textContent = `SFR-${user.uid.substr(0, 4).toUpperCase()}-X`;
-
-                // Fade in main content
-                document.getElementById('mainContent').style.opacity = '1';
-
-            } else {
-                // No user is signed in, redirect to login
-                console.warn("No user found. Redirecting...");
-                window.location.href = 'login.html';
+        // --- AUTH GUARD ---
+        auth.onAuthStateChanged(user => {
+            if (!user || user.isAnonymous) {
+                // Not a real account -> Force login
+                window.location.href = "/signup.html"; 
+                return;
             }
+
+            // Real Logged-in Account
+            currentUserData = user;
+            document.getElementById('profileContent').style.opacity = '1';
+            
+            // Populate basic info
+            document.getElementById('userName').innerText = user.displayName || user.email.split('@')[0].toUpperCase();
+            document.getElementById('userEmail').innerText = user.email;
+            document.getElementById('displayUid').innerText = user.uid;
+            document.getElementById('displayNodeId').innerText = `SFR-${user.uid.slice(0, 4).toUpperCase()}-X`;
+            document.getElementById('lastLogin').innerText = new Date().toLocaleString();
+
+            if (user.photoURL) {
+                document.getElementById('currentAvatar').src = user.photoURL;
+            }
+
+            // Initial load of avatar grid
+            filterAvatars('mens');
         });
 
-        // Logout Logic
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            const btn = document.getElementById('logoutBtn');
-            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin mr-2"></i>DISCONNECTING...`;
+        // --- AVATAR SYSTEM ---
+        function filterAvatars(category) {
+            // Update tabs
+            document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active', 'text-cyan-400'));
+            const activeTab = document.getElementById(`btn-${category}`);
+            activeTab.classList.add('active', 'text-cyan-400');
+
+            // Generate Grid
+            const grid = document.getElementById('avatarGrid');
+            grid.innerHTML = '';
+
+            const collection = category === 'cartoons' ? 'bottts' : 'avataaars';
             
-            signOut(auth).then(() => {
-                window.location.href = 'login.html';
-            }).catch((error) => {
-                console.error("Sign out error", error);
-                alert("Error disconnecting. See console.");
+            AVATAR_DB[category].forEach(seed => {
+                const url = `https://api.dicebear.com/7.x/${collection}/svg?seed=${seed}`;
+                const div = document.createElement('div');
+                div.className = `avatar-option glass-panel rounded-xl p-2 aspect-square flex items-center justify-center bg-slate-900/40`;
+                div.innerHTML = `<img src="${url}" class="w-full h-full rounded-lg">`;
+                div.onclick = () => selectAvatar(url, div);
+                grid.appendChild(div);
             });
-        });
+        }
 
-        // --- Avatar Selection Logic ---
-        
-        // 1. Define Avatar List
-        const avatars = [
-            "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",   // Male
-            "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",   // Female
-            "https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight", // Boy/Dark
-            "https://api.dicebear.com/7.x/avataaars/svg?seed=Lily",    // Girl
-            "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack",    // Male 2
-            "https://api.dicebear.com/7.x/avataaars/svg?seed=Bella",   // Female 2
-            "https://api.dicebear.com/7.x/avataaars/svg?seed=Rocky",   // Cool
-            "https://api.dicebear.com/7.x/avataaars/svg?seed=Sassy",   // Glasses
-            "https://api.dicebear.com/7.x/avataaars/svg?seed=Cyber",   // Techish
-            "https://api.dicebear.com/7.x/avataaars/svg?seed=Shadow"   // Mystery
-        ];
-
-        // 2. Populate Grid
-        const avatarGrid = document.getElementById('avatarGrid');
-        avatars.forEach(url => {
-            const div = document.createElement('div');
-            div.className = "avatar-option w-full aspect-square rounded-full border-2 border-slate-700 bg-slate-800 p-1 cursor-pointer transition-all duration-300";
-            div.onclick = () => selectAvatar(url);
-            div.innerHTML = `<img src="${url}" class="w-full h-full rounded-full" alt="Avatar Option">`;
-            avatarGrid.appendChild(div);
-        });
-
-        // 3. Modal Functions
-        window.openAvatarModal = () => {
-            document.getElementById('avatarModal').classList.add('active');
-        };
-
-        window.closeAvatarModal = () => {
-            document.getElementById('avatarModal').classList.remove('active');
-        };
-
-        // 4. Select & Save Function
-        window.selectAvatar = async (url) => {
-            // UI Feedback
-            const profileImg = document.getElementById('profileAvatar');
-            const navImg = document.getElementById('navAvatar');
+        function selectAvatar(url, element) {
+            selectedAvatarUrl = url;
             
-            // Optimistic update
-            profileImg.src = url;
-            navImg.src = url;
-            closeAvatarModal();
+            // Visual Update
+            document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('avatar-active'));
+            element.classList.add('avatar-active');
 
-            // Firebase Update
-            const user = window.auth.currentUser;
-            if (user) {
-                try {
-                    // Update Auth Profile
-                    await window.updateProfile(user, { photoURL: url });
-                    
-                    // Update Firestore Document (User Profile)
-                    const userRef = window.doc(window.db, "users", user.uid);
-                    await window.updateDoc(userRef, { photoURL: url }, { merge: true });
-                    
-                    console.log("Avatar updated successfully");
-                } catch (error) {
-                    console.error("Error updating avatar:", error);
-                    // Revert if failed (optional, but good UX)
-                    alert("Failed to save avatar. Please try again.");
-                }
+            // Enable button
+            document.getElementById('saveIdentityBtn').disabled = false;
+        }
+
+        async function saveNewIdentity() {
+            if (!selectedAvatarUrl || !currentUserData) return;
+
+            const btn = document.getElementById('saveIdentityBtn');
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> SYNCING...`;
+            btn.disabled = true;
+
+            try {
+                // 1. Update Auth Profile
+                await currentUserData.updateProfile({ photoURL: selectedAvatarUrl });
+                
+                // 2. Update Firestore
+                await db.collection('users').doc(currentUserData.uid).set({
+                    photoURL: selectedAvatarUrl,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                // 3. UI Update
+                document.getElementById('currentAvatar').src = selectedAvatarUrl;
+                btn.innerHTML = `<i class="fas fa-check"></i> EQUIPPED`;
+                btn.classList.replace('bg-cyan-600', 'bg-green-600');
+
+                setTimeout(() => {
+                    btn.innerText = "Equip Identity";
+                    btn.classList.replace('bg-green-600', 'bg-cyan-600');
+                    btn.disabled = false;
+                }, 2000);
+
+            } catch (err) {
+                console.error("Identity Sync Error:", err);
+                btn.innerText = "Handshake Error";
+                btn.disabled = false;
             }
-        };
+        }
 
+        function handleLogout() {
+            auth.signOut().then(() => {
+                window.location.href = "/signup.html";
+            });
+        }
     </script>
 
     <script>
-        // --- Particle Background Logic ---
+        // --- Visual Background logic ---
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
-        let width, height;
-        let particles = [];
+        let width, height, particles = [];
 
         function resize() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
         }
-        window.addEventListener('resize', resize);
-        resize();
 
         class Particle {
             constructor() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.2; // Slower movement for profile
-                this.vy = (Math.random() - 0.5) * 0.2;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
                 this.size = Math.random() * 1.5;
-                this.alpha = Math.random() * 0.5;
             }
             update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                if(this.x < 0) this.x = width;
-                if(this.x > width) this.x = 0;
-                if(this.y < 0) this.y = height;
-                if(this.y > height) this.y = 0;
+                this.x += this.vx; this.y += this.vy;
+                if(this.x < 0 || this.x > width) this.vx *= -1;
+                if(this.y < 0 || this.y > height) this.vy *= -1;
             }
             draw() {
-                ctx.fillStyle = `rgba(148, 163, 184, ${this.alpha})`;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillStyle = 'rgba(100, 116, 139, 0.4)';
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
             }
         }
 
-        for(let i=0; i<40; i++) particles.push(new Particle());
+        function init() {
+            resize();
+            particles = Array.from({length: 40}, () => new Particle());
+        }
 
         function animate() {
-            ctx.clearRect(0, 0, width, height);
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
+            ctx.clearRect(0,0,width,height);
+            particles.forEach(p => { p.update(); p.draw(); });
             requestAnimationFrame(animate);
         }
-        animate();
 
-        // --- Copy Clipboard Logic ---
-        function copyToClipboard() {
-            const key = "sk_live_948273645102938472"; // Mock key
-            navigator.clipboard.writeText(key).then(() => {
-                const btn = document.querySelector('button[title="Copy to clipboard"]');
-                const originalHTML = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check text-green-400"></i>';
-                setTimeout(() => {
-                    btn.innerHTML = originalHTML;
-                }, 2000);
-            });
-        }
+        window.addEventListener('resize', init);
+        init();
+        animate();
     </script>
 </body>
 </html>
