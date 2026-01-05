@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIFRA GRID | Node Omega Execution Environment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Dependencies for Exports -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #050507;
+            --glass: rgba(10, 10, 15, 0.85);
+            --glass-border: rgba(0, 242, 255, 0.25);
+            --neon-cyan: #00f2ff;
+            --neon-purple: #7000ff;
+            --text-main: #e0e7ff;
+            --terminal-bg: #07070a;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(112, 0, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 0% 0%, rgba(0, 242, 255, 0.05) 0%, transparent 30%);
+        }
+
+        .orbitron { font-family: 'Orbitron', sans-serif; }
+        .mono { font-family: 'Fira Code', monospace; }
+
+        .sifra-border {
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.07);
+        }
+
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 4px;
+        }
+
+        /* Animations */
+        @keyframes pulse-cyan {
+            0% { box-shadow: 0 0 5px rgba(0, 242, 255, 0.2); }
+            50% { box-shadow: 0 0 15px rgba(0, 242, 255, 0.5); }
+            100% { box-shadow: 0 0 5px rgba(0, 242, 255, 0.2); }
+        }
+
+        .pulse-node { animation: pulse-cyan 3s infinite; }
+
+        .btn-omega {
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: 2px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .btn-omega:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* Grid Styling */
+        .data-matrix-wrapper {
+            background: var(--terminal-bg);
+            border: 1px solid rgba(0, 242, 255, 0.1);
+        }
+
+        table { border-collapse: separate; border-spacing: 0; width: 100%; table-layout: fixed; }
+        
+        th {
+            background: rgba(15, 15, 25, 0.95);
+            color: var(--neon-cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 12px 10px;
+            border-bottom: 2px solid var(--neon-cyan);
+            border-right: 1px solid rgba(0, 242, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            min-width: 120px;
+        }
+
+        td {
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-right: 1px solid rgba(255, 255, 255, 0.02);
+            font-size: 0.8rem;
+            color: #a5b4fc;
+            transition: all 0.2s;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        tr:hover td {
+            background: rgba(0, 242, 255, 0.05);
+            color: white;
+        }
+
+        .cell-editable:focus {
+            outline: none;
+            background: rgba(112, 0, 255, 0.15) !important;
+            box-shadow: inset 0 0 10px rgba(0, 242, 255, 0.3);
+            white-space: normal;
+            z-index: 50;
+            position: relative;
+        }
+
+        /* Formula Style Cell */
+        .cell-formula {
+            color: var(--neon-cyan);
+            font-style: italic;
+        }
+
+        /* Terminal Logs */
+        .console-log {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            color: #4ade80;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: var(--neon-cyan); border-radius: 3px; }
+
+        .status-pill {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+            box-shadow: 0 0 10px #4ade80;
+        }
+
+        #exportMenu {
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            border: 1px solid var(--neon-cyan);
+        }
+        
+        /* Column labels A, B, C... */
+        .col-label {
+            display: block;
+            font-size: 9px;
+            color: rgba(0, 242, 255, 0.4);
+            margin-bottom: 2px;
+        }
+
+        .nav-link {
+            font-size: 10px;
+            font-family: 'Orbitron', sans-serif;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+        
+        .nav-link.active {
+            color: var(--neon-cyan);
+            border-bottom: 1px solid var(--neon-cyan);
+        }
+
+        .nav-link.inactive {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .nav-link:hover {
+            color: var(--neon-cyan);
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col p-4 gap-4">
+
+    <!-- SIFRA GLOBAL HEADER -->
+    <header class="flex justify-between items-center glass-panel p-3 sifra-border">
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-gradient-to-tr from-[#00f2ff] to-[#7000ff] rounded flex items-center justify-center pulse-node">
+                    <span class="orbitron font-bold text-black text-xl">S</span>
+                </div>
+                <div>
+                    <h1 class="orbitron text-sm font-bold tracking-widest text-white">COMMAND NODE <span class="text-[#00f2ff]">OMEGA</span></h1>
+                    <div class="flex items-center gap-2">
+                        <div class="status-pill"></div>
+                        <span class="text-[10px] mono text-gray-500 uppercase">SYSTEM.STATUS: OPERATIONAL</span>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="flex gap-6 ml-8 border-l border-white/10 pl-8">
+                <div class="nav-link inactive">DATA_GENESIS</div>
+                <div class="nav-link active">GRID_EXECUTION</div>
+                <a href="sifra-grid-manual.html" class="nav-link inactive hover:text-[#7000ff] uppercase">System_Manual</a>
+            </nav>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <div class="flex flex-col items-end text-[10px] mono text-gray-500">
+                <span>LATENCY: 8ms</span>
+                <span>NODE_ID: OMEGA-09</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN INTERFACE -->
+    <main class="flex-1 grid grid-cols-12 gap-4 overflow-hidden">
+        
+        <!-- SIDEBAR: EXECUTION TOOLS -->
+        <aside class="col-span-2 glass-panel flex flex-col overflow-hidden sifra-border">
+            <div class="p-4 border-b border-white/5 bg-white/5 space-y-4">
+                <h3 class="orbitron text-[10px] text-gray-400 font-bold tracking-tighter uppercase">Operations</h3>
+                
+                <div class="space-y-2">
+                    <button onclick="createNewWorkspace()" class="w-full text-left p-2 rounded hover:bg-[#7000ff]/20 text-xs flex items-center gap-3 group transition border border-white/5">
+                        <i class="fas fa-file-signature text-[#7000ff] group-hover:scale-110"></i>
+                        <span class="mono uppercase">New_Workspace</span>
+                    </button>
+
+                    <button onclick="document.getElementById('fileInput').click()" class="w-full text-left p-2 rounded hover:bg-[#00f2ff]/10 text-xs flex items-center gap-3 group transition border border-white/5">
+                        <i class="fas fa-file-import text-[#00f2ff] group-hover:scale-110"></i>
+                        <span class="mono uppercase">Load_Input</span>
+                    </button>
+                    <input type="file" id="fileInput" class="hidden" accept=".csv,.json" onchange="handleFileUpload(event)">
+                    
+                    <button onclick="addNewRow()" class="w-full text-left p-2 rounded hover:bg-white/5 text-xs flex items-center gap-3 group transition border border-white/5">
+                        <i class="fas fa-plus-square text-gray-400"></i>
+                        <span class="mono uppercase">Inject_Row</span>
+                    </button>
+
+                    <button onclick="openColumnModal()" class="w-full text-left p-2 rounded hover:bg-white/5 text-xs flex items-center gap-3 group transition border border-white/5">
+                        <i class="fas fa-columns text-gray-400"></i>
+                        <span class="mono uppercase">Inject_Column</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-4 flex-1 overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="orbitron text-[10px] text-gray-400 font-bold tracking-tighter uppercase">Logic_Rules</h3>
+                    <button onclick="openRuleModal()" class="text-[#00f2ff] text-[10px] hover:scale-110 transition"><i class="fas fa-cog"></i></button>
+                </div>
+                <div id="rulesList" class="space-y-2">
+                    <div class="text-[9px] mono text-gray-500 italic">Formulas supported via '=' prefix.</div>
+                    <div id="activeRules" class="space-y-2"></div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-white/5 bg-black/40">
+                <button onclick="saveProject()" class="btn-omega w-full text-[10px]">SAVE_STATE</button>
+            </div>
+        </aside>
+
+        <!-- DATA MATRIX (THE GRID) -->
+        <section class="col-span-10 flex flex-col gap-4 overflow-hidden">
+            <!-- Global Grid Controls -->
+            <div class="glass-panel p-3 flex gap-4 items-center sifra-border relative z-50">
+                <div class="flex items-center gap-3 bg-black/60 px-4 py-2 rounded border border-white/10 flex-1">
+                    <i class="fas fa-search text-[10px] text-[#00f2ff]"></i>
+                    <input type="text" id="searchInput" oninput="filterGrid()" placeholder="SCAN_MATRIX..." class="bg-transparent border-none outline-none text-xs mono text-[#00f2ff] w-full placeholder:text-gray-700">
+                </div>
+                
+                <div class="flex gap-2">
+                    <div class="relative">
+                        <button onclick="toggleExportMenu(event)" class="btn-omega text-[10px] flex items-center gap-2">
+                            EXPORT_PROTOCOL <i class="fas fa-download text-[10px]"></i>
+                        </button>
+                        <div id="exportMenu" class="hidden absolute top-full right-0 mt-3 w-56 glass-panel bg-[#07070a] z-[100] p-2 rounded-md shadow-2xl">
+                            <div onclick="exportData('csv')" class="p-3 hover:bg-[#00f2ff]/20 rounded-sm text-left cursor-pointer text-[10px] mono flex items-center gap-3">
+                                <i class="fas fa-file-csv text-[#00f2ff]"></i> COMMA_SEPARATED (.CSV)
+                            </div>
+                            <div onclick="exportData('xlsx')" class="p-3 hover:bg-[#00f2ff]/20 rounded-sm text-left cursor-pointer text-[10px] mono flex items-center gap-3">
+                                <i class="fas fa-file-excel text-green-500"></i> MS_EXCEL_XML (.XLSX)
+                            </div>
+                            <div onclick="exportData('json')" class="p-3 hover:bg-[#00f2ff]/20 rounded-sm text-left cursor-pointer text-[10px] mono flex items-center gap-3">
+                                <i class="fas fa-code text-yellow-500"></i> DATA_OBJECT (.JSON)
+                            </div>
+                            <div class="border-t border-white/10 my-1"></div>
+                            <div onclick="exportData('pdf')" class="p-3 hover:bg-[#7000ff]/20 rounded-sm text-left cursor-pointer text-[10px] mono flex items-center gap-3">
+                                <i class="fas fa-file-pdf text-[#7000ff]"></i> DOCUMENT_REPORT (.PDF)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid Workspace -->
+            <div class="flex-1 overflow-hidden flex flex-col glass-panel sifra-border relative">
+                <div class="flex border-b border-white/10 bg-black/40">
+                    <div class="px-4 py-2 text-[10px] orbitron text-[#00f2ff] border-r border-white/10 bg-white/5 uppercase tracking-tighter">Matrix_View_Omega</div>
+                    <div id="gridTabInfo" class="px-4 py-2 text-[10px] mono text-gray-500">NULL_STREAM</div>
+                </div>
+                
+                <div class="flex-1 overflow-auto data-matrix-wrapper" id="captureArea">
+                    <table id="mainGrid">
+                        <thead><tr id="gridHeader"></tr></thead>
+                        <tbody id="gridBody" class="mono text-[11px]"></tbody>
+                    </table>
+                    <div id="emptyState" class="h-full flex flex-col items-center justify-center gap-6">
+                        <div class="relative">
+                            <i class="fas fa-project-diagram text-7xl text-[#7000ff] opacity-20"></i>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-16 h-16 border-2 border-[#00f2ff]/20 rounded-full animate-ping"></div>
+                            </div>
+                        </div>
+                        <div class="text-center space-y-4">
+                            <p class="orbitron text-xs tracking-[0.2em] text-white/40 uppercase">Awaiting Matrix Initialization</p>
+                            <button onclick="createNewWorkspace()" class="btn-omega text-[10px]">Initialize New Matrix</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Console Log -->
+            <div class="h-32 glass-panel sifra-border overflow-hidden flex flex-col">
+                <div class="bg-black/60 px-3 py-1.5 flex justify-between items-center border-b border-white/5">
+                    <span class="orbitron text-[8px] text-gray-500 uppercase tracking-widest">System_Console_V1.2</span>
+                    <span class="mono text-[8px] text-[#00f2ff] animate-pulse">LIVE_CONNECTION</span>
+                </div>
+                <div id="consoleOut" class="flex-1 p-3 overflow-y-auto console-log space-y-1 bg-black/40">
+                    <div>[SYS] COMMAND_NODE_OMEGA BOOT_SEQUENCE COMPLETE.</div>
+                    <div>[SYS] FORMULA_ENGINE_LOADED.</div>
+                    <div>[SYS] ALL MODULES STANDING BY.</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Status -->
+    <footer class="flex justify-between items-center px-4 py-2 glass-panel sifra-border text-[9px]">
+        <div class="flex gap-8 items-center">
+            <div class="flex items-center gap-2">
+                <span class="orbitron text-gray-500 uppercase">Engine:</span>
+                <span class="mono text-white">DETERMINISTIC_JS_OMEGA</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="orbitron text-gray-500 uppercase">Matrix:</span>
+                <span class="mono text-[#00f2ff]"><span id="statRows">0</span>R x <span id="statCols">0</span>C</span>
+            </div>
+        </div>
+        <div id="columnQuickSummary" class="mono text-gray-500 italic uppercase">
+            System Standby // Waiting for stream
+        </div>
+    </footer>
+
+    <!-- RULE MODAL (Computed Rules) -->
+    <div id="ruleModal" class="hidden fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md p-8 sifra-border bg-[#07070a]">
+            <h2 class="orbitron text-sm font-bold mb-8 text-[#00f2ff] border-b border-[#00f2ff]/20 pb-4 uppercase tracking-widest">Logic Injection</h2>
+            <div class="space-y-6">
+                <div>
+                    <label class="block orbitron text-[9px] text-gray-500 mb-2 uppercase">Column Identifier</label>
+                    <input type="text" id="ruleColName" placeholder="VIRTUAL_VAR_01" class="w-full bg-black/60 border border-white/10 rounded p-3 text-xs mono text-[#00f2ff] focus:border-[#00f2ff]/50 outline-none">
+                </div>
+                <div>
+                    <label class="block orbitron text-[9px] text-gray-500 mb-2 uppercase">Source Mapping</label>
+                    <select id="ruleTargetCol" class="w-full bg-black/60 border border-white/10 rounded p-3 text-xs mono text-gray-300 outline-none cursor-pointer"></select>
+                </div>
+                <div>
+                    <label class="block orbitron text-[9px] text-gray-500 mb-2 uppercase">Logical Operator</label>
+                    <select id="ruleOp" class="w-full bg-black/60 border border-white/10 rounded p-3 text-xs mono text-gray-300 outline-none cursor-pointer">
+                        <option value="uppercase">STRING_TO_UPPER()</option>
+                        <option value="lowercase">STRING_TO_LOWER()</option>
+                        <option value="add_10">MATH_ADD_10_PERCENT()</option>
+                        <option value="length">GET_CHAR_COUNT()</option>
+                        <option value="is_numeric">VALIDATE_TYPE_NUMERIC()</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex justify-end gap-4 mt-10">
+                <button onclick="closeRuleModal()" class="px-6 py-2 text-[10px] orbitron text-gray-500 hover:text-white transition uppercase">Abort</button>
+                <button onclick="applyRule()" class="btn-omega text-[10px]">Execute Injection</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COLUMN MODAL -->
+    <div id="columnModal" class="hidden fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md p-8 sifra-border bg-[#07070a]">
+            <h2 class="orbitron text-sm font-bold mb-8 text-[#00f2ff] border-b border-[#00f2ff]/20 pb-4 uppercase tracking-widest">Column Injection</h2>
+            <div class="space-y-6">
+                <div>
+                    <label class="block orbitron text-[9px] text-gray-500 mb-2 uppercase">New Header Name</label>
+                    <input type="text" id="newColName" placeholder="DATA_KEY_01" class="w-full bg-black/60 border border-white/10 rounded p-3 text-xs mono text-[#00f2ff] focus:border-[#00f2ff]/50 outline-none">
+                </div>
+            </div>
+            <div class="flex justify-end gap-4 mt-10">
+                <button onclick="closeColumnModal()" class="px-6 py-2 text-[10px] orbitron text-gray-500 hover:text-white transition uppercase">Abort</button>
+                <button onclick="injectColumn()" class="btn-omega text-[10px]">Initialize Column</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let rawData = [];
+    let columns = [];
+    let rules = [];
+    let sortConfig = { key: null, direction: 'asc' };
+
+    function init() {
+        renderGrid();
+        updateStats();
+        logConsole("NODE_OMEGA INITIALIZED. GRID_EXECUTION STANDBY.");
+    }
+
+    function logConsole(msg) {
+        const out = document.getElementById('consoleOut');
+        const timestamp = new Date().toLocaleTimeString('en-GB', { hour12: false });
+        const div = document.createElement('div');
+        div.innerHTML = `<span class="text-gray-600">[${timestamp}]</span> ${msg}`;
+        out.appendChild(div);
+        out.scrollTop = out.scrollHeight;
+    }
+
+    function createNewWorkspace() {
+        columns = ['ID', 'NAME', 'VAL_A', 'VAL_B', 'RESULT'];
+        rawData = [
+            { ID: '101', NAME: 'NODE_ALPHA', VAL_A: '100', VAL_B: '25', RESULT: '=C1*D1' },
+            { ID: '102', NAME: 'NODE_BETA', VAL_A: '200', VAL_B: '50', RESULT: '=C2+D2' }
+        ];
+        rules = [];
+        renderGrid();
+        updateRulesUI();
+        logConsole("NEW_WORKSPACE: 5_COLUMNS INITIALIZED. FORMULAS ACTIVE.");
+    }
+
+    function openColumnModal() {
+        document.getElementById('columnModal').classList.remove('hidden');
+    }
+    function closeColumnModal() {
+        document.getElementById('columnModal').classList.add('hidden');
+    }
+    function injectColumn() {
+        const name = document.getElementById('newColName').value.trim().toUpperCase();
+        if (!name) return;
+        if (columns.includes(name)) {
+            logConsole("ERR: COLUMN_EXISTS_IN_NAMESPACE");
+            return;
+        }
+        columns.push(name);
+        rawData.forEach(row => row[name] = "");
+        renderGrid();
+        closeColumnModal();
+        logConsole(`COL_INJECTED: "${name}" COMMITTED TO MATRIX.`);
+    }
+
+    function getColLetter(index) {
+        return String.fromCharCode(65 + index);
+    }
+
+    function resolveCellRef(ref, currentRowIndex) {
+        const match = ref.match(/([A-Z]+)([0-9]+)/);
+        if (!match) return 0;
+        
+        const colLetter = match[1];
+        const rowIndex = parseInt(match[2]) - 1;
+        const colIndex = colLetter.charCodeAt(0) - 65;
+        const colKey = columns[colIndex];
+        
+        if (!colKey || !rawData[rowIndex]) return 0;
+        
+        let val = rawData[rowIndex][colKey];
+        if (typeof val === 'string' && val.startsWith('=')) {
+            return 0; 
+        }
+        return parseFloat(val) || 0;
+    }
+
+    function evaluateFormula(formula, rowIndex) {
+        if (typeof formula !== 'string' || !formula.startsWith('=')) return formula;
+        let expression = formula.substring(1).toUpperCase();
+        const refRegex = /[A-Z]+[0-9]+/g;
+        expression = expression.replace(refRegex, (match) => {
+            return resolveCellRef(match, rowIndex);
+        });
+
+        try {
+            const result = new Function(`return ${expression}`)();
+            return isFinite(result) ? result : "#DIV/0!";
+        } catch (e) {
+            return "#ERR!";
+        }
+    }
+
+    async function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        logConsole(`IMPORTING_STREAM: ${file.name.toUpperCase()}`);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const content = e.target.result;
+            try {
+                if (file.name.endsWith('.json')) {
+                    const parsed = JSON.parse(content);
+                    parsed.sifraProject ? loadProjectData(parsed) : processJSON(parsed);
+                } else {
+                    processCSV(content);
+                }
+                logConsole(`STREAM_SYNCED: ${rawData.length} RECORDS PROCESSED.`);
+            } catch (err) {
+                logConsole(`CRITICAL_FAILURE: PARSE_ERROR: ${err.message}`);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function processCSV(text) {
+        const lines = text.trim().split('\n');
+        if (lines.length === 0) return;
+        const headers = lines[0].split(',').map(h => h.trim().toUpperCase());
+        const data = lines.slice(1).map(line => {
+            const values = line.split(',');
+            const obj = {};
+            headers.forEach((h, i) => obj[h] = values[i]?.trim() || "");
+            return obj;
+        });
+        setData(headers, data);
+    }
+
+    function processJSON(json) {
+        if (!Array.isArray(json) || json.length === 0) return;
+        setData(Object.keys(json[0]).map(k => k.toUpperCase()), json);
+    }
+
+    function setData(h, d) {
+        columns = h;
+        rawData = d;
+        renderGrid();
+        updateStats();
+        document.getElementById('gridTabInfo').innerText = `LIVE_STREAM::${rawData.length}_ENTRIES`;
+    }
+
+    function renderGrid() {
+        const headerRow = document.getElementById('gridHeader');
+        const gridBody = document.getElementById('gridBody');
+        const emptyState = document.getElementById('emptyState');
+        headerRow.innerHTML = '';
+        gridBody.innerHTML = '';
+
+        if (columns.length === 0) {
+            emptyState.classList.remove('hidden');
+            return;
+        }
+        emptyState.classList.add('hidden');
+
+        columns.forEach((col, idx) => {
+            const th = document.createElement('th');
+            const isComputed = rules.some(r => r.name === col);
+            th.innerHTML = `
+                <span class="col-label">${getColLetter(idx)}</span>
+                <div class="flex items-center justify-between">
+                    <span class="cursor-pointer flex items-center gap-2 truncate" onclick="handleSort('${col}')">
+                        ${col} ${isComputed ? '<span class="text-[8px] bg-[#7000ff]/50 px-1 border border-[#7000ff] rounded">VAR</span>' : ''}
+                    </span>
+                    <i class="fas fa-sort text-[8px] opacity-30"></i>
+                </div>
+            `;
+            headerRow.appendChild(th);
+        });
+
+        rawData.forEach((row, rowIndex) => {
+            const tr = document.createElement('tr');
+            columns.forEach(col => {
+                const td = document.createElement('td');
+                const rawVal = row[col] || "";
+                
+                if (typeof rawVal === 'string' && rawVal.startsWith('=')) {
+                    td.innerText = evaluateFormula(rawVal, rowIndex);
+                    td.title = rawVal;
+                    td.classList.add('cell-formula');
+                } else {
+                    td.innerText = rawVal;
+                }
+
+                td.className += " cell-editable";
+                td.contentEditable = !rules.some(r => r.name === col);
+                
+                td.onfocus = (e) => {
+                    if (typeof row[col] === 'string' && row[col].startsWith('=')) {
+                        td.innerText = row[col];
+                        td.classList.remove('cell-formula');
+                    }
+                };
+
+                td.onblur = (e) => {
+                    updateCellValue(rowIndex, col, e.target.innerText);
+                    renderGrid();
+                };
+
+                td.onclick = () => showColumnSummary(col);
+                tr.appendChild(td);
+            });
+            gridBody.appendChild(tr);
+        });
+        updateStats();
+    }
+
+    function updateCellValue(index, col, val) {
+        rawData[index][col] = val;
+        recalculateRules();
+        logConsole(`WRITE: [${index + 1}, ${col}] -> "${val}"`);
+    }
+
+    function handleSort(key) {
+        sortConfig.direction = (sortConfig.key === key && sortConfig.direction === 'asc') ? 'desc' : 'asc';
+        sortConfig.key = key;
+        
+        rawData.sort((a, b) => {
+            let vA = a[key], vB = b[key];
+            if (!isNaN(vA) && !isNaN(vB)) return sortConfig.direction === 'asc' ? vA - vB : vB - vA;
+            return sortConfig.direction === 'asc' ? String(vA).localeCompare(String(vB)) : String(vB).localeCompare(String(vA));
+        });
+        renderGrid();
+        logConsole(`SORT: ${key} DIRECTION: ${sortConfig.direction.toUpperCase()}`);
+    }
+
+    function filterGrid() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('#gridBody tr');
+        rows.forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+        });
+    }
+
+    function openRuleModal() {
+        if (columns.length === 0) return logConsole("ERR: NO_WORKSPACE_ACTIVE");
+        const select = document.getElementById('ruleTargetCol');
+        select.innerHTML = columns.map(c => `<option value="${c}">${c}</option>`).join('');
+        document.getElementById('ruleModal').classList.remove('hidden');
+    }
+
+    function closeRuleModal() {
+        document.getElementById('ruleModal').classList.add('hidden');
+    }
+
+    function applyRule() {
+        const name = document.getElementById('ruleColName').value.trim().toUpperCase();
+        const target = document.getElementById('ruleTargetCol').value;
+        const op = document.getElementById('ruleOp').value;
+        if (!name) return;
+        rules.push({ name, target, op });
+        if (!columns.includes(name)) columns.push(name);
+        recalculateRules();
+        renderGrid();
+        updateRulesUI();
+        closeRuleModal();
+        logConsole(`INJECTION: ${op} -> ${name}`);
+    }
+
+    function recalculateRules() {
+        rawData.forEach(row => {
+            rules.forEach(rule => {
+                const val = row[rule.target];
+                let res = "";
+                switch(rule.op) {
+                    case 'uppercase': res = String(val).toUpperCase(); break;
+                    case 'lowercase': res = String(val).toLowerCase(); break;
+                    case 'add_10': res = isNaN(val) ? "NaN" : (parseFloat(val) * 1.1).toFixed(2); break;
+                    case 'length': res = String(val).length; break;
+                    case 'is_numeric': res = !isNaN(val) ? "TRUE" : "FALSE"; break;
+                }
+                row[rule.name] = res;
+            });
+        });
+    }
+
+    function updateRulesUI() {
+        const container = document.getElementById('activeRules');
+        if (rules.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+        container.innerHTML = rules.map((r, i) => `
+            <div class="bg-black/60 border border-[#00f2ff]/20 p-2 rounded text-[10px] mono flex justify-between items-center group">
+                <div class="overflow-hidden">
+                    <span class="text-[#00f2ff] truncate block">${r.name}</span>
+                    <div class="text-[8px] text-gray-500 uppercase">${r.op}</div>
+                </div>
+                <button onclick="deleteRule(${i})" class="text-red-900 group-hover:text-red-500 transition ml-2"><i class="fas fa-trash"></i></button>
+            </div>
+        `).join('');
+    }
+
+    function deleteRule(idx) {
+        const rule = rules[idx];
+        columns = columns.filter(c => c !== rule.name);
+        rules.splice(idx, 1);
+        updateRulesUI();
+        renderGrid();
+        logConsole(`PURGED: ${rule.name}`);
+    }
+
+    function toggleExportMenu(e) {
+        e.stopPropagation();
+        const menu = document.getElementById('exportMenu');
+        menu.classList.toggle('hidden');
+    }
+
+    async function exportData(type) {
+        document.getElementById('exportMenu').classList.add('hidden');
+        const fname = `SIFRA_GRID_XPORT_${Date.now()}`;
+        logConsole(`EXPORT_INIT: ${type.toUpperCase()}`);
+
+        const exportData = rawData.map((row, rIdx) => {
+            const newRow = {};
+            columns.forEach(col => {
+                const val = row[col];
+                newRow[col] = (typeof val === 'string' && val.startsWith('=')) ? evaluateFormula(val, rIdx) : val;
+            });
+            return newRow;
+        });
+
+        if (type === 'csv') {
+            const csv = [columns.join(','), ...exportData.map(r => columns.map(c => `"${r[c]}"`).join(','))].join('\n');
+            downloadBlob(csv, `${fname}.csv`, 'text/csv');
+        } else if (type === 'json') {
+            downloadBlob(JSON.stringify(exportData, null, 2), `${fname}.json`, 'application/json');
+        } else if (type === 'xlsx') {
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "MatrixData");
+            XLSX.writeFile(wb, `${fname}.xlsx`);
+        } else if (type === 'pdf') {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'pt', 'a4');
+            doc.autoTable({ head: [columns], body: exportData.map(r => columns.map(c => r[c])), theme: 'grid' });
+            doc.save(`${fname}.pdf`);
+        }
+    }
+
+    function downloadBlob(content, filename, contentType) {
+        const blob = new Blob([content], { type: contentType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename; a.click();
+    }
+
+    function saveProject() {
+        const proj = { sifraProject: true, data: rawData, columns, rules, timestamp: new Date() };
+        downloadBlob(JSON.stringify(proj), `SIFRA_OMEGA_STATE_${Date.now()}.json`, 'application/json');
+        logConsole("SNAPSHOT: FULL_WORKSPACE_STATE_XPORTED.");
+    }
+
+    function loadProjectData(project) {
+        rawData = project.data;
+        columns = project.columns;
+        rules = project.rules || [];
+        renderGrid();
+        updateRulesUI();
+    }
+
+    function updateStats() {
+        document.getElementById('statRows').innerText = rawData.length;
+        document.getElementById('statCols').innerText = columns.length;
+    }
+
+    function showColumnSummary(col) {
+        const vals = rawData.map((r, i) => {
+            const v = r[col];
+            return (typeof v === 'string' && v.startsWith('=')) ? evaluateFormula(v, i) : v;
+        }).filter(v => v !== "" && v !== undefined && !isNaN(v));
+        
+        const numVals = vals.map(v => parseFloat(v));
+        let summary = `FIELD: ${col} | COUNT: ${rawData.length}`;
+        if (numVals.length > 0) {
+            const avg = (numVals.reduce((a, b) => a + b, 0) / numVals.length).toFixed(2);
+            summary += ` | MEAN: ${avg} | MAX: ${Math.max(...numVals)}`;
+        }
+        document.getElementById('columnQuickSummary').innerText = summary.toUpperCase();
+    }
+
+    function addNewRow() {
+        if (columns.length === 0) return logConsole("ERR: MATRIX_NOT_INITIALIZED");
+        const nr = {}; columns.forEach(c => nr[c] = "");
+        rawData.push(nr);
+        renderGrid();
+        logConsole("INJECT: NEW_RECORD_ADDED.");
+    }
+
+    window.onclick = () => {
+        document.getElementById('exportMenu').classList.add('hidden');
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>
