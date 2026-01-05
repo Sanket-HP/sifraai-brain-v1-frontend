@@ -28,9 +28,9 @@
                     },
                     colors: {
                         sifra: {
-                            bg: '#020617', // Slate 950
-                            panel: '#0f172a', // Slate 900
-                            border: '#1e293b', // Slate 800
+                            bg: '#020617',
+                            panel: '#0f172a',
+                            border: '#1e293b',
                             cyan: '#06b6d4',
                             purple: '#8b5cf6',
                             success: '#10b981',
@@ -54,14 +54,8 @@
                             '50%': { transform: 'translateY(-20px)' },
                         },
                         'gradient-x': {
-                            '0%, 100%': {
-                                'background-size': '200% 200%',
-                                'background-position': 'left center'
-                            },
-                            '50%': {
-                                'background-size': '200% 200%',
-                                'background-position': 'right center'
-                            },
+                            '0%, 100%': { 'background-size': '200% 200%', 'background-position': 'left center' },
+                            '50%': { 'background-size': '200% 200%', 'background-position': 'right center' },
                         },
                     }
                 }
@@ -69,13 +63,11 @@
         }
     </script>
     <style>
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #020617; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-        /* Glassmorphism & Borders */
         .glass-panel {
             background: rgba(15, 23, 42, 0.7);
             backdrop-filter: blur(20px);
@@ -84,24 +76,22 @@
         }
         
         .input-glow:focus-within {
-            border-color: rgba(139, 92, 246, 0.6); /* Purple focus for login */
+            border-color: rgba(139, 92, 246, 0.6);
             box-shadow: 0 0 15px rgba(139, 92, 246, 0.15);
         }
 
-        /* Scanline Overlay */
         .scanline {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 4px;
-            background: linear-gradient(to bottom, transparent, rgba(6, 182, 212, 0.3), transparent); /* Cyan scanline */
+            background: linear-gradient(to bottom, transparent, rgba(6, 182, 212, 0.3), transparent);
             animation: scan 3s linear infinite;
             pointer-events: none;
             z-index: 10;
         }
 
-        /* Background Canvas */
         #neural-canvas {
             position: absolute;
             top: 0;
@@ -112,7 +102,6 @@
             opacity: 0.6;
         }
         
-        /* Google Button Hover */
         .google-btn-hover:hover {
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
             background-color: rgba(255, 255, 255, 0.05);
@@ -124,7 +113,7 @@
     <!-- 1. Background Animation (Canvas) -->
     <canvas id="neural-canvas"></canvas>
 
-    <!-- 2. Overlay Gradients (Atmosphere) - Inverted for variety -->
+    <!-- 2. Overlay Gradients -->
     <div class="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-600/10 rounded-full blur-[100px] animate-pulse-slow pointer-events-none z-0"></div>
     <div class="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[100px] animate-pulse-slow pointer-events-none z-0" style="animation-delay: 2s;"></div>
     <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/50 pointer-events-none z-0"></div>
@@ -132,35 +121,28 @@
     <!-- 3. Navigation Bar -->
     <nav class="relative z-50 w-full px-6 py-4 flex items-center border-b border-white/5 backdrop-blur-sm h-16">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold font-orbitron text-sm shadow-lg shadow-cyan-500/20">
-                S
-            </div>
-            <a href="/home.html" class="text-lg font-orbitron font-bold text-white tracking-widest hover:text-cyan-400 transition-colors">SIFRA<span class="text-cyan-500">.AI</span></a>
+            <div class="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold font-orbitron text-sm shadow-lg shadow-cyan-500/20">S</div>
+            <a href="#" class="text-lg font-orbitron font-bold text-white tracking-widest hover:text-cyan-400 transition-colors">SIFRA<span class="text-cyan-500">.AI</span></a>
         </div>
     </nav>
 
     <!-- 4. Main Content Area -->
     <main class="flex-grow flex items-center justify-center relative z-10 w-full px-4 py-4">
         
-        <!-- Main Card Container (Widened for side-by-side layout) -->
         <div class="relative w-full max-w-[360px] md:max-w-[700px]">
             
-            <!-- Decorative Border Corners (Purple/Cyan Theme) -->
             <div class="absolute top-0 left-4 w-3 h-3 border-l-2 border-t-2 border-purple-500 rounded-tl-sm pointer-events-none z-20"></div>
             <div class="absolute top-0 right-4 w-3 h-3 border-r-2 border-t-2 border-purple-500 rounded-tr-sm pointer-events-none z-20"></div>
             <div class="absolute bottom-0 left-4 w-3 h-3 border-l-2 border-b-2 border-cyan-500 rounded-bl-sm pointer-events-none z-20"></div>
             <div class="absolute bottom-0 right-4 w-3 h-3 border-r-2 border-b-2 border-cyan-500 rounded-br-sm pointer-events-none z-20"></div>
 
-            <div class="glass-panel rounded-xl p-6 relative overflow-hidden">
-                <!-- Scanline Effect -->
+            <div class="glass-panel rounded-xl p-6 relative overflow-hidden transition-all duration-500">
                 <div class="scanline"></div>
 
-                <!-- Flex Container for Layout -->
                 <div class="flex flex-col md:flex-row gap-8">
                     
                     <!-- LEFT SIDE: AUTH FORM -->
                     <div class="w-full md:w-1/2 flex flex-col justify-center">
-                        <!-- Header -->
                         <div class="flex flex-col items-center md:items-start mb-4">
                             <div class="flex items-center gap-3 mb-1">
                                 <div class="relative w-6 h-6 flex items-center justify-center">
@@ -172,47 +154,40 @@
                             <h1 class="text-xl font-orbitron font-bold text-white tracking-widest">SIFRA<span class="text-purple-500">.AUTH</span></h1>
                         </div>
 
-                        <!-- Form -->
                         <form class="space-y-3" id="loginForm">
-                            <!-- Email Field -->
                             <div class="space-y-0.5">
                                 <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Neural ID (Email)</label>
                                 <div class="relative group input-glow rounded-md transition-all duration-300">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-cyan-400 transition-colors">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-cyan-400">
                                         <i class="fas fa-at text-xs"></i>
                                     </div>
-                                    <input type="email" id="email" required class="w-full bg-slate-950/60 border border-slate-700/80 rounded-md py-2 pl-9 pr-3 text-sm text-cyan-100 font-mono placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 transition-all" placeholder="USER@DOMAIN.NET">
+                                    <input type="email" id="email" required class="w-full bg-slate-950/60 border border-slate-700/80 rounded-md py-2 pl-9 pr-3 text-sm text-cyan-100 font-mono placeholder-slate-600 focus:outline-none" placeholder="USER@NETWORK.NET">
                                 </div>
                             </div>
 
-                            <!-- Password Field -->
                             <div class="space-y-0.5">
                                 <div class="flex justify-between items-center px-1">
                                     <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Access Key</label>
-                                    <a href="/forgott-password.html" class="text-[9px] text-purple-400 hover:text-purple-300 transition-colors">FORGOT KEY?</a>
+                                    <a href="#" class="text-[9px] text-purple-400 hover:text-purple-300 transition-colors">FORGOT KEY?</a>
                                 </div>
                                 <div class="relative group input-glow rounded-md transition-all duration-300">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-white transition-colors">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-white">
                                         <i class="fas fa-key text-xs"></i>
                                     </div>
-                                    <input type="password" id="password" required class="w-full bg-slate-950/60 border border-slate-700/80 rounded-md py-2 pl-9 pr-10 text-sm text-white font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500/50 transition-all" placeholder="••••••••">
-                                    <button type="button" id="togglePasswordBtn" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-purple-400 transition-colors">
+                                    <input type="password" id="password" required class="w-full bg-slate-950/60 border border-slate-700/80 rounded-md py-2 pl-9 pr-10 text-sm text-white font-mono placeholder-slate-600 focus:outline-none" placeholder="••••••••">
+                                    <button type="button" id="togglePasswordBtn" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-purple-400">
                                         <i class="fas fa-eye text-xs" id="eyeIcon"></i>
                                     </button>
                                 </div>
                             </div>
 
-                            <!-- Remember Me -->
                             <div class="flex items-center gap-2 pt-0.5">
-                                <input type="checkbox" id="remember" class="w-3 h-3 rounded bg-slate-950 border-slate-700 checked:bg-purple-500 checked:border-purple-500 focus:ring-0 focus:ring-offset-0 cursor-pointer accent-purple-500">
-                                <label for="remember" class="text-[9px] text-slate-400 leading-tight cursor-pointer select-none">
-                                    Maintain secure session link
-                                </label>
+                                <input type="checkbox" id="remember" class="w-3 h-3 rounded bg-slate-950 border-slate-700 checked:bg-purple-500 checked:border-purple-500 accent-purple-500 cursor-pointer">
+                                <label for="remember" class="text-[9px] text-slate-400 leading-tight cursor-pointer">Maintain secure session link</label>
                             </div>
 
-                            <!-- Action Button -->
-                            <button type="submit" id="submitBtn" class="w-full relative group overflow-hidden rounded-md p-[1px] shadow-[0_0_20px_rgba(139,92,246,0.15)] mt-1 transition-all active:scale-[0.98]">
-                                <div class="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-500 transition-all duration-300 animate-gradient-x group-hover:opacity-100 opacity-80"></div>
+                            <button type="submit" id="submitBtn" class="w-full relative group overflow-hidden rounded-md p-[1px] mt-1 transition-all active:scale-[0.98]">
+                                <div class="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-500 animate-gradient-x opacity-80"></div>
                                 <div class="relative bg-slate-900 group-hover:bg-opacity-0 transition-all duration-300 rounded-md py-2.5 px-4 flex items-center justify-center gap-3">
                                     <i class="fas fa-unlock-alt text-purple-400 group-hover:text-white text-xs"></i>
                                     <span class="font-orbitron font-bold text-white tracking-widest text-[10px]">AUTHENTICATE</span>
@@ -220,34 +195,27 @@
                             </button>
                         </form>
 
-                        <!-- Divider -->
                         <div class="relative flex py-3 items-center">
                             <div class="flex-grow border-t border-slate-700/60"></div>
                             <span class="flex-shrink-0 mx-3 text-[9px] text-slate-500 font-mono tracking-widest">OR</span>
                             <div class="flex-grow border-t border-slate-700/60"></div>
                         </div>
 
-                        <!-- Google Button -->
-                        <button id="googleBtn" type="button" class="w-full google-btn-hover group relative overflow-hidden rounded-md border border-slate-600 bg-slate-900/40 py-2 transition-all duration-300 active:scale-[0.98]">
+                        <button id="googleBtn" type="button" class="w-full google-btn-hover group relative overflow-hidden rounded-md border border-slate-600 bg-slate-900/40 py-2 transition-all">
                             <div class="flex items-center justify-center gap-3">
-                                <svg class="h-4 w-4" viewBox="0 0 24 24">
-                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                                </svg>
-                                <span class="font-mono text-[10px] font-bold text-slate-300 group-hover:text-white transition-colors tracking-wide">GOOGLE NEURAL ID</span>
+                                <svg class="h-4 w-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                                <span class="font-mono text-[10px] font-bold text-slate-300">GOOGLE NEURAL ID</span>
                             </div>
                         </button>
 
                         <div class="mt-3 text-center md:text-left">
-                            <p class="text-[9px] text-slate-500">
-                                No clearance? <a href="/signup.html" class="text-cyan-400 hover:text-cyan-300 font-bold transition-colors">REQUEST ACCESS</a>
+                            <p class="text-[9px] text-slate-500 uppercase">
+                                No clearance? <a href="signup.html" class="text-cyan-400 hover:text-cyan-300 font-bold transition-colors">Request Access</a>
                             </p>
                         </div>
                     </div>
 
-                    <!-- RIGHT SIDE: SYSTEM LOG (Console) -->
+                    <!-- RIGHT SIDE: SYSTEM LOG -->
                     <div class="w-full md:w-1/2 flex flex-col border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-6">
                         <div class="flex items-center justify-between mb-2">
                             <h3 class="text-[10px] font-mono text-purple-500 tracking-widest uppercase flex items-center gap-2">
@@ -259,27 +227,25 @@
                             </div>
                         </div>
                         
-                        <div class="bg-black/40 rounded-md border border-slate-800 p-3 font-mono text-[9px] flex-grow min-h-[150px] md:min-h-0 overflow-y-auto custom-scrollbar shadow-inner" id="consoleOutput">
-                            <div class="text-slate-500 border-b border-slate-800 pb-1 mb-2">AUTH_GATEWAY_V9.2 initialized...</div>
-                            <div class="text-slate-500">[SYSTEM] Listening for credentials...</div>
+                        <div class="bg-black/40 rounded-md border border-slate-800 p-3 font-mono text-[9px] flex-grow min-h-[150px] md:min-h-0 overflow-y-auto" id="consoleOutput">
+                            <div class="text-slate-500 border-b border-slate-800 pb-1 mb-2">AUTH_GATEWAY_V9.2.1 initialized...</div>
+                            <div class="text-slate-500">[SYSTEM] Listening for neural handshake...</div>
                         </div>
 
-                        <!-- Decorator Stats -->
                         <div class="grid grid-cols-2 gap-2 mt-3">
                             <div class="bg-slate-900/50 rounded border border-slate-800 p-2">
                                 <div class="text-[8px] text-slate-500 uppercase">Encryption</div>
-                                <div class="text-[10px] font-mono text-cyan-400">QUANTUM-4K</div>
+                                <div class="text-[10px] font-mono text-cyan-400">AES-256-GCM</div>
                             </div>
                             <div class="bg-slate-900/50 rounded border border-slate-800 p-2">
                                 <div class="text-[8px] text-slate-500 uppercase">Node</div>
-                                <div class="text-[10px] font-mono text-purple-400">OMEGA-01</div>
+                                <div class="text-[10px] font-mono text-purple-400" id="nodeID">OMEGA-01</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Bottom UI Text -->
             <div class="flex justify-between items-center px-4 mt-2 opacity-50">
                 <span class="text-[9px] font-mono text-slate-500">AUTH-PROTOCOL-99</span>
                 <span class="text-[9px] font-mono text-slate-500">SECURE: TRUE</span>
@@ -289,50 +255,35 @@
 
     <!-- FIREBASE LOGIC -->
     <script type="module">
-        // Import Firebase Functions from CDN
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBu6CIgw5njjcl9dVhNYjitSUBKE87_S6M",
             authDomain: "sifraaiweb.firebaseapp.com",
             projectId: "sifraaiweb",
             storageBucket: "sifraaiweb.firebasestorage.app",
             messagingSenderId: "927713452336",
-            appId: "1:927713452336:web:f3affb6ef66091619e68f5",
-            measurementId: "G-V3TXBH3GCD"
+            appId: "1:927713452336:web:f3affb6ef66091619e68f5"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
 
-        // --- UI UTILITIES ---
-
         function log(msg, type = 'info') {
             const consoleEl = document.getElementById('consoleOutput');
             const div = document.createElement('div');
             const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-            
             let prefix = `<span class="text-slate-500 opacity-50">[${time}]</span>`;
             let color = 'text-slate-300';
             
-            if (type === 'success') {
-                prefix += ` <span class="text-green-400 font-bold">>> OK</span>`;
-                color = 'text-green-300';
-            } else if (type === 'error') {
-                prefix += ` <span class="text-red-400 font-bold">>> ERR</span>`;
-                color = 'text-red-300';
-            } else if (type === 'warn') {
-                prefix += ` <span class="text-yellow-400 font-bold">>> WARN</span>`;
-                color = 'text-yellow-200';
-            } else {
-                prefix += ` <span class="text-purple-400">>></span>`;
-            }
+            if (type === 'success') { prefix += ` <span class="text-green-400 font-bold">>> OK</span>`; color = 'text-green-300'; }
+            else if (type === 'error') { prefix += ` <span class="text-red-400 font-bold">>> ERR</span>`; color = 'text-red-300'; }
+            else if (type === 'warn') { prefix += ` <span class="text-yellow-400 font-bold">>> WARN</span>`; color = 'text-yellow-200'; }
+            else { prefix += ` <span class="text-purple-400">>></span>`; }
 
             div.className = "mb-1 leading-tight break-all";
             div.innerHTML = `${prefix} <span class="${color}">${msg}</span>`;
@@ -340,219 +291,124 @@
             consoleEl.scrollTop = consoleEl.scrollHeight;
         }
 
-        function setLoadingState(isLoading, btnId, originalContent) {
+        function setLoadingState(isLoading, btnId) {
             const btn = document.getElementById(btnId);
             if (!btn) return;
-            
             if (isLoading) {
                 btn.disabled = true;
-                if(btnId === 'submitBtn') {
-                    const relativeDiv = btn.querySelector('.relative');
-                    relativeDiv.dataset.original = relativeDiv.innerHTML;
-                    relativeDiv.innerHTML = `<i class="fas fa-circle-notch fa-spin text-white"></i><span class="font-orbitron font-bold text-white tracking-widest text-xs ml-2">...</span>`;
-                } else {
-                    btn.dataset.original = btn.innerHTML;
-                    btn.innerHTML = `<i class="fas fa-circle-notch fa-spin text-slate-300"></i><span class="font-mono text-xs font-bold text-slate-300 ml-2">...</span>`;
-                }
+                const inner = btn.querySelector('.relative') || btn;
+                btn.dataset.original = inner.innerHTML;
+                inner.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i><span class="ml-2">...</span>`;
             } else {
                 btn.disabled = false;
-                if(btnId === 'submitBtn') {
-                    const relativeDiv = btn.querySelector('.relative');
-                    relativeDiv.innerHTML = relativeDiv.dataset.original;
-                } else {
-                    btn.innerHTML = btn.dataset.original;
-                }
+                const inner = btn.querySelector('.relative') || btn;
+                inner.innerHTML = btn.dataset.original;
             }
         }
-
-        async function handleSuccess(user, method, redirectUrl = 'home.html') {
-            const btn = document.getElementById('submitBtn');
-            const relativeDiv = btn.querySelector('.relative');
-            
-            // Visual success state
-            if(btn) {
-                btn.querySelector('.absolute').classList.replace('from-purple-600', 'from-green-500');
-                btn.querySelector('.absolute').classList.replace('to-cyan-500', 'to-green-600');
-                relativeDiv.innerHTML = `<i class="fas fa-check text-green-400"></i><span class="font-orbitron font-bold text-white tracking-widest text-xs ml-2">GRANTED</span>`;
-            }
-            
-            log(`Identity Verified: ${method}`, 'success');
-            log(`User: ${user.email}`, 'info');
-            log(`Redirecting...`, 'warn');
-
-            setTimeout(() => {
-                window.location.href = redirectUrl;
-            }, 2000);
-        }
-
-        // --- AUTH LOGIC ---
 
         async function checkSubscriptionAndRedirect(user, method) {
+            log(`Authenticating identity via ${method}...`, 'info');
             try {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
-                
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    if (userData.subscriptionTier) {
-                        log(`Plan Detected: ${userData.subscriptionTier.toUpperCase()}`, 'success');
-                        handleSuccess(user, method, "home.html");
+                    if (userData.tier || userData.subscriptionTier) {
+                        const tier = userData.tier || userData.subscriptionTier;
+                        log(`Access Granted: ${tier.toUpperCase()} Protocol Active.`, 'success');
+                        setTimeout(() => window.location.href = 'home.html', 1500);
                     } else {
-                        // User exists but has no subscriptionTier field
-                        log("⚠️ ALERT: User profile lacks subscription tier.", "error");
-                        log("RECOMMENDATION: Redirecting to Plan Selection...", "warn");
-                        handleSuccess(user, method, "subscription.html");
+                        log("⚠️ Profile recognized but capacity is not set.", "warn");
+                        setTimeout(() => window.location.href = 'pricing.html', 1500);
                     }
                 } else {
-                    // User document doesn't exist at all
-                    log("⚠️ ALERT: No profile found in database.", "error");
-                    log("RECOMMENDATION: Redirecting to Plan Selection...", "warn");
-                    handleSuccess(user, method, "subscription.html");
+                    log("⚠️ Record not found in neural registry.", "error");
+                    setTimeout(() => window.location.href = 'pricing.html', 1500);
                 }
             } catch (err) {
-                console.error("Firestore Check Error:", err);
-                // Fallback to home if check fails, usually
-                handleSuccess(user, method, "home.html");
+                log("Handshake Error: Grid timeout.", "error");
             }
         }
 
-        // 1. Email/Password Login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-
             setLoadingState(true, 'submitBtn');
-            log('Initiating handshake...', 'info');
 
             try {
-                // Visual delay
-                await new Promise(r => setTimeout(r, 600)); 
-                log('Verifying credentials hash...', 'info');
-
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                await checkSubscriptionAndRedirect(user, "Key Match");
-
-            } catch (error) {
+                const cred = await signInWithEmailAndPassword(auth, email, password);
+                await checkSubscriptionAndRedirect(cred.user, "Key Match");
+            } catch (err) {
                 setLoadingState(false, 'submitBtn');
-                let errorMsg = "Access Denied.";
-                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-                    errorMsg = "Invalid Neural ID or Key.";
-                } else if (error.code === 'auth/too-many-requests') {
-                    errorMsg = "Too many attempts. Lockout active.";
-                }
-                log(errorMsg, 'error');
+                log("Invalid credentials signature.", 'error');
             }
         });
 
-        // 2. Google Login
         document.getElementById('googleBtn').addEventListener('click', async () => {
             setLoadingState(true, 'googleBtn');
-            log('Uplink Google...', 'info');
-
             try {
-                const result = await signInWithPopup(auth, googleProvider);
-                const user = result.user;
-                
-                await checkSubscriptionAndRedirect(user, "Neural ID (Google)");
-
-            } catch (error) {
+                const res = await signInWithPopup(auth, googleProvider);
+                await checkSubscriptionAndRedirect(res.user, "Google Neural ID");
+            } catch (err) {
                 setLoadingState(false, 'googleBtn');
-                log('Uplink failed.', 'error');
-                log(error.message, 'error');
+                log("Google Uplink failed.", 'error');
             }
         });
 
-        // Toggle Password Visibility
         document.getElementById('togglePasswordBtn').addEventListener('click', () => {
             const input = document.getElementById('password');
             const icon = document.getElementById('eyeIcon');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-                icon.classList.add('text-purple-400');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-                icon.classList.remove('text-purple-400');
-            }
+            const isPass = input.type === 'password';
+            input.type = isPass ? 'text' : 'password';
+            icon.className = isPass ? 'fas fa-eye-slash text-purple-400' : 'fas fa-eye';
         });
+
+        // Node ID randomization
+        document.getElementById('nodeID').innerText = `NODE-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
     </script>
 
-    <!-- Visual Effects Script (Canvas) -->
     <script>
         const canvas = document.getElementById('neural-canvas');
         const ctx = canvas.getContext('2d');
-        let width, height;
-        let particles = [];
-        
-        const particleCount = 60; 
-        const connectionDistance = 150; 
-        const colors = ['#06b6d4', '#8b5cf6']; 
+        let width, height, particles = [];
 
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.onresize = resize; resize();
 
         class Particle {
-            constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.5; 
-                this.vy = (Math.random() - 0.5) * 0.5; 
-                this.size = Math.random() * 2 + 1;
-                this.color = colors[Math.floor(Math.random() * colors.length)];
+            constructor() { this.init(); }
+            init() {
+                this.x = Math.random() * width; this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2 + 1; this.color = Math.random() > 0.5 ? '#06b6d4' : '#8b5cf6';
             }
             update() {
-                this.x += this.vx;
-                this.y += this.vy;
+                this.x += this.vx; this.y += this.vy;
                 if (this.x < 0 || this.x > width) this.vx *= -1;
                 if (this.y < 0 || this.y > height) this.vy *= -1;
             }
             draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color; ctx.globalAlpha = 0.4; ctx.fill();
             }
         }
 
-        function initParticles() {
-            particles = [];
-            for (let i = 0; i < particleCount; i++) particles.push(new Particle());
-        }
-
-        function animateCanvas() {
-            ctx.clearRect(0, 0, width, height);
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
-                for (let j = i; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    if (distance < connectionDistance) {
-                        ctx.beginPath();
-                        ctx.strokeStyle = `rgba(100, 116, 139, ${1 - distance / connectionDistance})`; 
-                        ctx.lineWidth = 1;
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.stroke();
+        for(let i=0; i<60; i++) particles.push(new Particle());
+        function animate() {
+            ctx.clearRect(0,0,width,height);
+            particles.forEach(p => {
+                p.update(); p.draw();
+                particles.forEach(p2 => {
+                    let d = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if(d < 120) {
+                        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = '#475569'; ctx.globalAlpha = (1 - d/120) * 0.1; ctx.stroke();
                     }
-                }
-            }
-            requestAnimationFrame(animateCanvas);
+                });
+            });
+            requestAnimationFrame(animate);
         }
-
-        window.addEventListener('resize', () => { resize(); initParticles(); });
-        resize();
-        initParticles();
-        animateCanvas();
+        animate();
     </script>
 </body>
 </html>

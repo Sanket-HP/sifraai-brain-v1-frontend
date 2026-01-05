@@ -16,7 +16,7 @@
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- EmailJS SDK (For sending real emails) -->
+    <!-- EmailJS SDK -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <script>
@@ -31,9 +31,9 @@
                     },
                     colors: {
                         sifra: {
-                            bg: '#020617', // Slate 950
-                            panel: '#0f172a', // Slate 900
-                            border: '#1e293b', // Slate 800
+                            bg: '#020617',
+                            panel: '#0f172a',
+                            border: '#1e293b',
                             cyan: '#06b6d4',
                             purple: '#8b5cf6',
                             success: '#10b981',
@@ -57,14 +57,8 @@
                             '50%': { transform: 'translateY(-20px)' },
                         },
                         'gradient-x': {
-                            '0%, 100%': {
-                                'background-size': '200% 200%',
-                                'background-position': 'left center'
-                            },
-                            '50%': {
-                                'background-size': '200% 200%',
-                                'background-position': 'right center'
-                            },
+                            '0%, 100%': { 'background-size': '200% 200%', 'background-position': 'left center' },
+                            '50%': { 'background-size': '200% 200%', 'background-position': 'right center' },
                         },
                     }
                 }
@@ -72,13 +66,11 @@
         }
     </script>
     <style>
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #020617; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-        /* Glassmorphism & Borders */
         .glass-panel {
             background: rgba(15, 23, 42, 0.7);
             backdrop-filter: blur(20px);
@@ -87,11 +79,10 @@
         }
         
         .input-glow:focus-within {
-            border-color: rgba(139, 92, 246, 0.6);
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.1);
+            border-color: rgba(6, 182, 212, 0.6);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.1);
         }
 
-        /* Scanline Overlay */
         .scanline {
             position: absolute;
             top: 0;
@@ -104,7 +95,6 @@
             z-index: 10;
         }
 
-        /* Background Canvas */
         #neural-canvas {
             position: absolute;
             top: 0;
@@ -114,14 +104,7 @@
             z-index: 0;
             opacity: 0.6;
         }
-        
-        /* Google Button Hover */
-        .google-btn-hover:hover {
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-            background-color: rgba(255, 255, 255, 0.05);
-        }
 
-        /* OTP Input Styling */
         .otp-input {
             text-align: center;
             font-family: 'Orbitron', sans-serif;
@@ -134,21 +117,17 @@
             transform: scale(1.05);
         }
 
-        /* Captcha Grid */
         .captcha-grid-item {
             cursor: pointer;
             transition: all 0.2s;
             border: 2px solid transparent;
-        }
-        .captcha-grid-item:hover {
-            opacity: 0.8;
         }
         .captcha-grid-item.selected {
             border-color: #06b6d4;
             position: relative;
         }
         .captcha-grid-item.selected::after {
-            content: '\f00c'; /* FontAwesome check */
+            content: '\f00c';
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
             position: absolute;
@@ -168,661 +147,442 @@
 </head>
 <body class="bg-sifra-bg text-slate-200 font-sans min-h-screen flex flex-col relative overflow-hidden bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
 
-    <!-- 1. Background Animation (Canvas) -->
     <canvas id="neural-canvas"></canvas>
 
-    <!-- 2. Overlay Gradients (Atmosphere) -->
+    <!-- Overlay Gradients -->
     <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[100px] animate-pulse-slow pointer-events-none z-0"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-600/10 rounded-full blur-[100px] animate-pulse-slow pointer-events-none z-0" style="animation-delay: 2s;"></div>
-    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/50 pointer-events-none z-0"></div>
 
-    <!-- 3. Navigation Bar -->
+    <!-- Navigation -->
     <nav class="relative z-50 w-full px-6 py-4 flex items-center border-b border-white/5 backdrop-blur-sm h-16">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold font-orbitron text-sm shadow-lg shadow-cyan-500/20">
-                S
-            </div>
-            <a href="/home.html" class="text-lg font-orbitron font-bold text-white tracking-widest hover:text-cyan-400 transition-colors">SIFRA<span class="text-cyan-500">.AI</span></a>
+            <div class="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold font-orbitron text-sm shadow-lg shadow-cyan-500/20">S</div>
+            <a href="#" class="text-lg font-orbitron font-bold text-white tracking-widest hover:text-cyan-400 transition-colors">SIFRA<span class="text-cyan-500">.AI</span></a>
         </div>
     </nav>
 
-    <!-- 4. Main Content Area -->
+    <!-- Main Content Area -->
     <main class="flex-grow flex items-center justify-center relative z-10 w-full px-4 py-4">
         
-        <!-- Main Card Container -->
-        <div class="relative w-full max-w-[360px] md:max-w-[700px]">
+        <div class="relative w-full max-w-[360px] md:max-w-[800px]">
             
-            <!-- Decorative Border Corners -->
-            <div class="absolute top-0 left-4 w-3 h-3 border-l-2 border-t-2 border-cyan-500 rounded-tl-sm pointer-events-none z-20"></div>
-            <div class="absolute top-0 right-4 w-3 h-3 border-r-2 border-t-2 border-cyan-500 rounded-tr-sm pointer-events-none z-20"></div>
-            <div class="absolute bottom-0 left-4 w-3 h-3 border-l-2 border-b-2 border-purple-500 rounded-bl-sm pointer-events-none z-20"></div>
-            <div class="absolute bottom-0 right-4 w-3 h-3 border-r-2 border-b-2 border-purple-500 rounded-br-sm pointer-events-none z-20"></div>
-
-            <div class="glass-panel rounded-xl p-6 relative overflow-hidden transition-all duration-500" id="mainPanel">
-                <!-- Scanline Effect inside card -->
+            <div class="glass-panel rounded-xl p-6 md:p-8 relative overflow-hidden transition-all duration-500" id="mainPanel">
                 <div class="scanline"></div>
 
-                <!-- Flex Container for Layout -->
-                <div class="flex flex-col md:flex-row gap-8">
+                <div class="flex flex-col md:flex-row gap-10">
                     
                     <!-- LEFT SIDE: FORMS -->
                     <div class="w-full md:w-1/2 flex flex-col justify-center relative">
                         
-                        <!-- Header -->
-                        <div class="flex flex-col items-center md:items-start mb-4">
-                            <h2 class="text-[10px] font-mono text-cyan-500 tracking-[0.2em] mb-0.5">SECURE PROTOCOL</h2>
+                        <div class="flex flex-col items-center md:items-start mb-6">
+                            <h2 class="text-[10px] font-mono text-cyan-500 tracking-[0.2em] mb-1">SECURE PROTOCOL</h2>
                             <div class="flex items-center gap-3">
-                                <h1 class="text-xl font-orbitron font-bold text-white tracking-widest">INITIALIZE</h1>
+                                <h1 class="text-2xl font-orbitron font-bold text-white tracking-widest uppercase" id="headerTitle">Initialize</h1>
                                 <span id="planDisplay" class="text-[9px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 font-mono uppercase">PLAN: RECRUIT</span>
                             </div>
                         </div>
 
                         <!-- STEP 1: INITIAL SIGNUP FORM -->
-                        <form class="space-y-3" id="signupForm">
-                            <!-- Name Field -->
-                            <div class="space-y-0.5">
-                                <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Callsign</label>
+                        <form class="space-y-4" id="signupForm">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Callsign</label>
                                 <div class="relative group input-glow rounded-md transition-all duration-300">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-cyan-400 transition-colors">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-cyan-400">
                                         <i class="fas fa-user-astronaut text-xs"></i>
                                     </div>
-                                    <input type="text" id="callsign" required class="w-full bg-slate-950/60 border border-slate-700/80 rounded-md py-2 pl-9 pr-3 text-sm text-cyan-100 font-mono placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 transition-all" placeholder="ENTER_NAME">
+                                    <input type="text" id="callsign" required class="w-full bg-slate-950/60 border border-slate-700/80 rounded-md py-2.5 pl-9 pr-3 text-sm text-cyan-100 font-mono placeholder-slate-600 focus:outline-none" placeholder="IDENTITY_NAME">
                                 </div>
                             </div>
 
-                            <!-- Email Field -->
-                            <div class="space-y-0.5">
-                                <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Neural Link</label>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Neural Link</label>
                                 <div class="relative group input-glow rounded-md transition-all duration-300">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-purple-400 transition-colors">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-purple-400">
                                         <i class="fas fa-envelope text-xs"></i>
                                     </div>
-                                    <input type="email" id="email" required class="w-full bg-slate-950/60 border border-slate-700/80 rounded-md py-2 pl-9 pr-3 text-sm text-purple-100 font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500/50 transition-all" placeholder="USER@DOMAIN.NET">
+                                    <input type="email" id="email" required class="w-full bg-slate-950/60 border border-slate-700/80 rounded-md py-2.5 pl-9 pr-3 text-sm text-purple-100 font-mono placeholder-slate-600 focus:outline-none" placeholder="USER@NETWORK.NET">
                                 </div>
                             </div>
 
-                            <!-- Password Field -->
-                            <div class="space-y-0.5">
-                                <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Access Key</label>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Access Key</label>
                                 <div class="relative group input-glow rounded-md transition-all duration-300">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-white transition-colors">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-white">
                                         <i class="fas fa-key text-xs"></i>
                                     </div>
-                                    <input type="password" id="password" required class="w-full bg-slate-950/60 border border-slate-700/80 rounded-md py-2 pl-9 pr-10 text-sm text-white font-mono placeholder-slate-600 focus:outline-none focus:border-slate-500/50 transition-all" placeholder="••••••••">
-                                    <button type="button" id="togglePasswordBtn" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-cyan-400 transition-colors">
+                                    <input type="password" id="password" required class="w-full bg-slate-950/60 border border-slate-700/80 rounded-md py-2.5 pl-9 pr-10 text-sm text-white font-mono placeholder-slate-600 focus:outline-none" placeholder="••••••••">
+                                    <button type="button" id="togglePasswordBtn" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-cyan-400">
                                         <i class="fas fa-eye text-xs" id="eyeIcon"></i>
                                     </button>
                                 </div>
                             </div>
 
-                            <!-- Terms -->
-                            <div class="flex items-start gap-2 pt-0.5">
-                                <input type="checkbox" id="terms" required class="mt-0.5 w-3 h-3 rounded bg-slate-950 border-slate-700 checked:bg-cyan-500 checked:border-cyan-500 focus:ring-0 focus:ring-offset-0 cursor-pointer accent-cyan-500">
-                                <label for="terms" class="text-[9px] text-slate-400 leading-tight cursor-pointer select-none">
-                                    I accept <a href="/directives.html" class="text-cyan-400 hover:underline">Core Directives</a> & protocols.
+                            <div class="flex items-start gap-2 pt-1">
+                                <input type="checkbox" id="terms" required class="mt-1 w-3 h-3 rounded bg-slate-950 border-slate-700 accent-cyan-500 cursor-pointer">
+                                <label for="terms" class="text-[10px] text-slate-400 leading-tight cursor-pointer">
+                                    Accept <a href="#" class="text-cyan-400 hover:underline">Neural Protocols</a> & Core Directives.
                                 </label>
                             </div>
 
-                            <!-- Action Button -->
-                            <button type="submit" id="submitBtn" class="w-full relative group overflow-hidden rounded-md p-[1px] shadow-[0_0_20px_rgba(6,182,212,0.15)] mt-1 transition-all active:scale-[0.98]">
-                                <div class="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 transition-all duration-300 animate-gradient-x group-hover:opacity-100 opacity-80"></div>
-                                <div class="relative bg-slate-900 group-hover:bg-opacity-0 transition-all duration-300 rounded-md py-2.5 px-4 flex items-center justify-center gap-3">
-                                    <i class="fas fa-fingerprint text-cyan-400 group-hover:text-white text-xs"></i>
-                                    <span class="font-orbitron font-bold text-white tracking-widest text-[10px]">INITIALIZE</span>
+                            <button type="submit" id="submitBtn" class="w-full relative group overflow-hidden rounded-md p-[1px] mt-2 transition-all active:scale-[0.98]">
+                                <div class="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 animate-gradient-x opacity-80"></div>
+                                <div class="relative bg-slate-900 group-hover:bg-opacity-0 transition-all duration-300 rounded-md py-3 px-4 flex items-center justify-center gap-3">
+                                    <i class="fas fa-fingerprint text-cyan-400 group-hover:text-white text-sm"></i>
+                                    <span class="font-orbitron font-bold text-white tracking-widest text-[11px]">INITIALIZE Handshake</span>
                                 </div>
                             </button>
                         </form>
 
-                        <!-- STEP 2: OTP VERIFICATION (Initially Hidden) -->
-                        <div id="otpForm" class="hidden flex flex-col items-center space-y-4 animate-fadeIn">
+                        <!-- STEP 2: OTP VERIFICATION -->
+                        <div id="otpForm" class="hidden flex flex-col items-center space-y-6 animate-fadeIn">
                             <div class="text-center">
-                                <i class="fas fa-shield-alt text-3xl text-cyan-400 mb-2 animate-pulse-slow"></i>
-                                <h3 class="text-sm font-bold text-white">2FA Verification</h3>
-                                <p class="text-[10px] text-slate-400">Enter the 6-digit code sent to your Neural Link.</p>
-                                <p class="text-[9px] text-purple-400 mt-1 font-mono" id="displayOtpEmail">user@example.com</p>
+                                <i class="fas fa-shield-alt text-4xl text-cyan-400 mb-3 animate-pulse-slow"></i>
+                                <h3 class="text-md font-bold text-white mb-1">2FA Uplink Required</h3>
+                                <p class="text-[10px] text-slate-400 mb-2">Transmitted 6-digit signature to:</p>
+                                <p class="text-[11px] text-purple-400 font-mono font-bold" id="displayOtpEmail">user@example.com</p>
                             </div>
 
-                            <div class="flex justify-between gap-2 w-full max-w-[280px]">
-                                <input type="text" maxlength="1" class="otp-input w-9 h-10 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none" autofocus>
-                                <input type="text" maxlength="1" class="otp-input w-9 h-10 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none">
-                                <input type="text" maxlength="1" class="otp-input w-9 h-10 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none">
-                                <input type="text" maxlength="1" class="otp-input w-9 h-10 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none">
-                                <input type="text" maxlength="1" class="otp-input w-9 h-10 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none">
-                                <input type="text" maxlength="1" class="otp-input w-9 h-10 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none">
+                            <div class="flex justify-between gap-2 w-full">
+                                <input type="text" maxlength="1" class="otp-input w-full h-12 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none">
+                                <input type="text" maxlength="1" class="otp-input w-full h-12 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none">
+                                <input type="text" maxlength="1" class="otp-input w-full h-12 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none">
+                                <input type="text" maxlength="1" class="otp-input w-full h-12 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none">
+                                <input type="text" maxlength="1" class="otp-input w-full h-12 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none">
+                                <input type="text" maxlength="1" class="otp-input w-full h-12 bg-slate-900/80 border border-slate-700 rounded text-white focus:outline-none">
                             </div>
 
-                            <button type="button" id="verifyOtpBtn" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 rounded text-xs transition-all shadow-[0_0_15px_rgba(6,182,212,0.3)]">
-                                <i class="fas fa-lock-open mr-2"></i> VERIFY UPLINK
+                            <button type="button" id="verifyOtpBtn" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded text-xs transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+                                <i class="fas fa-lock-open mr-2"></i> VERIFY Handshake
                             </button>
                             
-                            <button type="button" onclick="window.location.reload()" class="text-[9px] text-slate-500 hover:text-white underline">Cancel Protocol</button>
+                            <button type="button" onclick="window.location.reload()" class="text-[10px] text-slate-500 hover:text-white underline">Abort Protocol</button>
                         </div>
 
-                        <!-- Divider (Only on Signup Step) -->
-                        <div id="divider" class="relative flex py-3 items-center">
+                        <div id="divider" class="relative flex py-4 items-center">
                             <div class="flex-grow border-t border-slate-700/60"></div>
-                            <span class="flex-shrink-0 mx-3 text-[9px] text-slate-500 font-mono tracking-widest">OR</span>
+                            <span class="flex-shrink-0 mx-3 text-[10px] text-slate-500 font-mono">OR</span>
                             <div class="flex-grow border-t border-slate-700/60"></div>
                         </div>
 
-                        <!-- Google Button (Only on Signup Step) -->
-                        <button id="googleBtn" type="button" class="w-full google-btn-hover group relative overflow-hidden rounded-md border border-slate-600 bg-slate-900/40 py-2 transition-all duration-300 active:scale-[0.98]">
+                        <button id="googleBtn" type="button" class="w-full group relative overflow-hidden rounded-md border border-slate-600 bg-slate-900/40 py-2.5 transition-all hover:bg-slate-800">
                             <div class="flex items-center justify-center gap-3">
-                                <svg class="h-4 w-4" viewBox="0 0 24 24">
-                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                                </svg>
-                                <span class="font-mono text-[10px] font-bold text-slate-300 group-hover:text-white transition-colors tracking-wide">GOOGLE NEURAL ID</span>
+                                <svg class="h-4 w-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                                <span class="font-mono text-[10px] font-bold text-slate-300">GOOGLE NEURAL UPLINK</span>
                             </div>
                         </button>
 
-                        <div id="loginLink" class="mt-3 text-center md:text-left">
-                            <p class="text-[9px] text-slate-500">
-                                Existing user? <a href="/login.html" class="text-purple-400 hover:text-purple-300 font-bold transition-colors">LOGIN</a>
+                        <div id="loginLink" class="mt-4 text-center md:text-left">
+                            <p class="text-[10px] text-slate-500 uppercase tracking-tight">
+                                Existing Identity? <a href="#" class="text-purple-400 hover:text-purple-300 font-bold transition-colors">Login</a>
                             </p>
                         </div>
                     </div>
 
-                    <!-- RIGHT SIDE: SYSTEM LOG (Console) -->
-                    <div class="w-full md:w-1/2 flex flex-col border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-6">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-[10px] font-mono text-cyan-500 tracking-widest uppercase flex items-center gap-2">
-                                <i class="fas fa-terminal text-xs"></i> System Log
+                    <!-- RIGHT SIDE: SYSTEM LOG -->
+                    <div class="w-full md:w-1/2 flex flex-col border-t md:border-t-0 md:border-l border-white/10 pt-6 md:pt-0 md:pl-8">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-[11px] font-mono text-cyan-500 tracking-widest uppercase flex items-center gap-2">
+                                <i class="fas fa-terminal"></i> Terminal_Log
                             </h3>
-                            <div class="flex items-center gap-1.5">
-                                <span class="block w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                                <span class="text-[9px] font-mono text-green-500/80">ONLINE</span>
+                            <div class="flex items-center gap-2">
+                                <span class="block w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                <span class="text-[10px] font-mono text-green-500/80">LIVE</span>
                             </div>
                         </div>
                         
-                        <div class="bg-black/40 rounded-md border border-slate-800 p-3 font-mono text-[9px] flex-grow min-h-[150px] md:min-h-0 overflow-y-auto custom-scrollbar shadow-inner" id="consoleOutput">
-                            <div class="text-slate-500 border-b border-slate-800 pb-1 mb-2">SIFRA_KERNEL_V4.2.1 initialized...</div>
-                            <div class="text-slate-500">[SYSTEM] Awaiting user input...</div>
+                        <div class="bg-black/40 rounded-lg border border-slate-800 p-4 font-mono text-[10px] flex-grow min-h-[220px] max-h-[300px] overflow-y-auto shadow-inner" id="consoleOutput">
+                            <div class="text-slate-500 border-b border-slate-800 pb-2 mb-2">SIFRA_KERNEL_OS V.4.2.1-SECURE</div>
+                            <div class="text-cyan-500/60">[SYSTEM] Awaiting neural synchronization...</div>
                         </div>
 
-                        <!-- Decorator Stats -->
-                        <div class="grid grid-cols-2 gap-2 mt-3">
-                            <div class="bg-slate-900/50 rounded border border-slate-800 p-2">
-                                <div class="text-[8px] text-slate-500 uppercase">Latency</div>
-                                <div class="text-[10px] font-mono text-cyan-400">12ms</div>
+                        <div class="grid grid-cols-2 gap-3 mt-4">
+                            <div class="bg-slate-900/50 rounded-lg border border-slate-800 p-3">
+                                <div class="text-[9px] text-slate-500 uppercase mb-1">Grid_Ping</div>
+                                <div class="text-xs font-mono text-cyan-400" id="latencyDisplay">14ms</div>
                             </div>
-                            <div class="bg-slate-900/50 rounded border border-slate-800 p-2">
-                                <div class="text-[8px] text-slate-500 uppercase">Uplink</div>
-                                <div class="text-[10px] font-mono text-purple-400">SECURE</div>
+                            <div class="bg-slate-900/50 rounded-lg border border-slate-800 p-3">
+                                <div class="text-[9px] text-slate-500 uppercase mb-1">Enc_Status</div>
+                                <div class="text-xs font-mono text-purple-400">AES_256</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Bottom UI Text -->
-            <div class="flex justify-between items-center px-4 mt-2 opacity-50">
-                <span class="text-[9px] font-mono text-slate-500">V.4.2.1-SECURE</span>
-                <span class="text-[9px] font-mono text-slate-500">AES-256 // TLS 1.3</span>
+            <div class="flex justify-between items-center px-4 mt-3 opacity-40">
+                <span class="text-[9px] font-mono">NODE: AP-SOUTH-1A</span>
+                <span class="text-[9px] font-mono">SECURE_LINK_ACTIVE</span>
             </div>
         </div>
     </main>
 
-    <!-- 5. Custom Captcha Modal (Hidden by Default) -->
-    <div id="captchaModal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center">
-        <div class="bg-slate-900 border border-slate-700 rounded-lg p-4 w-[320px] shadow-2xl transform transition-all scale-95 opacity-0" id="captchaContent">
-            <div class="bg-cyan-600 text-white p-3 -mt-4 -mx-4 mb-4 rounded-t-lg flex justify-between items-center">
+    <!-- Captcha Modal -->
+    <div id="captchaModal" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md hidden flex items-center justify-center">
+        <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 w-full max-w-[340px] shadow-2xl scale-95 opacity-0 transition-all duration-300" id="captchaContent">
+            <div class="bg-cyan-600 text-white p-4 -mt-5 -mx-5 mb-5 rounded-t-xl flex justify-between items-center">
                 <div>
-                    <p class="text-xs font-bold">Verify you are human</p>
-                    <p class="text-[10px]">Select all images with <span id="captchaTarget" class="font-bold uppercase underline">ROCKETS</span></p>
+                    <p class="text-sm font-bold tracking-tight">Handshake Verification</p>
+                    <p class="text-[10px] opacity-90">Select all <span id="captchaTarget" class="font-bold underline decoration-white/50">PLANETS</span></p>
                 </div>
-                <i class="fas fa-robot text-2xl opacity-50"></i>
+                <i class="fas fa-microchip text-2xl opacity-40"></i>
             </div>
             
-            <div class="grid grid-cols-3 gap-2 mb-4" id="captchaGrid">
-                <!-- Icons generated by JS -->
-            </div>
+            <div class="grid grid-cols-3 gap-3 mb-5" id="captchaGrid"></div>
 
             <div class="flex justify-between items-center">
-                <button type="button" id="refreshCaptcha" class="text-slate-400 hover:text-white text-xs"><i class="fas fa-sync-alt"></i></button>
-                <button type="button" id="verifyCaptchaBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-2 rounded text-xs font-bold transition-colors">VERIFY</button>
+                <button type="button" id="refreshCaptcha" class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-redo-alt"></i></button>
+                <button type="button" id="verifyCaptchaBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white px-8 py-2.5 rounded-md text-xs font-bold tracking-widest transition-all">VERIFY</button>
             </div>
         </div>
     </div>
 
-    <!-- FIREBASE & EMAILJS LOGIC -->
+    <!-- LOGIC -->
     <script type="module">
-        // Import Firebase Functions from CDN
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBu6CIgw5njjcl9dVhNYjitSUBKE87_S6M",
             authDomain: "sifraaiweb.firebaseapp.com",
             projectId: "sifraaiweb",
             storageBucket: "sifraaiweb.firebasestorage.app",
             messagingSenderId: "927713452336",
-            appId: "1:927713452336:web:f3affb6ef66091619e68f5",
-            measurementId: "G-V3TXBH3GCD"
+            appId: "1:927713452336:web:f3affb6ef66091619e68f5"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
 
-        // -------------------------------------------------------------
-        // EMAILJS CONFIGURATION (REQUIRED FOR REAL OTP)
-        // To make this work:
-        // 1. Go to https://www.emailjs.com/ and create a free account
-        // 2. Add an "Email Service" (like Gmail) -> Get Service ID
-        // 3. Create an "Email Template" -> Get Template ID
-        //    - In template, use variables: {{to_email}}, {{otp_code}}, {{otp_expiry}}
-        // 4. Get your "Public Key" from Account Settings
-        // -------------------------------------------------------------
-        // PASTE YOUR KEYS HERE:
-        const EMAILJS_SERVICE_ID = "service_ns1rrem";   // e.g. "service_x93jk2a"
-        const EMAILJS_TEMPLATE_ID = "template_nkqedol"; // e.g. "template_q58dm3b"
-        const EMAILJS_PUBLIC_KEY = "IZIzFsYCnzhLuAGDA";   // e.g. "user_823489..."
+        // EmailJS Keys
+        const EMAILJS_SERVICE_ID = "service_ns1rrem";
+        const EMAILJS_TEMPLATE_ID = "template_nkqedol";
+        const EMAILJS_PUBLIC_KEY = "IZIzFsYCnzhLuAGDA";
 
-        // Initialize EmailJS (If keys are present)
-        if(EMAILJS_PUBLIC_KEY !== "YOUR_PUBLIC_KEY") {
-            emailjs.init(EMAILJS_PUBLIC_KEY);
-        }
+        if(EMAILJS_PUBLIC_KEY !== "YOUR_PUBLIC_KEY") emailjs.init(EMAILJS_PUBLIC_KEY);
 
-        // Variables
-        const selectedPlan = localStorage.getItem('sifra_selected_plan') || 'recruit';
+        let selectedPlan = localStorage.getItem('sifra_selected_plan') || 'recruit';
         let pendingUserCreds = null; 
-        let captchaTargetIcon = 'rocket';
-        let generatedRealOTP = null; // Stores the secure code
+        let captchaTargetIcon = 'planet';
+        let generatedRealOTP = null;
         
-        // UI Setup
         document.getElementById('planDisplay').textContent = `PLAN: ${selectedPlan}`;
-        if(selectedPlan === 'commander' || selectedPlan === 'titan') {
-            document.getElementById('planDisplay').classList.replace('text-slate-400', 'text-purple-400');
-            document.getElementById('planDisplay').classList.replace('border-slate-700', 'border-purple-500');
-        }
 
-        // --- UTILS ---
         function log(msg, type = 'info') {
             const consoleEl = document.getElementById('consoleOutput');
             const div = document.createElement('div');
-            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-            
-            let prefix = `<span class="text-slate-500 opacity-50">[${time}]</span>`;
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            let prefix = `<span class="text-slate-600 font-mono">[${time}]</span>`;
             let color = 'text-slate-300';
             
-            if (type === 'success') { prefix += ` <span class="text-green-400 font-bold">>> OK</span>`; color = 'text-green-300'; }
-            else if (type === 'error') { prefix += ` <span class="text-red-400 font-bold">>> ERR</span>`; color = 'text-red-300'; }
-            else if (type === 'warn') { prefix += ` <span class="text-yellow-400 font-bold">>> WARN</span>`; color = 'text-yellow-200'; }
-            else { prefix += ` <span class="text-cyan-400">>></span>`; }
+            if (type === 'success') { prefix += ` <span class="text-green-500">OK</span>`; color = 'text-green-400'; }
+            else if (type === 'error') { prefix += ` <span class="text-red-500">ERR</span>`; color = 'text-red-400'; }
+            else if (type === 'warn') { prefix += ` <span class="text-yellow-500">!</span>`; color = 'text-yellow-400'; }
+            else { prefix += ` <span class="text-cyan-500">></span>`; }
 
-            div.className = "mb-1 leading-tight break-all";
+            div.className = "mb-1.5 leading-relaxed break-all flex gap-2 items-start";
             div.innerHTML = `${prefix} <span class="${color}">${msg}</span>`;
             consoleEl.appendChild(div);
             consoleEl.scrollTop = consoleEl.scrollHeight;
         }
 
-        function setLoadingState(isLoading, btnId) {
-            const btn = document.getElementById(btnId);
-            if (!btn) return;
-            if (isLoading) {
-                btn.disabled = true;
-                btn.dataset.original = btn.innerHTML;
-                btn.innerHTML = `<i class="fas fa-circle-notch fa-spin text-white"></i><span class="ml-2">...</span>`;
-            } else {
-                btn.disabled = false;
-                btn.innerHTML = btn.dataset.original;
-            }
-        }
-
-        // --- OTP GENERATION & SENDING ---
-        function generateOTP() {
-            return Math.floor(100000 + Math.random() * 900000).toString();
-        }
+        // Latency simulation
+        setInterval(() => {
+            const ping = Math.floor(Math.random() * 20) + 10;
+            document.getElementById('latencyDisplay').innerText = `${ping}ms`;
+        }, 3000);
 
         async function sendRealOTP(email, otp) {
-            // Calculate Expiry Time (15 mins from now)
-            const now = new Date();
-            const expiryTime = new Date(now.getTime() + 15 * 60000);
-            const expiryString = expiryTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            // Check if user has configured keys
+            const expiry = new Date(new Date().getTime() + 15 * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             if (EMAILJS_PUBLIC_KEY === "YOUR_PUBLIC_KEY") {
-                log("⚠️ EmailJS Keys not set in code.", 'warn');
-                log(`[TEST MODE] OTP for ${email}: ${otp}`, 'success');
-                alert(`[TEST MODE]\nSince EmailJS keys are missing, here is your OTP:\n\n${otp}\n\n(Check console for details on how to enable real emails)`);
-                return true; 
+                log(`[SIMULATION] OTP for ${email}: ${otp}`, 'warn');
+                return true;
             }
-
             try {
-                log(`Connecting to Email Server...`, 'info');
+                log(`Encrypting transmission to neural link...`, 'info');
                 await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
                     to_email: email,
                     otp_code: otp,
-                    otp_expiry: expiryString, // New variable for template
-                    reply_to: "support@sifra.ai"
+                    otp_expiry: expiry
                 });
                 return true;
-            } catch (error) {
-                console.error("EmailJS Error:", error);
-                log("Failed to send real email. Check console.", 'error');
-                // Fallback for demo so user isn't stuck
-                log(`[FALLBACK] OTP: ${otp}`, 'warn'); 
-                return true; 
+            } catch (err) {
+                log(`Transmission failed. Simulation fallback: ${otp}`, 'error');
+                return true;
             }
         }
 
-        // --- CAPTCHA SYSTEM ---
         const icons = [
+            { name: 'planet', class: 'fa-globe-asia' },
             { name: 'rocket', class: 'fa-rocket' },
-            { name: 'car', class: 'fa-car' },
-            { name: 'tree', class: 'fa-tree' },
-            { name: 'coffee', class: 'fa-mug-hot' },
-            { name: 'star', class: 'fa-star' }
+            { name: 'satellite', class: 'fa-satellite' },
+            { name: 'atom', class: 'fa-atom' },
+            { name: 'brain', class: 'fa-brain' }
         ];
 
         function showCaptcha() {
             const modal = document.getElementById('captchaModal');
             const content = document.getElementById('captchaContent');
             const grid = document.getElementById('captchaGrid');
-            const targetText = document.getElementById('captchaTarget');
-            
-            // Randomize target
             const target = icons[Math.floor(Math.random() * icons.length)];
             captchaTargetIcon = target.name;
-            targetText.innerText = target.name.toUpperCase() + 'S'; 
+            document.getElementById('captchaTarget').innerText = target.name.toUpperCase() + 'S'; 
 
-            // Generate Grid
             grid.innerHTML = '';
-            
-            const gridItems = [];
-            for(let i=0; i<3; i++) gridItems.push(target);
-            for(let i=0; i<6; i++) gridItems.push(icons[Math.floor(Math.random() * icons.length)]);
-            
-            gridItems.sort(() => Math.random() - 0.5);
+            const items = [];
+            for(let i=0; i<3; i++) items.push(target);
+            for(let i=0; i<6; i++) items.push(icons[Math.floor(Math.random() * icons.length)]);
+            items.sort(() => Math.random() - 0.5);
 
-            gridItems.forEach((icon, idx) => {
+            items.forEach(icon => {
                 const div = document.createElement('div');
-                div.className = `captcha-grid-item h-16 bg-slate-800 rounded flex items-center justify-center text-2xl text-slate-400`;
+                div.className = `captcha-grid-item h-20 bg-slate-800/50 rounded-lg flex items-center justify-center text-3xl text-slate-500 hover:text-white transition-all`;
                 div.dataset.name = icon.name;
                 div.innerHTML = `<i class="fas ${icon.class}"></i>`;
-                div.onclick = function() {
-                    this.classList.toggle('selected');
-                    this.classList.toggle('bg-slate-700');
-                };
+                div.onclick = function() { this.classList.toggle('selected'); this.classList.toggle('bg-slate-700'); };
                 grid.appendChild(div);
             });
 
             modal.classList.remove('hidden');
-            setTimeout(() => {
-                content.classList.remove('scale-95', 'opacity-0');
-                content.classList.add('scale-100', 'opacity-100');
-            }, 10);
-            
-            log('Human Verification Protocol Initiated...', 'warn');
+            setTimeout(() => content.classList.replace('opacity-0', 'opacity-100'), 50);
+            log('Initiating Bio-Metric Handshake...', 'warn');
         }
 
         document.getElementById('verifyCaptchaBtn').addEventListener('click', () => {
-            const selected = document.querySelectorAll('.captcha-grid-item.selected');
-            const allItems = document.querySelectorAll('.captcha-grid-item');
-            
-            let correct = 0;
-            let wrong = 0;
-            let missed = 0;
-
-            allItems.forEach(item => {
+            const items = document.querySelectorAll('.captcha-grid-item');
+            let failed = false;
+            items.forEach(item => {
                 const isTarget = item.dataset.name === captchaTargetIcon;
                 const isSelected = item.classList.contains('selected');
-
-                if (isTarget && isSelected) correct++;
-                if (!isTarget && isSelected) wrong++;
-                if (isTarget && !isSelected) missed++;
+                if ((isTarget && !isSelected) || (!isTarget && isSelected)) failed = true;
             });
 
-            if (correct > 0 && wrong === 0 && missed <= 1) { 
+            if (!failed) {
                 document.getElementById('captchaModal').classList.add('hidden');
-                log('Captcha Passed.', 'success');
+                log('Handshake verified. Resuming protocol.', 'success');
                 executeSignup();
             } else {
-                log('Verification failed. Retrying...', 'error');
-                setTimeout(() => showCaptcha(), 500); 
+                log('Handshake invalid. Retrying...', 'error');
+                showCaptcha();
             }
         });
 
-        document.getElementById('refreshCaptcha').addEventListener('click', showCaptcha);
-
-        // --- STEP 1: FORM SUBMIT ---
         document.getElementById('signupForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
+            const callsign = document.getElementById('callsign').value;
             const password = document.getElementById('password').value;
-            const callsign = document.getElementById('callsign').value.toUpperCase();
-
-            if(password.length < 6) {
-                log('Key too weak (min 6 chars).', 'error');
-                return;
-            }
-
+            if (password.length < 6) return log('Access Key too weak (Min 6).', 'error');
             pendingUserCreds = { email, password, callsign };
             showCaptcha();
         });
 
-        // --- STEP 2: CREATE USER & SEND OTP ---
         async function executeSignup() {
-            setLoadingState(true, 'submitBtn');
-            log('Initiating cryptographic handshake...', 'info');
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            log('Synchronizing with Grid...', 'info');
 
             try {
-                await new Promise(r => setTimeout(r, 800)); 
-                
                 const { email, password, callsign } = pendingUserCreds;
-                
-                // 1. TRY CREATING USER FIRST (To ensure email is unique)
-                let userCredential;
-                try {
-                    userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                } catch (authError) {
-                    // Handle specific auth errors here to stop flow before sending email
-                    if (authError.code === 'auth/email-already-in-use') {
-                        throw new Error("Identity exists.");
-                    } else {
-                        throw authError;
-                    }
-                }
-
-                const user = userCredential.user;
+                const userCred = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCred.user;
                 await updateProfile(user, { displayName: callsign });
-
-                // 2. GENERATE & SEND OTP (Only if user creation succeeded)
-                const otp = generateOTP();
-                generatedRealOTP = otp; 
                 
-                log('Transmitting 2FA Secure Code...', 'warn');
+                const otp = Math.floor(100000 + Math.random() * 900000).toString();
+                generatedRealOTP = otp;
                 await sendRealOTP(email, otp);
 
-                // 3. Firestore Store
-                try {
-                    await setDoc(doc(db, "users", user.uid), {
-                        email: email,
-                        callsign: callsign,
-                        createdAt: new Date().toISOString(),
-                        role: 'user',
-                        subscriptionTier: selectedPlan,
-                        dailyUsage: { date: new Date().toDateString(), count: 0 }
-                    });
-                } catch(err) { console.error(err); }
+                await setDoc(doc(db, "users", user.uid), {
+                    callsign, email, tier: selectedPlan, createdAt: new Date().toISOString()
+                });
 
-                log('Credentials Valid. 2FA Required.', 'success');
-                
-                // 4. SWITCH UI TO OTP FORM
+                log('Identity recognized. 2FA required.', 'success');
                 document.getElementById('signupForm').classList.add('hidden');
                 document.getElementById('divider').classList.add('hidden');
                 document.getElementById('googleBtn').classList.add('hidden');
                 document.getElementById('loginLink').classList.add('hidden');
-                
-                const otpForm = document.getElementById('otpForm');
-                otpForm.classList.remove('hidden');
+                document.getElementById('otpForm').classList.remove('hidden');
+                document.getElementById('headerTitle').innerText = "Verify";
                 document.getElementById('displayOtpEmail').innerText = email;
-                
-                setTimeout(() => document.querySelector('.otp-input').focus(), 100);
-                
-                log('OTP transmitted via secure channel.', 'info');
+                document.querySelectorAll('.otp-input')[0].focus();
 
-            } catch (error) {
-                setLoadingState(false, 'submitBtn');
-                let errorMsg = error.message || "Access Denied.";
-                if (error.code === 'auth/email-already-in-use' || error.message === "Identity exists.") {
-                    errorMsg = "Identity exists. Please Login.";
-                }
-                log(errorMsg, 'error');
+            } catch (err) {
+                btn.disabled = false;
+                log(err.code === 'auth/email-already-in-use' ? 'Identity exists. Use Login.' : err.message, 'error');
             }
         }
 
-        // --- STEP 3: OTP VERIFICATION ---
         const otpInputs = document.querySelectorAll('.otp-input');
-        otpInputs.forEach((input, index) => {
-            input.addEventListener('input', (e) => {
-                if(e.target.value.length === 1 && index < otpInputs.length - 1) {
-                    otpInputs[index + 1].focus();
-                }
-            });
-            input.addEventListener('keydown', (e) => {
-                if(e.key === 'Backspace' && e.target.value === '' && index > 0) {
-                    otpInputs[index - 1].focus();
-                }
-            });
+        otpInputs.forEach((input, i) => {
+            input.oninput = (e) => { if(e.target.value && i < 5) otpInputs[i+1].focus(); };
+            input.onkeydown = (e) => { if(e.key === 'Backspace' && !e.target.value && i > 0) otpInputs[i-1].focus(); };
         });
 
-        document.getElementById('verifyOtpBtn').addEventListener('click', () => {
-            const btn = document.getElementById('verifyOtpBtn');
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> VERIFYING...`;
-
-            // Collect Code
+        document.getElementById('verifyOtpBtn').onclick = () => {
             let code = "";
             otpInputs.forEach(i => code += i.value);
-
-            setTimeout(() => {
-                // Verify against generated OTP
-                if(code === generatedRealOTP) {
-                    log('Uplink Established. Handshake Complete.', 'success');
-                    window.location.href = 'home.html';
-                } else {
-                    log('Invalid OTP Code.', 'error');
-                    btn.disabled = false;
-                    btn.innerHTML = `<i class="fas fa-lock-open mr-2"></i> VERIFY UPLINK`;
-                    otpInputs.forEach(i => i.value = ''); 
-                    otpInputs[0].focus();
-                }
-            }, 1000);
-        });
-
-        document.getElementById('googleBtn').addEventListener('click', async () => {
-            setLoadingState(true, 'googleBtn');
-            log('Uplink Google...', 'info');
-            try {
-                const result = await signInWithPopup(auth, googleProvider);
-                const user = result.user;
-                await setDoc(doc(db, "users", user.uid), {
-                    email: user.email,
-                    subscriptionTier: selectedPlan,
-                    dailyUsage: { date: new Date().toDateString(), count: 0 } 
-                }, { merge: true });
-                
-                log('Google Neural ID Verified.', 'success');
-                setTimeout(() => window.location.href = 'home.html', 1000);
-            } catch (error) {
-                setLoadingState(false, 'googleBtn');
-                log('Uplink failed: ' + error.message, 'error');
-            }
-        });
-
-        document.getElementById('togglePasswordBtn').addEventListener('click', () => {
-            const input = document.getElementById('password');
-            const icon = document.getElementById('eyeIcon');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash', 'text-cyan-400');
+            if (code === generatedRealOTP) {
+                log('Secure link established. Welcome.', 'success');
+                setTimeout(() => window.location.href = 'dashboard.html', 1500);
             } else {
-                input.type = 'password';
-                icon.classList.add('fa-eye');
-                icon.classList.remove('fa-eye-slash', 'text-cyan-400');
+                log('Invalid signature. Retry.', 'error');
+                otpInputs.forEach(i => i.value = '');
+                otpInputs[0].focus();
             }
-        });
+        };
+
+        document.getElementById('togglePasswordBtn').onclick = () => {
+            const p = document.getElementById('password');
+            const i = document.getElementById('eyeIcon');
+            const isPass = p.type === 'password';
+            p.type = isPass ? 'text' : 'password';
+            i.className = isPass ? 'fas fa-eye-slash text-cyan-400' : 'fas fa-eye';
+        };
     </script>
 
-    <!-- Visual Effects Script (Canvas) -->
     <script>
         const canvas = document.getElementById('neural-canvas');
         const ctx = canvas.getContext('2d');
-        let width, height;
-        let particles = [];
-        
-        const particleCount = 60; 
-        const connectionDistance = 150; 
-        const colors = ['#06b6d4', '#8b5cf6']; 
+        let width, height, particles = [];
 
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.onresize = resize; resize();
 
         class Particle {
-            constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.5; 
-                this.vy = (Math.random() - 0.5) * 0.5; 
-                this.size = Math.random() * 2 + 1;
-                this.color = colors[Math.floor(Math.random() * colors.length)];
+            constructor() { this.init(); }
+            init() {
+                this.x = Math.random() * width; this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.4; this.vy = (Math.random() - 0.5) * 0.4;
+                this.size = Math.random() * 2; this.color = Math.random() > 0.5 ? '#06b6d4' : '#8b5cf6';
             }
             update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                if (this.x < 0 || this.x > width) this.vx *= -1;
-                if (this.y < 0 || this.y > height) this.vy *= -1;
+                this.x += this.vx; this.y += this.vy;
+                if(this.x < 0 || this.x > width || this.y < 0 || this.y > height) this.init();
             }
             draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+                ctx.fillStyle = this.color; ctx.globalAlpha = 0.3; ctx.fill();
             }
         }
 
-        function initParticles() {
-            particles = [];
-            for (let i = 0; i < particleCount; i++) particles.push(new Particle());
-        }
-
-        function animateCanvas() {
-            ctx.clearRect(0, 0, width, height);
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
-                for (let j = i; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    if (distance < connectionDistance) {
-                        ctx.beginPath();
-                        ctx.strokeStyle = `rgba(100, 116, 139, ${1 - distance / connectionDistance})`; 
-                        ctx.lineWidth = 1;
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.stroke();
+        for(let i=0; i<60; i++) particles.push(new Particle());
+        function animate() {
+            ctx.clearRect(0,0,width,height);
+            particles.forEach(p => {
+                p.update(); p.draw();
+                particles.forEach(p2 => {
+                    let d = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if(d < 120) {
+                        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = '#475569'; ctx.globalAlpha = (1 - d/120) * 0.1; ctx.stroke();
                     }
-                }
-            }
-            requestAnimationFrame(animateCanvas);
+                });
+            });
+            requestAnimationFrame(animate);
         }
-
-        window.addEventListener('resize', () => { resize(); initParticles(); });
-        resize();
-        initParticles();
-        animateCanvas();
+        animate();
     </script>
 </body>
 </html>
